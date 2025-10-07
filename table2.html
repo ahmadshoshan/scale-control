@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>جدول التذاكر</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* ستايل خاص بالعرض (على الشاشة) */
+    body {
+      padding: 16px;
+    }
+
+    .print-btn {
+      min-width: 90px;
+    }
+
+    /* ستايل لطباعة التذكرة بحجم 80mm */
+    @media print {
+      @page {
+        size: 80mm auto;
+        /* طول تلقائي */
+        margin: 0mm;
+      }
+
+      body.print-ticket {
+        margin: 0;
+        width: 80mm;
+      }
+    }
+  </style>
+</head>
+
+<body class="container mt-5">
+
+  <div class="mb-3">
+    <a href="index.html" class="btn btn-secondary">⬅ رجوع للوحة التحكم</a>
+  </div>
+
+  <h2>عرض بيانات التذاكر</h2>
+
+  <!-- مربع بحث -->
+  <div class="input-group mb-3">
+    <select id="searchType" class="form-select" style="max-width: 200px;">
+      <option value="number">رقم السيارة</option>
+      <option value="date">التاريخ</option>
+      <option value="sn">المسلسل</option>
+    </select>
+
+    <input id="searchValue" type="text" placeholder="اكتب هنا" class="form-control">
+    <button type="button" class="btn btn-secondary" onclick="fetchData3()">بحث</button>
+    <button type="button" class="btn btn-outline-danger" onclick="clearSearch()">مسح</button>
+  </div>
+
+  <table id="data-table2" class="table table-striped">
+    <thead>
+      <tr>
+        <th>التاريخ</th>
+        <!-- <th>الوقت</th> -->
+        <th>المسلسل</th>
+        <th>رقم السيارة</th>
+        <th>الوزن الاول</th>
+        <th>الوزن الثاني</th>
+        <th>الصافي</th>
+        <th>العميل والنوع</th>
+        <th>طباعة</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button id="load-more-btn2" class="btn btn-success w-100">تحميل المزيد</button>
+
+  <script>
+
+
+    // function toArabicNumbers(input) {
+    //   input = input.toString().trim();
+
+    //   // لو تاريخ (بيحتوي على "/")
+    //   if (input.includes("/")) {
+    //     return input.replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+    //   }
+    //   // لو وقت (بيحتوي على ":")
+    //   if (input.includes(":")) {
+    //     return input.replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+    //   }
+
+    //   // لو مش تاريخ (نشيل أي حروف ونسيب أرقام فقط)
+    //   let onlyNumbers = input.replace(/[^0-9]/g, '');
+    //   let arabicNumbers = onlyNumbers.replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+
+
+    //   // نضيف كلمة كيلو بعد الرقم
+    //   return arabicNumbers;
+    // }
+
+
+
+    let offset2 = 0;
+    const limit2 = 5;
+
+    async function fetchData2() {
+      try {
+        const response = await fetch(`/get-data2?limit=${limit2}&offset=${offset2}`);
+        const data = await response.json();
+        const tableBody = document.querySelector('#data-table2 tbody');
+
+        if (data.length === 0) {
+          document.getElementById('load-more-btn2').style.display = 'none';
+          return;
+        }
+
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+
+          // أنشئ زر الطباعة مع تمرير بيانات السطر كـ JSON في onclick
+          const printBtnHtml = `<button class="btn btn-outline-primary print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعة</button>`;
+
+          tr.innerHTML = `
+            <td>${row.date}<br> ${row.time}</td>
+            <td>${row.sn}</td>
+            <td>${row.number}</td>
+            <td>${row.gross}</td>
+            <td>${row.tare}</td>
+            <td>${row.net}</td>
+             <td>${row.customer} -- ${row.type}</td>
+            <td>${printBtnHtml}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+        offset2 += limit2;
+      } catch (error) {
+        console.error('خطأ:', error);
+      }
+    }
+
+    // طباعة بحث برقم العربية
+    async function fetchData3() {
+      const searchType = document.getElementById('searchType').value;
+      const searchValue = document.getElementById('searchValue').value;
+      console.log(searchType);
+      console.log(searchValue);
+      try {
+        const response = await fetch(`/get-data3?type=${encodeURIComponent(searchType)}&value=${encodeURIComponent(searchValue)}`);
+        const data = await response.json();
+        const tableBody = document.querySelector('#data-table2 tbody');
+        tableBody.innerHTML = "";
+
+        if (data.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">لا توجد نتائج</td></tr>`;
+          return;
+        }
+
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          const printBtnHtml = `<button class="btn btn-outline-primary print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعة</button>`;
+
+          tr.innerHTML = `
+             <td>${row.date}<br> ${row.time}</td>
+           
+            <td>${row.sn}</td>
+            <td>${row.number}</td>
+            <td>${row.gross}</td>
+            <td>${row.tare}</td>
+            <td>${row.net}</td>
+            <td>${row.customer} -- ${row.type}</td>
+            <td>${printBtnHtml}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+      } catch (error) {
+        console.error('خطأ:', error);
+      }
+    }
+
+    function clearSearch() {
+      document.getElementById('carNumber').value = "";
+      document.querySelector('#data-table2 tbody').innerHTML = "";
+      offset2 = 0;
+      fetchData2();
+    }
+
+//     // ===== دالة طباعة التذكرة (فتح نافذة و window.print) =====
+//     function printTicket(row) {
+//       // row يحتوي الحقول: date, time, sn, number, gross, tare, net
+//       // أنشئ نافذة جديدة للتنسيق والطباعة
+//       const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+//       // HTML للتذكرة - صممه بسيط ومرتب لورق 80mm
+//       const html = `
+// <!doctype html>
+// <style>
+//   body {
+//     font-family: "Arial", "Tahoma", sans-serif;
+//     width: 80mm;
+//     margin: 0;
+//     padding: 6px;
+//     box-sizing: border-box;
+//     color: #000;
+//   }
+//   .center { text-align: center; }
+//   .small { font-size: 13px; }
+//   .medium { font-size: 15px; }
+//   .large { font-size: 16px; }
+//   .large2 { font-size: 25px; }
+//   .bold { font-weight: 700; }
+//   .line { border-top: 1px dashed #000; margin: 6px 0; }
+//   table { 
+//     width: 100%; 
+//     border-collapse: collapse; 
+//     direction: rtl; 
+//     font-size: 14px;
+//   }
+//   td { 
+//     padding: 4px 3px; 
+//     vertical-align: middle; 
+//     border: 1px solid #000;
+//   }
+//   .label { width: 40%; font-weight: bold; }
+//   .value { width: 60%;  }
+//   .qr { text-align:center; margin-top:6px; }
+//   @media print {
+//     @page { size: 70mm auto; margin: 0; }
+//     body { width: 70mm; margin:0; padding:6px; }
+//   }
+// </style>
+// </head>
+// <body class="print-ticket">
+
+//   <!-- اللوجو -->
+//   <div class="center">
+//     <img src="logo/logo.png" alt="شعار الميزان" style="max-width:120px; height:auto; margin-bottom:6px;">
+//   </div>
+
+//   <!-- العنوان -->
+//   <h1 class="center bold ">ميزان بسكول شوشان</h1>
+//   <h3 class="center  medium">العنوان / مدخل أبوغنيمة  ت: 01099760031</h3>
+//   <div class="line"></div>
+
+//   <!-- البيانات -->
+//   <table>
+//     <tr><td class="label">التاريخ :</td><td class="value center">${toArabicNumbers(row.date || '')}</td></tr>
+//     <tr><td class="label">الوقت :</td><td class="value center">${toArabicNumbers(row.time || '')}</td></tr>
+//     <tr><td class="label">المسلسل :</td><td class="value center">${toArabicNumbers(row.sn || '')}</td></tr>
+//      <tr><td class="label">رقم السيارة :</td><td class="value center">${toArabicNumbers(row.number || '')}</td></tr>
+// </table> 
+// <hr>
+// <table>
+//      <tr><td class="label large bold ">الوزن الأول :</td><td class="value large bold center">${toArabicNumbers(row.gross || '')}    كيلو </td></tr>
+//      <tr><td class="label large bold ">الوزن الثاني :</td><td class="value large bold center">${toArabicNumbers(row.tare || '')}    كيلو </td></tr>
+//      <tr><td class="label large bold ">الصافي :</td><td class="value large bold center"><dev class=" large2  ">${toArabicNumbers(row.net || '')}</dev>    كيلو </td></tr>
+// </table> 
+// <hr>
+// <table>
+//       <tr><td class="label">النوع :</td><td class="value">${row.type || ''}</td></tr>
+//     <tr><td class="label">اسم العميل :</td><td class="value">${row.customer || ''}</td></tr>
+//   </table>
+
+//   <div class="line"></div>
+//   <div class="line"></div>
+//   <div class="line"></div>
+//   <div class="line"></div>
+ 
+//   <div class="center small">الميزان غير مسئول عن فقدان الكارت</div>
+//   <script>
+//     // انتظر الحِمل ثم اطبع ثم اغلق النافذة تلقائياً (اختياري)
+//     window.onload = function() {
+//       setTimeout(function() {
+//         window.print();
+//         // window.close(); // فكّر جيدًا قبل تفعيل الإغلاق التلقائي (بعض المتصفحات تمنع)
+//       }, 200);
+//     };
+//   <\/script>
+// </body>
+
+// </html>
+// `;
+
+//       printWindow.document.open();
+//       printWindow.document.write(html);
+//       printWindow.document.close();
+//     }
+
+
+
+function printTicket(row) {
+  // نخزن البيانات مؤقتًا في localStorage
+  localStorage.setItem("ticketData", JSON.stringify(row));
+  // نفتح صفحة الطباعة
+  window.open("ticket.html", "_blank", "width=800,height=600");
+}
+
+
+
+    // تحميل أولي
+    window.onload = fetchData2;
+    document.getElementById('load-more-btn2').addEventListener('click', fetchData2);
+  </script>
+<!-- <script src="print.js"></script> -->
+
+
+</body>
+
+</html>

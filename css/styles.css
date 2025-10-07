@@ -1,0 +1,12 @@
+body {
+    padding-top: 56px;
+}
+
+.sidebar {
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+}
+
+.content {
+    min-height: calc(100vh - 56px);
+}

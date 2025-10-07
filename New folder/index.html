@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحكم في الميزان</title>
+  <!-- تضمين Bootstrap -->
+
+  <!-- Bootstrap JS (مع Popper.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* أنماط إضافية */
+    body {
+      padding-top: 56px;
+      /* لتجنب التداخل مع شريط العنوان */
+    }
+
+    .sidebar {
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+
+    .content {
+      min-height: calc(100vh - 56px);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- شريط العنوان -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container-fluid">
+      <button class="btn btn-outline-light me-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
+        aria-controls="sidebarMenu">
+        ☰ القائمة
+
+        <!-- إضافة علامة لتدفق البيانات -->
+        <small id="streamIndicator" style="display: none;">
+
+          <span class="badge bg-danger">🔴</span>
+          <span id="online-indicator"></span>
+        </small>
+      </button>
+      <a class="navbar-brand" href="#">ميزان شوشان</a>
+      <button class="btn btn-info w-5 " onclick="sendCommand('SX')">تفعيل</button>
+      <button class="btn btn-info w-5 " onclick="sendCommand('EX')">ايقاف</button>
+
+    </div>
+  </nav>
+
+  <!-- القائمة الجانبية (Offcanvas) -->
+  <div class="offcanvas offcanvas-start bg-light" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="sidebarMenuLabel">الأوامر</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('XN2')">قراءة الوزن الصافي</button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('KZERO')">تصفير الميزان</button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('KTARE')">تنفيذ التاري</button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('KPRINT')">طباعة التذكرة</button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('SX')">تفعيل البث المباشر </button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('EX')">ايقاف البث المباشر </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- المحتوى الرئيسي -->
+  <main class="container mt-4">
+    <!-- <h2>الرد من الجهاز:</h2> -->
+    <div i class="alert alert-secondary">
+
+      <h1 id="response">
+        --
+      </h1>
+
+
+    </div>
+    <h3 id="response11">
+      --
+    </h3>
+    <!-- إضافة علامة لتدفق البيانات
+    <div id="streamIndicator" style="display: none;">
+     
+      <span class="badge bg-danger">🔴</span> <small>تدفق البيانات </small>
+      <span id="online-indicator"></span>
+    </div> -->
+    <!-- لوحة المفاتيح التحكم -->
+    <div class="container text-center">
+      <div class="row align-items-start">
+        <div class="col">
+          <button class="btn btn-info w-100 mb-2" onclick="sendCommand('KPRINT')">PRINT</button>
+        </div>
+        <!-- <div class="col">
+          <button class="btn btn-info w-100 mb-2" onclick="sendCommand('KUNITS')">UNITS</button>
+        </div> -->
+        <div class="col">
+          <button class="btn btn-info w-100 mb-2" onclick="sendCommand('KTARE')">TARE</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-info w-100 mb-2" onclick="sendCommand('KZERO')">ZERO</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-info w-100 mb-2" onclick="sendCommand('Kid')">id </button>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- لوحة المفاتيح الرقمية -->
+    <div class="container mt-4">
+      <div class="row justify-content-center">
+
+        <!-- لوحة المفاتيح -->
+        <div class="col-md-8">
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-primary w-25" onclick=" sendCommand('K1')">1</button>
+            <button class="btn btn-primary w-25" onclick=" sendCommand('K2')">2</button>
+            <button class="btn btn-primary w-25" onclick=" sendCommand('K3')">3</button>
+            <button class="btn btn-primary w-25" onclick=" sendCommand('K4')">4</button>
+            <button class="btn btn-primary w-25" onclick=" sendCommand('K5')">5</button>
+            <button class="btn btn-primary w-25" onclick=" sendCommand('K6')">6</button>
+            <button class="btn btn-primary w-25" onclick=" sendCommand('K7')">7</button>
+            <button class="btn btn-primary w-25" onclick=" sendCommand('K8')">8</button>
+            <button class="btn btn-primary w-25" onclick=" sendCommand('K9')">9</button>
+            <button class="btn btn-primary w-25" onclick=" sendCommand('K0')">0</button>
+            <button class="btn btn-danger  w-25" onclick=" sendCommand('KCLR')">مسح</button>
+            <button class="btn btn-success w-25" onclick="sendCommand('KENTER')">ENTER</button>
+            <button class="btn btn-success w-25" onclick="sendCommand('KDISPTARE')">DISPLAY</button>
+            <button class="btn btn-success w-25" onclick="sendCommand('KESCAPE')">ESCAPE</button>
+            <button class="btn btn-success w-25" onclick="sendCommand('KUNITS')">UNITS</button>
+
+          </div>
+        </div>
+
+        <!-- البوكس بجانب لوحة المفاتيح -->
+        <div class="col-md-4">
+
+
+          <div class="input-group mb-3">
+            <input id="edpInput" type="text" placeholder="EDP input here…" class="form-control">
+            <div class="input-group-append">
+              <!-- زر "X" لحذف المحتوى -->
+              <button type="button" class="btn btn-outline-secondary" onclick="clearInput('edpInput')">X</button>
+            </div>
+            <div class="input-group-prepend">
+              <!-- زر الإرسال -->
+              <button type="button" class="btn btn-danger" onclick="sendTextCommand()">Send</button>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <button type="button" id="streamButton" class="btn btn-primary" onclick="toggleStream()">Start
+              Stream</button>
+          </div>
+
+          <script>
+            let isStreaming = false; // متغير لتحديد ما إذا كان الإرسال نشطًا أم لا
+            let streamInterval; // متغير لتخزين معرف المؤقت
+            let stopTimeout; // متغير لتخزين معرف المؤقت الخاص بالتوقف التلقائي
+
+            function toggleStream() {
+              const button = document.getElementById("streamButton");
+
+              if (!isStreaming) {
+                // بدء الإرسال المستمر للأمر ZZ
+                isStreaming = true;
+                button.textContent = "Stop Stream P"; // تغيير نص الزر إلى "Stop Stream"
+
+                // إرسال الأمر ZZ كل 1000 ميلي ثانية (1 ثانية)
+                streamInterval = setInterval(() => {
+                  sendCommand("p");//zz or p
+                }, 1000);
+                // إيقاف الإرسال تلقائيًا بعد دقيقة واحدة (60000 ميلي ثانية)
+                stopTimeout = setTimeout(() => {
+                  stopStreaming(); // إيقاف الإرسال بعد انتهاء الوقت
+                }, 20000); // 60000 ميلي ثانية = دقيقة واحدة
+              } else {
+                // إيقاف الإرسال المستمر للأمر ZZ
+                isStreaming = false;
+                button.textContent = "Start Stream"; // تغيير نص الزر إلى "Start Stream"
+
+                // إيقاف المؤقت
+                clearInterval(streamInterval);
+              }
+            }
+            function stopStreaming() {
+              const button = document.getElementById("streamButton");
+
+              if (isStreaming) {
+                isStreaming = false;
+                button.textContent = "Start Stream"; // تغيير نص الزر إلى "Start Stream"
+
+                // إيقاف المؤقت الدوري
+                clearInterval(streamInterval);
+
+                // مسح مؤقت التوقف التلقائي إذا كان موجودًا
+                clearTimeout(stopTimeout);
+              }
+            }
+
+            // function sendCommand(command) {
+            //   // هنا يمكنك إضافة منطق إرسال الأمر إلى الجهاز عبر منفذ EDP أو أي طريقة أخرى
+            //   console.log("Sending command:", command);
+
+
+            // }
+          </script>
+          <script>
+            // دالة لحذف محتوى الحقل
+            function clearInput(X) {
+              document.getElementById(X).value = "";
+            }
+          </script>
+
+          <div id="response1" class="border rounded p-3 overflow-auto "
+            style="height: calc(1.5em * 10); white-space: pre-line; text-align: left; background-color: #000; color: #fff;">
+            <!-- البيانات هتظهر هنا -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- المحتوى الرئيسي -->
+    <main class="container mt-4">
+      <!-- <h2>عرض بيانات الميزان</h2> -->
+      <table id="data-table" class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>رقم السياره</th>
+            <th>القيمة</th>
+            <th>التاريخ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- سيتم ملء هذا الجدول ديناميكيًا -->
+        </tbody>
+      </table>
+      <button id="load-more-btn" class="btn btn-primary w-100">تحميل المزيد</button>
+    </main>
+    <main class="container mt-4">
+      <div class="input-group mb-3">
+        <input id="carNumber" type="text" placeholder="رقم السياره" class="form-control">
+        <div class="input-group-append">
+          <!-- زر "X" لحذف المحتوى -->
+          <button type="button" class="btn btn-outline-secondary" onclick="clearInput('carNumber')">X</button>
+        </div>
+        <div class="input-group-prepend">
+          <!-- زر الإرسال -->
+          <button id="load-more-btn3"type="button" class="btn btn-secondary" >بحث</button>
+        </div>
+      </div>
+
+
+      <!-- <h2>عرض بيانات التذكرة</h2> -->
+      <table id="data-table2" class="table table-striped">
+        <thead>
+          <tr>
+            <!-- // (date, time, sn, number, gross, tare, net)  -->
+            <th>التاريخ</th>
+            <th>الوقت</th>
+            <th>المسلسل</th>
+            <th>رقم السيارة</th>
+            <th>الوزن الاول</th>
+            <th>الوزن الثاني</th>
+            <th>الصافي</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- سيتم ملء هذا الجدول ديناميكيًا -->
+        </tbody>
+      </table>
+      <button id="load-more-btn2" class="btn btn-primary w-100">تحميل المزيد</button>
+
+
+    </main>
+
+    <script>
+      let offset = 0; // متغير لتتبع موقع البداية
+      const limit = 5; // عدد الصفوف لكل طلب
+
+      // دالة لجلب البيانات وعرضها في الجدول
+      async function fetchData(X) {
+        try {
+          const response = await fetch(`/get-data?limit=${limit}&offset=${offset}`);
+          const data = await response.json();
+
+          const tableBody = document.querySelector('#data-table tbody');
+
+          // إذا لم يتم إرجاع بيانات، نخفي زر "تحميل المزيد"
+          if (data.length === 0) {
+            document.getElementById('load-more-btn').style.display = 'none';
+            return;
+          }
+          if (X == 'ok') {
+            tableBody.innerHTML = "";
+          }
+          // إضافة الصفوف الجديدة إلى الجدول
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+               <td>${row.id}</td>
+               <td>${row.number}</td>
+               <td>${row.data_value}</td>
+               <td>${row.date}</td>
+                  `;
+
+
+            tableBody.appendChild(tr);
+          });
+
+          // تحديث الـ offset للطلب التالي
+          offset += limit;
+
+        } catch (error) {
+          console.error('حدث خطأ أثناء جلب البيانات:', error);
+        }
+      }
+
+
+      let offset2 = 0; // متغير لتتبع موقع البداية
+      const limit2 = 5; // عدد الصفوف لكل طلب
+
+      async function fetchData2() {
+        try {
+          const response = await fetch(`/get-data2?limit=${limit2}&offset=${offset2}`);
+          const data = await response.json();
+
+          const tableBody = document.querySelector('#data-table2 tbody');
+
+          // إذا لم يتم إرجاع بيانات، نخفي زر "تحميل المزيد"
+          if (data.length === 0) {
+            document.getElementById('load-more-btn2').style.display = 'none';
+            return;
+          }
+
+          // إضافة الصفوف الجديدة إلى الجدول
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            // (date, time, sn, number, gross, tare, net) 
+            tr.innerHTML = `
+                            <td>${row.date}</td>
+                      <td>${row.time}</td>
+                      <td>${row.sn}</td>
+                      <td>${row.number}</td>
+                      <td>${row.gross}</td>
+                      <td>${row.tare}</td>
+                      <td>${row.net}</td>
+                  `;
+            tableBody.appendChild(tr);
+          });
+
+          // تحديث الـ offset للطلب التالي
+          offset2 += limit2;
+
+        } catch (error) {
+          console.error('حدث خطأ أثناء جلب البيانات:', error);
+        }
+      }
+      async function fetchData3() {
+        const carNumber = document.getElementById('carNumber').value;
+        try {
+          const response = await fetch(`/get-data3?carNumber=${carNumber}`);
+          const data = await response.json();
+
+          const tableBody = document.querySelector('#data-table2 tbody');
+
+          // إذا لم يتم إرجاع بيانات، نخفي زر "تحميل المزيد"
+          if (data.length === 0) {
+            document.getElementById('load-more-btn2').style.display = 'none';
+            return;
+          }
+          tableBody.innerHTML = "";
+          // إضافة الصفوف الجديدة إلى الجدول
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            // (date, time, sn, number, gross, tare, net) 
+            tr.innerHTML = `
+                            <td>${row.date}</td>
+                      <td>${row.time}</td>
+                      <td>${row.sn}</td>
+                      <td>${row.number}</td>
+                      <td>${row.gross}</td>
+                      <td>${row.tare}</td>
+                      <td>${row.net}</td>
+                  `;
+            tableBody.appendChild(tr);
+          });
+
+          // تحديث الـ offset للطلب التالي
+
+
+        } catch (error) {
+          console.error('حدث خطأ أثناء جلب البيانات:', error);
+        }
+      }
+
+
+
+
+
+      // استدعاء الدالة عند تحميل الصفحة لأول مرة
+      window.onload = fetchData;
+
+      // تحميل المزيد عند الضغط على الزر
+      document.getElementById('load-more-btn').addEventListener('click', fetchData);
+      document.getElementById('load-more-btn2').addEventListener('click', fetchData2);
+      document.getElementById('load-more-btn3').addEventListener('click', fetchData3);
+    </script>
+
+
+
+
+
+
+
+    <!-- عنصر الصوت -->
+    <audio id="audioPlayer" controls style="display:none;"></audio>
+  </main>
+
+  <!-- تضمين مكتبة Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // إرسال أمر إلى الخادم
+    function sendTextCommand() {
+      var inputValue = document.getElementById("edpInput").value;
+
+      fetch(`/send-command?command=${inputValue}`)
+        .then(response => response.text())
+        .then(data => {
+        })
+        .catch(error => {
+          console.error('حدث خطأ:', error);
+        });
+    }
+    function sendCommand(command) {
+      if (!isStreaming) {
+        toggleStream();
+      }
+      fetch(`/send-command?command=${command}`)
+        .then(response => response.text())
+        .then(data => {
+        })
+        .catch(error => {
+          console.error('حدث خطأ:', error);
+        });
+      if (command == 'Kid') {
+        // fetchData();
+      }
+
+    }
+    const streamIndicator = document.getElementById('streamIndicator');
+    let count = 0
+    // استقبال الرد المباشر من الجهاز عبر WebSocket
+    socket.on('response', (data) => {
+
+      if (data.length == 11 || data.length == 12) {
+        document.getElementById('response').innerText = data;
+
+        // إظهار علامة التدفق إذا كانت هناك بيانات قادمة
+        count++;
+        // console.log(count);
+        if (count == 80) {
+          count = 0;
+          streamIndicator.style.visibility = 'hidden';
+          streamIndicator.style.opacity = '0'; // تجربة إضافة opacity
+        } else if (count >= 50) {
+          streamIndicator.style.display = 'block'; // إظهار
+          streamIndicator.style.visibility = 'visible';
+          streamIndicator.style.opacity = '1'; // تجربة إضافة opacity
+        }
+      } else {
+
+
+
+        document.getElementById('response1').innerText += " " + data + "\n";
+        console.log(data)
+        if (data.slice(-2).toUpperCase() === "NE") {
+          document.getElementById('response11').innerText = data;
+        }
+
+
+        const box = document.getElementById('response1');
+        box.scrollTop = box.scrollHeight; // يعمل سكرول تلقائي للأسفل   
+      }
+
+
+    });
+
+
+
+
+
+
+
+    function sendNumericCommand() {
+
+      // إرسال الأمر مع القيمة الرقمية
+      fetch(`/send-command?command=KSETTARE=${numericValue}`)
+        .then(response => response.text())
+        .then(data => {
+
+        })
+        .catch(error => {
+          console.error('حدث خطأ:', error);
+        });
+
+    }
+
+    // الحصول على عنصر الصوت
+    const audioPlayer = document.getElementById('audioPlayer');
+    // const statusElement = document.getElementById('status');
+
+    // استماع إلى إشارات تشغيل الصوت من الخادم
+    socket.on('play-audio', (fileName) => {
+      const audioUrl = `/audio/${fileName}`; // المسار إلى الملف الصوتي
+      // statusElement.textContent = `جاري تشغيل: ${fileName}`;
+
+      // تحديث مصدر الصوت وتشغيله
+      audioPlayer.src = audioUrl;
+      audioPlayer.play();
+    });
+
+    // تحديث حالة الواجهة عند استلام بيانات جديدة
+    // socket.on('response', (data) => {
+    //     // console.log('بيانات مستلمة:', data);
+    //     statusElement.textContent = `البيانات المستلمة: ${data}`;
+    // });
+    socket.on('responseID', (data) => {
+      offset = 0;
+      fetchData("ok");
+    });
+
+  </script>
+</body>
+
+</html>
