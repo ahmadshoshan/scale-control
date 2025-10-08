@@ -2,9 +2,7 @@ const express = require('express');
 const http = require('http');
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
-const mysql = require('mysql2');
-const bcrypt = require('bcrypt');
-const session = require('express-session');
+
 const path = require('path');
 let type_id = '';
 let customer_id = '';
@@ -15,22 +13,16 @@ const server = http.createServer(app);
 const io = require('socket.io')(server);
 
 const fs = require('fs');
+app.use(express.static(path.join(__dirname, 'public')));
+require('dotenv').config();
 
-// إعداد المنفذ التسلسلي
-const port = new SerialPort({
-    path: 'COM1', // تأكد من أن هذا هو المنفذ الصحيح
-    baudRate: 9600,
-    dataBits: 8,
-    parity: 'none',
-    stopBits: 1,
-});
-const port2 = new SerialPort({
-    path: 'COM7', // تأكد من أن هذا هو المنفذ الصحيح
-    baudRate: 9600,
-    dataBits: 8,
-    parity: 'none',
-    stopBits: 1,
-});
+
+//////////////////////////////
+const port = new SerialPort({ path: process.env.COM_PORT1, baudRate: 9600 });
+const port2 = new SerialPort({ path: process.env.COM_PORT2, baudRate: 9600 });
+
+const { playSoundAlert } = require('./modules/audio');
+const pool = require('./modules/db');
 
 // الاستماع للأخطاء
 port.on('error', (err) => {
@@ -51,7 +43,7 @@ const expectedLines = 7; // عدد السطور المتوقعة لكل عملي
 get_printer.on('data', (data) => {
     const line = data.toString().trim();
     console.log(`print    : ${line}`);
-   
+
     if (line) {
 
         buffer.push(line);
@@ -268,18 +260,8 @@ async function createTicket(row, outputPath) {
     await browser.close();
 }
 
-/////////////////////////////////////////////////////////////////////
 
-const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'scale_control',
-    port: 3306,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+
 // تقديم الملفات الثابتة
 app.use(express.static(path.join(__dirname)));
 app.use(express.json());
@@ -292,7 +274,7 @@ app.get('/send-command', (req, res) => {
     customer_id = req.query.customer;
     type_p = req.query.type;
     customer_p = req.query.customer;
-  
+
 
     const command = req.query.command; // الحصول على الأمر من الطلب
     if (command) {
@@ -311,46 +293,7 @@ app.get('/send-command', (req, res) => {
 });
 
 
-// دالة لتشغيل ملف صوتي
 
-const play = require('play-sound')();
-
-let isPlaying = false; // متغير لتتبع حالة التشغيل
-const delayTime = 5000; // زمن التأخير بالميلي ثانية (5 ثوانٍ)
-
-// دالة لتشغيل ملف صوتي
-function playSoundAlert(nameFile) {
-
-    const filePath = `./audio/${nameFile}`; // تأكد من المسار الصحيح للملف
-    // console.log(filePath);
-
-    if (isPlaying) {// التحقق مما إذا كان الملف الصوتي قيد التشغيل
-
-        return;
-    }
-
-    isPlaying = true; // تحديث الحالة إلى "قيد التشغيل"
-
-    fs.access(filePath, fs.constants.F_OK, (err) => {// التحقق من وجود الملف الصوتي
-        if (err) {
-            console.error('الملف الصوتي غير موجود.');
-            isPlaying = false; // إعادة تعيين الحالة في حالة حدوث خطأ
-        } else {
-            io.emit('play-audio', `${nameFile}`);
-            play.play(filePath, { player: 'wmplayer' }, (err) => {
-                if (err) {
-                    console.error('خطأ في تشغيل الملف الصوتي:', err.message);
-                }
-
-                // إضافة زمن تأخير قبل إعادة تعيين الحالة
-                setTimeout(() => {
-                    isPlaying = false; // إعادة تعيين الحالة بعد انتهاء التأخير
-                    // console.log('تم إعادة تعيين الحالة. يمكن الآن قبول أوامر تشغيل جديدة.');
-                }, delayTime); // زمن التأخير هنا هو 5 ثوانٍ
-            });
-        }
-    });
-}
 let match = "";
 let match1 = "";
 let lastMessage = ''; // متغير لتخزين آخر رسالة مستلمة
@@ -374,11 +317,11 @@ parser.on('data', (data) => {
     const weight = parseFloat(cleanedWeight.trim());
 
     if (!isNaN(weight) && weight < -10) {
-        playSoundAlert("yagib_tasfier_almezan.mp3");
+        playSoundAlert("yagib_tasfier_almezan.mp3", io);
     }
 
     if (!isNaN(weight) && weight > 300) {
-        playSoundAlert('yogad_sayara_almezan1.mp3');
+        playSoundAlert('yogad_sayara_almezan1.mp3', io);
     }
     // دالة للتحقق مما إذا كانت الرسالة تبدأ بـ "GROSS{"
     function startsWithGross(message) {
@@ -507,15 +450,51 @@ app.get('/get-data', (req, res) => {
 });
 
 
+// WebSocket listeners
+io.on('connection', (socket) => {
+    const ip = socket.handshake.address;
+     console.log('===========================');
+    console.log(' New Socket Connection');
+    console.log(' IP Address:', ip);
+    console.log(' Time:', new Date());
+    console.log(' Socket ID:', socket.id);
+    console.log('===========================');
 
+    socket.on('disconnect', () => {
+        console.log(`❌ Disconnected:  (${ip})`);
+    });
 
+    // // استقبال أوامر من الواجهة
+    // socket.on('send-command', (data) => {
+    //     const { command, type, customer } = data;
+    //     console.log(`📤 أمر مستلم: ${command} | النوع: ${type} | العميل: ${customer}`);
 
-// تشغيل الخادم
-server.listen(3000, '192.168.1.222', () => {
-    console.log('http://192.168.1.222:3000');
+    //     // تمرير النوع والعميل للوحدات المناسبة
+    //     setPendingTypeCustomer(type, customer);
+    //     setSensorPending(type, customer);
 
+    //     if (command === 'print') {
+    //         // مثال: ممكن تستدعي دالة الطباعة هنا
+    //         console.log('🖨️ تنفيذ أمر الطباعة...');
+    //     }
+
+    //     io.emit('command-received', { success: true });
+    // });
 });
 
+
+// // تشغيل الخادم
+// server.listen(3000, '192.168.1.222', () => {
+//     console.log('http://192.168.1.222:3000');
+
+// });
+
+// تشغيل الخادم
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '192.168.1.222';
+server.listen(PORT, HOST, () => {
+    console.log(` HOST :   ${HOST} --  ${PORT}`);
+});
 
 
 

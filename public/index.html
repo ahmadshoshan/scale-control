@@ -26,6 +26,27 @@
       min-height: calc(100vh - 56px);
     }
   </style>
+  <style>
+    /* body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; } */
+    .button2 {
+      font-size: 20px;
+      padding: 12px 30px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .on {
+      background: green;
+      color: #fff;
+    }
+
+    .off {
+      background: red;
+      color: #fff;
+    }
+  </style>
 </head>
 
 <body>
@@ -44,12 +65,28 @@
         </small>
       </button>
       <a class="navbar-brand" href="#">ميزان شوشان</a>
-      <button class="btn btn-info w-5 " onclick="sendCommand('SX')">تفعيل</button>
-      <button class="btn btn-info w-5 " onclick="sendCommand('EX')">ايقاف</button>
 
+
+
+      <p id="status">جاري تحميل الحالة...</p>
     </div>
   </nav>
+  <script>
+    async function setPrint(status) {
+      await fetch(`/set-print/${status}`);
+      loadStatus();
+    }
 
+    async function loadStatus() {
+      const res = await fetch("/get-print");
+      const data = await res.json();
+      document.getElementById("status").innerText =
+        data.print === 1 ? "✅ الطباعة الحراريه" : "⛔ الطباعة الحراريه";
+    }
+
+    loadStatus();
+    setInterval(loadStatus, 3000); // يحدث الحالة كل 3 ثواني
+  </script>
   <!-- القائمة الجانبية (Offcanvas) -->
   <div class="offcanvas offcanvas-start bg-light" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
     <div class="offcanvas-header">
@@ -76,6 +113,13 @@
         <li class="nav-item">
           <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('EX')">ايقاف البث المباشر </button>
         </li>
+
+        <button class="on button2" onclick="setPrint(1)">تشغيل الطباعة الحراريه</button>
+        <button class="off button2" onclick="setPrint(0)">إيقاف الطباعةالحراريه</button>
+        <!-- <button class="btn btn-info w-5 " onclick="sendCommand('SX')">تفعيل</button>
+      <button class="btn btn-info w-5 " onclick="sendCommand('EX')">ايقاف</button> -->
+        <button type="button" id="streamButton" class="btn btn-primary" onclick="toggleStream()">Start
+          Stream</button>
       </ul>
     </div>
   </div>
@@ -154,20 +198,53 @@
 
 
           <div class="input-group mb-3">
+            <input list="types" id="type" class="form-control" placeholder=" النوع">
+            <datalist id="types">
+              <option value="أرز">
+              <option value="غلة">
+              <option value="تبن">
+              <option value="خشب">
+              <option value="لب">
+              <option value="فول">
+            </datalist>
+
+            <input list="customers" id="customer" type="text" placeholder="العميل" class="form-control">
+            <datalist id="customers">
+              <option value="الحاج خالد عبد السلام">
+              <option value="عماد نوح">
+              <option value="محمد الصندفاوي">
+              <option value="محمد منصور">
+              <option value="محمود نصير">
+              <option value="هاني عبد الباعث">
+              <option value="الشحات عبد الباعث">
+              <option value="احمدعلي ">
+              <option value="علي محروس ">
+            </datalist>
+         <button class="btn btn-outline-danger" type="button" onclick="clearFields()">❌</button>
+</div>
+
+<script>
+  function clearFields() {
+    document.getElementById('type').value = '';
+    document.getElementById('customer').value = '';
+  }
+</script>
+
+          <div class="input-group mb-3">
             <input id="edpInput" type="text" placeholder="EDP input here…" class="form-control">
             <div class="input-group-append">
               <!-- زر "X" لحذف المحتوى -->
-              <button type="button" class="btn btn-outline-secondary" onclick="clearInput('edpInput')">X</button>
+              <button type="button" class="btn btn-outline-secondary" onclick="clearInput('edpInput')">❌</button>
             </div>
             <div class="input-group-prepend">
               <!-- زر الإرسال -->
               <button type="button" class="btn btn-danger" onclick="sendTextCommand()">Send</button>
             </div>
           </div>
-          <div class="input-group mb-3">
+          <!-- <div class="input-group mb-3">
             <button type="button" id="streamButton" class="btn btn-primary" onclick="toggleStream()">Start
               Stream</button>
-          </div>
+          </div> -->
 
           <script>
             let isStreaming = false; // متغير لتحديد ما إذا كان الإرسال نشطًا أم لا
@@ -236,193 +313,17 @@
 
       </div>
     </div>
-    <!-- المحتوى الرئيسي -->
-    <main class="container mt-4">
-      <!-- <h2>عرض بيانات الميزان</h2> -->
-      <table id="data-table" class="table table-striped">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>رقم السياره</th>
-            <th>القيمة</th>
-            <th>التاريخ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- سيتم ملء هذا الجدول ديناميكيًا -->
-        </tbody>
-      </table>
-      <button id="load-more-btn" class="btn btn-primary w-100">تحميل المزيد</button>
-    </main>
-    <main class="container mt-4">
-      <div class="input-group mb-3">
-        <input id="carNumber" type="text" placeholder="رقم السياره" class="form-control">
-        <div class="input-group-append">
-          <!-- زر "X" لحذف المحتوى -->
-          <button type="button" class="btn btn-outline-secondary" onclick="clearInput('carNumber')">X</button>
-        </div>
-        <div class="input-group-prepend">
-          <!-- زر الإرسال -->
-          <button id="load-more-btn3"type="button" class="btn btn-secondary" >بحث</button>
-        </div>
-      </div>
 
 
-      <!-- <h2>عرض بيانات التذكرة</h2> -->
-      <table id="data-table2" class="table table-striped">
-        <thead>
-          <tr>
-            <!-- // (date, time, sn, number, gross, tare, net)  -->
-            <th>التاريخ</th>
-            <th>الوقت</th>
-            <th>المسلسل</th>
-            <th>رقم السيارة</th>
-            <th>الوزن الاول</th>
-            <th>الوزن الثاني</th>
-            <th>الصافي</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- سيتم ملء هذا الجدول ديناميكيًا -->
-        </tbody>
-      </table>
-      <button id="load-more-btn2" class="btn btn-primary w-100">تحميل المزيد</button>
-
-
-    </main>
-
-    <script>
-      let offset = 0; // متغير لتتبع موقع البداية
-      const limit = 5; // عدد الصفوف لكل طلب
-
-      // دالة لجلب البيانات وعرضها في الجدول
-      async function fetchData(X) {
-        try {
-          const response = await fetch(`/get-data?limit=${limit}&offset=${offset}`);
-          const data = await response.json();
-
-          const tableBody = document.querySelector('#data-table tbody');
-
-          // إذا لم يتم إرجاع بيانات، نخفي زر "تحميل المزيد"
-          if (data.length === 0) {
-            document.getElementById('load-more-btn').style.display = 'none';
-            return;
-          }
-          if (X == 'ok') {
-            tableBody.innerHTML = "";
-          }
-          // إضافة الصفوف الجديدة إلى الجدول
-          data.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-               <td>${row.id}</td>
-               <td>${row.number}</td>
-               <td>${row.data_value}</td>
-               <td>${row.date}</td>
-                  `;
-
-
-            tableBody.appendChild(tr);
-          });
-
-          // تحديث الـ offset للطلب التالي
-          offset += limit;
-
-        } catch (error) {
-          console.error('حدث خطأ أثناء جلب البيانات:', error);
-        }
-      }
-
-
-      let offset2 = 0; // متغير لتتبع موقع البداية
-      const limit2 = 5; // عدد الصفوف لكل طلب
-
-      async function fetchData2() {
-        try {
-          const response = await fetch(`/get-data2?limit=${limit2}&offset=${offset2}`);
-          const data = await response.json();
-
-          const tableBody = document.querySelector('#data-table2 tbody');
-
-          // إذا لم يتم إرجاع بيانات، نخفي زر "تحميل المزيد"
-          if (data.length === 0) {
-            document.getElementById('load-more-btn2').style.display = 'none';
-            return;
-          }
-
-          // إضافة الصفوف الجديدة إلى الجدول
-          data.forEach(row => {
-            const tr = document.createElement('tr');
-            // (date, time, sn, number, gross, tare, net) 
-            tr.innerHTML = `
-                            <td>${row.date}</td>
-                      <td>${row.time}</td>
-                      <td>${row.sn}</td>
-                      <td>${row.number}</td>
-                      <td>${row.gross}</td>
-                      <td>${row.tare}</td>
-                      <td>${row.net}</td>
-                  `;
-            tableBody.appendChild(tr);
-          });
-
-          // تحديث الـ offset للطلب التالي
-          offset2 += limit2;
-
-        } catch (error) {
-          console.error('حدث خطأ أثناء جلب البيانات:', error);
-        }
-      }
-      async function fetchData3() {
-        const carNumber = document.getElementById('carNumber').value;
-        try {
-          const response = await fetch(`/get-data3?carNumber=${carNumber}`);
-          const data = await response.json();
-
-          const tableBody = document.querySelector('#data-table2 tbody');
-
-          // إذا لم يتم إرجاع بيانات، نخفي زر "تحميل المزيد"
-          if (data.length === 0) {
-            document.getElementById('load-more-btn2').style.display = 'none';
-            return;
-          }
-          tableBody.innerHTML = "";
-          // إضافة الصفوف الجديدة إلى الجدول
-          data.forEach(row => {
-            const tr = document.createElement('tr');
-            // (date, time, sn, number, gross, tare, net) 
-            tr.innerHTML = `
-                            <td>${row.date}</td>
-                      <td>${row.time}</td>
-                      <td>${row.sn}</td>
-                      <td>${row.number}</td>
-                      <td>${row.gross}</td>
-                      <td>${row.tare}</td>
-                      <td>${row.net}</td>
-                  `;
-            tableBody.appendChild(tr);
-          });
-
-          // تحديث الـ offset للطلب التالي
-
-
-        } catch (error) {
-          console.error('حدث خطأ أثناء جلب البيانات:', error);
-        }
-      }
+    <div class="d-flex justify-content-center gap-3">
+      <a href="table1.html" class="btn btn-primary">جدول البيانات</a>
+      <a href="table2.html" class="btn btn-success">جدول التذاكر</a>
+    </div>
 
 
 
 
 
-      // استدعاء الدالة عند تحميل الصفحة لأول مرة
-      window.onload = fetchData;
-
-      // تحميل المزيد عند الضغط على الزر
-      document.getElementById('load-more-btn').addEventListener('click', fetchData);
-      document.getElementById('load-more-btn2').addEventListener('click', fetchData2);
-      document.getElementById('load-more-btn3').addEventListener('click', fetchData3);
-    </script>
 
 
 
@@ -455,15 +356,25 @@
       if (!isStreaming) {
         toggleStream();
       }
-      fetch(`/send-command?command=${command}`)
+      const typeInput = document.getElementById('type');
+      const customerInput = document.getElementById('customer');
+
+      const type = typeInput.value;
+      const customer = customerInput.value;
+
+      fetch(`/send-command?command=${command}&&type=${type}&&customer=${customer}`)
         .then(response => response.text())
         .then(data => {
         })
         .catch(error => {
           console.error('حدث خطأ:', error);
         });
-      if (command == 'Kid') {
+
+      if (command == 'Kid' || command == 'KPRINT') {
         // fetchData();
+        // إعادة ضبط الحقول
+        typeInput.value = '';
+        customerInput.value = '';
       }
 
     }
