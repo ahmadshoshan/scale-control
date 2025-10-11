@@ -50,7 +50,16 @@ get_printer.on('data', (data) => {
 
         // إذا وصلنا إلى العدد المتوقع من السطور
         if (buffer.length === expectedLines) {
+
             const [date, time, sn, number, gross, tare, net] = buffer;
+
+// ظظظظظظظظظظظظظظظظظظظظظظظظظظ"؟
+
+
+
+
+
+
 
             // إدخال البيانات إلى قاعدة البيانات
             const query = `
@@ -59,7 +68,7 @@ get_printer.on('data', (data) => {
                 VALUES (?, ?, ?, ?, ?, ?, ?,?,?)
             `;
 
-            pool.query(query, [date, time, sn, number, gross, tare, net, type_p, customer_p], async (err, results) => {
+            pool.query(query, [date, time, sn, number, gross, tare, net, '', ''], async (err, results) => {
                 if (err) {
                     console.error('printer err db:', err.message);
                 } else {
@@ -105,6 +114,55 @@ get_printer.on('data', (data) => {
         }
     }
 });
+
+
+// pool.getConnection((err, connection) => {
+ 
+//     // القيمة اللي انت عايز تبحث بيها في data_value
+//     const dataValue = 'القيمة_اللي_انت_عايزها'; // ← ممكن تغيرها حسب حالتك
+
+//     // استعلام البيانات المطلوبة
+//     const query = `
+//         SELECT * 
+//         FROM sensor_data 
+//        //    AND data_value = ?  
+     
+//         ORDER BY id DESC
+//     `;
+//     // WHERE DATE(date) = CURDATE() 
+
+// //         AND (customer IS NOT NULL AND customer != '') 
+// //         AND (number IS NOT NULL AND number != '')
+//     connection.query(query, [dataValue], (error, results) => {
+//         connection.release(); // إخلاء الاتصال
+
+     
+
+//         // حفظ النتائج في متغيرات
+//         if (results.length > 0) {
+//             // const firstRow = results[0]; // أول صف مثلاً
+    
+//             const { id, date, time, number, customer, type, data_value } = firstRow;
+
+          
+//             console.log("ID:", id);
+//             console.log("date:", date);
+        
+//             console.log("number :", number);
+//             console.log("customer:", customer);
+//             console.log("type:", type);
+//             console.log("data_value:", data_value);
+
+         
+//         } else {
+//             console.log("0000000000");
+        
+//         }
+//     });
+// });
+
+
+
 ///////////////////////////////////////////////////////////////
 // ✅ لتحديث حالة الطباعة
 app.get("/set-print/:status", (req, res) => {
@@ -370,7 +428,7 @@ app.get('/get-data2', (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const offset = parseInt(req.query.offset) || 0;
 
-        const query = 'SELECT * FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
+        const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `net`, `customer`, `type` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
         connection.query(query, [limit, offset], (error, results) => {
             connection.release(); // إخلاء الاتصال
             if (error) {
@@ -380,10 +438,6 @@ app.get('/get-data2', (req, res) => {
             res.json(results);
         });
     });
-
-
-
-
 });
 // بحث بيانات محددة من قاعدة البيانات باستخدام 
 app.get('/get-data3', (req, res) => {
@@ -447,6 +501,23 @@ app.get('/get-data', (req, res) => {
 
 
 
+});
+
+app.put('/update-ticket/:id', (req, res) => {
+  const { id } = req.params;
+  const { number, customer, type, gross, tare, net } = req.body;
+
+  const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, net=? WHERE id=?';
+
+  pool.query(sql, [number, customer, type, gross, tare, net, id], (err, result) => {
+    if (err) {
+      console.error('❌ خطأ أثناء التحديث:', err);
+      return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
+    }
+
+    console.log('UPDATE printer:', result.affectedRows);
+    res.json({ success: true, message: 'تم تحديث البيانات بنجاح' });
+  });
 });
 
 

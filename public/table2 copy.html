@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>جدول التذاكر</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* ستايل خاص بالعرض (على الشاشة) */
+    body {
+      padding: 16px;
+    }
+
+    .print-btn {
+      min-width: 90px;
+    }
+
+    /* ستايل لطباعة التذكرة بحجم 80mm */
+    @media print {
+      @page {
+        size: 80mm auto;
+        /* طول تلقائي */
+        margin: 0mm;
+      }
+
+      body.print-ticket {
+        margin: 0;
+        width: 80mm;
+      }
+    }
+  </style>
+</head>
+
+<body class="container mt-5">
+
+  <div class="mb-3">
+    <a href="index.html" class="btn btn-secondary">⬅ رجوع للوحة التحكم</a>
+  </div>
+
+  <h2>عرض بيانات التذاكر</h2>
+
+  <!-- مربع بحث -->
+  <div class="input-group mb-3">
+    <select id="searchType" class="form-select" style="max-width: 200px;">
+      <option value="number">رقم السيارة</option>
+      <option value="date">التاريخ</option>
+      <option value="sn">المسلسل</option>
+    </select>
+
+    <input id="searchValue" type="text" placeholder="اكتب هنا" class="form-control">
+    <button type="button" class="btn btn-secondary" onclick="fetchData3()">بحث</button>
+    <button type="button" class="btn btn-outline-danger" onclick="clearSearch()">مسح</button>
+  </div>
+
+  <table id="data-table2" class="table table-striped">
+    <thead>
+      <tr>
+        <th>التاريخ</th>
+        <!-- <th>الوقت</th> -->
+        <th>المسلسل</th>
+        <th>رقم السيارة</th>
+        <th>الوزن الاول</th>
+        <th>الوزن الثاني</th>
+        <th>الصافي</th>
+        <th>العميل والنوع</th>
+        <th>طباعة</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button id="load-more-btn2" class="btn btn-success w-100">تحميل المزيد</button>
+  <script>
+    let offset2 = 0;
+    const limit2 = 5;
+    async function fetchData2() {
+      try {
+        const response = await fetch(`/get-data2?limit=${limit2}&offset=${offset2}`);
+        const data = await response.json();
+        const tableBody = document.querySelector('#data-table2 tbody');
+
+        if (data.length === 0) {
+          document.getElementById('load-more-btn2').style.display = 'none';
+          return;
+        }
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          // أنشئ زر الطباعة مع تمرير بيانات السطر كـ JSON في onclick
+          const printBtnHtml = `<button class="btn btn-outline-primary print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعة</button>`;
+
+          tr.innerHTML = `
+            <td>${row.date}<br> ${row.time}</td>
+            <td>${row.sn}</td>
+            <td>${row.number}</td>
+            <td>${row.gross}</td>
+            <td>${row.tare}</td>
+            <td>${row.net}</td>
+             <td>${row.customer} -- ${row.type}</td>
+            <td>${printBtnHtml}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+        offset2 += limit2;
+      } catch (error) {
+        console.error('خطأ:', error);
+      }
+    }
+    // طباعة بحث برقم العربية
+    async function fetchData3() {
+      const searchType = document.getElementById('searchType').value;
+      const searchValue = document.getElementById('searchValue').value;
+      console.log(searchType);
+      console.log(searchValue);
+      try {
+        const response = await fetch(`/get-data3?type=${encodeURIComponent(searchType)}&value=${encodeURIComponent(searchValue)}`);
+        const data = await response.json();
+        const tableBody = document.querySelector('#data-table2 tbody');
+        tableBody.innerHTML = "";
+
+        if (data.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">لا توجد نتائج</td></tr>`;
+          return;
+        }
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          const printBtnHtml = `<button class="btn btn-outline-primary print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعة</button>`;
+
+          tr.innerHTML = `
+             <td>${row.date}<br> ${row.time}</td>
+           
+            <td>${row.sn}</td>
+            <td>${row.number}</td>
+            <td>${row.gross}</td>
+            <td>${row.tare}</td>
+            <td>${row.net}</td>
+            <td>${row.customer} -- ${row.type}</td>
+            <td>${printBtnHtml}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+      } catch (error) {
+        console.error('خطأ:', error);
+      }
+    }
+    function clearSearch() {
+      document.getElementById('carNumber').value = "";
+      document.querySelector('#data-table2 tbody').innerHTML = "";
+      offset2 = 0;
+      fetchData2();
+    }
+
+    function printTicket(row) {
+      // نخزن البيانات مؤقتًا في localStorage
+      localStorage.setItem("ticketData", JSON.stringify(row));
+      // نفتح صفحة الطباعة
+      window.open("ticket.html", "_blank", "width=800,height=600");
+    }
+    // تحميل أولي
+    window.onload = fetchData2;
+    document.getElementById('load-more-btn2').addEventListener('click', fetchData2);
+  </script>
+</body>
+
+</html>

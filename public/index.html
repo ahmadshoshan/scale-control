@@ -47,6 +47,8 @@
       color: #fff;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
 </head>
 
 <body>
@@ -64,13 +66,34 @@
           <span id="online-indicator"></span>
         </small>
       </button>
-      <a class="navbar-brand" href="#">ميزان شوشان</a>
+      <button class="btn btn-outline-light ms-3" onclick="takeScreenshot()">📸</button>
+
+      <!-- <a class="navbar-brand" href="#">ميزان شوشان</a> -->
 
 
 
       <p id="status">جاري تحميل الحالة...</p>
     </div>
   </nav>
+  <script>
+  function takeScreenshot() {
+    // نخفي الزر مؤقتاً من الصورة
+    const btn = event.target;
+    btn.style.display = 'none';
+
+    html2canvas(document.body, { scale: 2 }).then(canvas => {
+      // نعيد إظهار الزر بعد الالتقاط
+      btn.style.display = 'inline-block';
+      
+      // إنشاء رابط لتحميل الصورة
+      const link = document.createElement('a');
+      link.download = 'screenshot.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  }
+</script>
+
   <script>
     async function setPrint(status) {
       await fetch(`/set-print/${status}`);
