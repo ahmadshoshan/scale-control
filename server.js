@@ -53,7 +53,7 @@ get_printer.on('data', (data) => {
 
             const [date, time, sn, number, gross, tare, net] = buffer;
 
- 
+
             // إدخال البيانات إلى قاعدة البيانات
             const query = `
                 INSERT INTO printer 
@@ -66,6 +66,19 @@ get_printer.on('data', (data) => {
                     console.error('printer err db:', err.message);
                 } else {
                     console.log('printer: save     ');
+                    // 🔥 أرسل إشعار للواجهة
+                    io.emit('printer:new', {
+                        id: results.insertId,
+                        date,
+                        time,
+                        sn,
+                        number,
+                        gross,
+                        tare,
+                        net,
+                        customer: '',
+                        type: ''
+                    });
 
                 }
 
@@ -106,6 +119,7 @@ get_printer.on('data', (data) => {
             buffer = [];
         }
     }
+
 });
 
 
@@ -549,38 +563,38 @@ io.on('connection', (socket) => {
 
 // ✅ طباعة تذكرة مباشرة من السيرفر باستخدام ID
 app.post('/print-ticket-direct/:id', async (req, res) => {
-  const { id } = req.params;
+    const { id } = req.params;
 
-  try {
-    // جلب بيانات التذكرة من قاعدة البيانات
-    const [rows] = await pool.promise().query(
-      'SELECT * FROM printer WHERE id = ?', [id]
-    );
+    try {
+        // جلب بيانات التذكرة من قاعدة البيانات
+        const [rows] = await pool.promise().query(
+            'SELECT * FROM printer WHERE id = ?', [id]
+        );
 
-    if (rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'التذكرة غير موجودة' });
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'التذكرة غير موجودة' });
+        }
+
+        const row = rows[0];
+
+        // إنشاء ملف PDF مؤقت
+        const filePath = `d:\\ticket_${id}.pdf`;
+        await createTicket(row, filePath);
+
+        // تنفيذ الطباعة
+        printWithSumatra(filePath, "XP-80");
+
+        // (اختياري) حذف الملف بعد فترة قصيرة
+        setTimeout(() => {
+            try { fs.unlinkSync(filePath); } catch (e) { /* تجاهل */ }
+        }, 5000);
+
+        res.json({ success: true, message: 'تم إرسال أمر الطباعة.' });
+
+    } catch (error) {
+        console.error('خطأ في الطباعة المباشرة:', error);
+        res.status(500).json({ success: false, message: 'فشل في الطباعة' });
     }
-
-    const row = rows[0];
-
-    // إنشاء ملف PDF مؤقت
-    const filePath = `d:\\ticket_${id}.pdf`;
-    await createTicket(row, filePath);
-
-    // تنفيذ الطباعة
-    printWithSumatra(filePath, "XP-80");
-
-    // (اختياري) حذف الملف بعد فترة قصيرة
-    setTimeout(() => {
-      try { fs.unlinkSync(filePath); } catch (e) { /* تجاهل */ }
-    }, 5000);
-
-    res.json({ success: true, message: 'تم إرسال أمر الطباعة.' });
-
-  } catch (error) {
-    console.error('خطأ في الطباعة المباشرة:', error);
-    res.status(500).json({ success: false, message: 'فشل في الطباعة' });
-  }
 });
 
 
