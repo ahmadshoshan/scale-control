@@ -76,23 +76,23 @@
     </div>
   </nav>
   <script>
-  function takeScreenshot() {
-    // نخفي الزر مؤقتاً من الصورة
-    const btn = event.target;
-    btn.style.display = 'none';
+    function takeScreenshot() {
+      // نخفي الزر مؤقتاً من الصورة
+      const btn = event.target;
+      btn.style.display = 'none';
 
-    html2canvas(document.body, { scale: 2 }).then(canvas => {
-      // نعيد إظهار الزر بعد الالتقاط
-      btn.style.display = 'inline-block';
-      
-      // إنشاء رابط لتحميل الصورة
-      const link = document.createElement('a');
-      link.download = 'screenshot.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    });
-  }
-</script>
+      html2canvas(document.body, { scale: 2 }).then(canvas => {
+        // نعيد إظهار الزر بعد الالتقاط
+        btn.style.display = 'inline-block';
+
+        // إنشاء رابط لتحميل الصورة
+        const link = document.createElement('a');
+        link.download = 'screenshot.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+  </script>
 
   <script>
     async function setPrint(status) {
@@ -227,6 +227,9 @@
               <option value="غلة">
               <option value="تبن">
               <option value="خشب">
+              <option value=" خشب صنعه">
+              <option value=" خشب حريق">
+              <option value=" خشب ناشف">
               <option value="لب">
               <option value="فول">
             </datalist>
@@ -243,15 +246,15 @@
               <option value="احمدعلي ">
               <option value="علي محروس ">
             </datalist>
-         <button class="btn btn-outline-danger" type="button" onclick="clearFields()">❌</button>
-</div>
+            <button class="btn btn-outline-danger" type="button" onclick="clearFields()">❌</button>
+          </div>
 
-<script>
-  function clearFields() {
-    document.getElementById('type').value = '';
-    document.getElementById('customer').value = '';
-  }
-</script>
+          <script>
+            function clearFields() {
+              document.getElementById('type').value = '';
+              document.getElementById('customer').value = '';
+            }
+          </script>
 
           <div class="input-group mb-3">
             <input id="edpInput" type="text" placeholder="EDP input here…" class="form-control">
@@ -355,7 +358,8 @@
 
 
     <!-- عنصر الصوت -->
-    <audio id="audioPlayer" controls style="display:none;"></audio>
+    <audio id="audioPlayer" controls ></audio>
+    <!-- <audio id="audioPlayer" controls style="display:none;"></audio> -->
   </main>
 
   <!-- تضمين مكتبة Socket.IO -->

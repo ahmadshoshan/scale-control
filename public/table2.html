@@ -150,20 +150,25 @@
         data.forEach(row => {
           const tr = document.createElement('tr');
           const printBtnHtml = `<button class="btn btn-outline-primary btn-sm print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>🖨</button>`;
+        const printDirectBtnHtml = `<button class="btn btn-outline-success btn-sm print-btn" onclick='printTicketDirect(${row.id})'>🖨️ مباشر</button>`;
           const editBtnHtml = `<button class="btn btn-outline-warning btn-sm" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>✏</button>`;
           // console.log(row);
 
-          tr.innerHTML = `
-       
-            <td>${row.date}<br>${row.time}</td>
-            <td>${row.sn}</td>
-            <td>${row.number}</td>
-            <td>${row.gross}</td>
-            <td>${row.tare}</td>
-            <td>${row.net}</td>
-            <td>${row.customer} -- ${row.type}</td>
-            <td>${printBtnHtml} ${editBtnHtml}</td>
-          `;
+  tr.innerHTML = `
+  <td>${row.date}<br>${row.time}</td>
+  <td>${row.sn}</td>
+  <td>${row.number}</td>
+  <td>${row.gross}</td>
+  <td>${row.tare}</td>
+  <td>${row.net}</td>
+  <td>${row.customer} -- ${row.type}</td>
+  <td>
+    ${printBtnHtml}
+    ${printDirectBtnHtml}
+    ${editBtnHtml}
+  </td>
+`;
+          
           tableBody.appendChild(tr);
         });
 
@@ -221,6 +226,79 @@
 
     window.onload = fetchData2;
     document.getElementById('load-more-btn2').addEventListener('click', fetchData2);
+
+
+
+
+     // طباعة بحث برقم العربية
+    async function fetchData3() {
+      const searchType = document.getElementById('searchType').value;
+      const searchValue = document.getElementById('searchValue').value;
+      console.log(searchType);
+      console.log(searchValue);
+      try {
+        const response = await fetch(`/get-data3?type=${encodeURIComponent(searchType)}&value=${encodeURIComponent(searchValue)}`);
+        const data = await response.json();
+        const tableBody = document.querySelector('#data-table2 tbody');
+        tableBody.innerHTML = "";
+
+        if (data.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">لا توجد نتائج</td></tr>`;
+          return;
+        }
+
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          const printBtnHtml = `<button class="btn btn-outline-primary print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعة</button>`;
+
+          tr.innerHTML = `
+             <td>${row.date}<br> ${row.time}</td>
+           
+            <td>${row.sn}</td>
+            <td>${row.number}</td>
+            <td>${row.gross}</td>
+            <td>${row.tare}</td>
+            <td>${row.net}</td>
+            <td>${row.customer} -- ${row.type}</td>
+            <td>${printBtnHtml}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+      } catch (error) {
+        console.error('خطأ:', error);
+      }
+    }
+
+    function clearSearch() {
+      document.getElementById('carNumber').value = "";
+      document.querySelector('#data-table2 tbody').innerHTML = "";
+      offset2 = 0;
+      fetchData2();
+    }
+
+
+
+
+    async function printTicketDirect(id) {
+  if (!confirm("هل أنت متأكد من طباعة هذه التذكرة مباشرة؟")) return;
+
+  try {
+    const response = await fetch(`/print-ticket-direct/${id}`, {
+      method: 'POST'
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      alert('✅ تم إرسال أمر الطباعة بنجاح!');
+    } else {
+      alert('❌ فشل في الطباعة: ' + (result.message || 'خطأ غير معروف'));
+    }
+  } catch (error) {
+    console.error('خطأ في طباعة التذكرة:', error);
+    alert('❌ حدث خطأ أثناء محاولة الطباعة.');
+  }
+}
   </script>
 </body>
 

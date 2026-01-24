@@ -53,14 +53,7 @@ get_printer.on('data', (data) => {
 
             const [date, time, sn, number, gross, tare, net] = buffer;
 
-// ظظظظظظظظظظظظظظظظظظظظظظظظظظ"؟
-
-
-
-
-
-
-
+ 
             // إدخال البيانات إلى قاعدة البيانات
             const query = `
                 INSERT INTO printer 
@@ -95,7 +88,7 @@ get_printer.on('data', (data) => {
                         await createTicket({ date, time, sn, number, gross, tare, net, type_p, customer_p }, filePath);
 
                         // ⬇️ استدعاء أمر الطباعة
-                        printWithSumatra(filePath, "XP-80C");
+                        printWithSumatra(filePath, "XP-80");
 
                         console.log("✅ تم تنفيذ الطباعة");
 
@@ -117,7 +110,7 @@ get_printer.on('data', (data) => {
 
 
 // pool.getConnection((err, connection) => {
- 
+
 //     // القيمة اللي انت عايز تبحث بيها في data_value
 //     const dataValue = 'القيمة_اللي_انت_عايزها'; // ← ممكن تغيرها حسب حالتك
 
@@ -126,7 +119,7 @@ get_printer.on('data', (data) => {
 //         SELECT * 
 //         FROM sensor_data 
 //        //    AND data_value = ?  
-     
+
 //         ORDER BY id DESC
 //     `;
 //     // WHERE DATE(date) = CURDATE() 
@@ -136,27 +129,27 @@ get_printer.on('data', (data) => {
 //     connection.query(query, [dataValue], (error, results) => {
 //         connection.release(); // إخلاء الاتصال
 
-     
+
 
 //         // حفظ النتائج في متغيرات
 //         if (results.length > 0) {
 //             // const firstRow = results[0]; // أول صف مثلاً
-    
+
 //             const { id, date, time, number, customer, type, data_value } = firstRow;
 
-          
+
 //             console.log("ID:", id);
 //             console.log("date:", date);
-        
+
 //             console.log("number :", number);
 //             console.log("customer:", customer);
 //             console.log("type:", type);
 //             console.log("data_value:", data_value);
 
-         
+
 //         } else {
 //             console.log("0000000000");
-        
+
 //         }
 //     });
 // });
@@ -504,27 +497,27 @@ app.get('/get-data', (req, res) => {
 });
 
 app.put('/update-ticket/:id', (req, res) => {
-  const { id } = req.params;
-  const { number, customer, type, gross, tare, net } = req.body;
+    const { id } = req.params;
+    const { number, customer, type, gross, tare, net } = req.body;
 
-  const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, net=? WHERE id=?';
+    const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, net=? WHERE id=?';
 
-  pool.query(sql, [number, customer, type, gross, tare, net, id], (err, result) => {
-    if (err) {
-      console.error('❌ خطأ أثناء التحديث:', err);
-      return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
-    }
+    pool.query(sql, [number, customer, type, gross, tare, net, id], (err, result) => {
+        if (err) {
+            console.error('❌ خطأ أثناء التحديث:', err);
+            return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
+        }
 
-    console.log('UPDATE printer:', result.affectedRows);
-    res.json({ success: true, message: 'تم تحديث البيانات بنجاح' });
-  });
+        console.log('UPDATE printer:', result.affectedRows);
+        res.json({ success: true, message: 'تم تحديث البيانات بنجاح' });
+    });
 });
 
 
 // WebSocket listeners
 io.on('connection', (socket) => {
     const ip = socket.handshake.address;
-     console.log('===========================');
+    console.log('===========================');
     console.log(' New Socket Connection');
     console.log(' IP Address:', ip);
     console.log(' Time:', new Date());
@@ -552,6 +545,55 @@ io.on('connection', (socket) => {
     //     io.emit('command-received', { success: true });
     // });
 });
+
+
+// ✅ طباعة تذكرة مباشرة من السيرفر باستخدام ID
+app.post('/print-ticket-direct/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // جلب بيانات التذكرة من قاعدة البيانات
+    const [rows] = await pool.promise().query(
+      'SELECT * FROM printer WHERE id = ?', [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'التذكرة غير موجودة' });
+    }
+
+    const row = rows[0];
+
+    // إنشاء ملف PDF مؤقت
+    const filePath = `d:\\ticket_${id}.pdf`;
+    await createTicket(row, filePath);
+
+    // تنفيذ الطباعة
+    printWithSumatra(filePath, "XP-80");
+
+    // (اختياري) حذف الملف بعد فترة قصيرة
+    setTimeout(() => {
+      try { fs.unlinkSync(filePath); } catch (e) { /* تجاهل */ }
+    }, 5000);
+
+    res.json({ success: true, message: 'تم إرسال أمر الطباعة.' });
+
+  } catch (error) {
+    console.error('خطأ في الطباعة المباشرة:', error);
+    res.status(500).json({ success: false, message: 'فشل في الطباعة' });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // // تشغيل الخادم
