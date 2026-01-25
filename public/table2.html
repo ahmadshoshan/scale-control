@@ -148,8 +148,8 @@ socket.on('printer:new', (row) => {
   const tr = document.createElement('tr');
 
   const printBtnHtml = `
-    <button class="btn btn-outline-primary btn-sm" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>🖨</button>
-    <button class="btn btn-outline-success btn-sm" onclick='printTicketDirect(${row.id})'>🖨️ مباشر</button>
+    <button class="btn btn-outline-primary btn-sm" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعه🖨</button>
+    <button class="btn btn-outline-warning btn-sm" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>✏</button>
   `;
 
   tr.innerHTML = `
@@ -160,7 +160,7 @@ socket.on('printer:new', (row) => {
     <td>${row.tare}</td>
     <td>${row.net}</td>
     <td>${row.customer || ''} -- ${row.type || ''}</td>
-    <td>${printBtnHtml}</td>
+    <td >${printBtnHtml}</td>
   `;
 
   // 🔥 أضف الصف في أول الجدول

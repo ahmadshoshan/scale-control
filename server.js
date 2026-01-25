@@ -122,55 +122,7 @@ get_printer.on('data', (data) => {
 
 });
 
-
-// pool.getConnection((err, connection) => {
-
-//     // القيمة اللي انت عايز تبحث بيها في data_value
-//     const dataValue = 'القيمة_اللي_انت_عايزها'; // ← ممكن تغيرها حسب حالتك
-
-//     // استعلام البيانات المطلوبة
-//     const query = `
-//         SELECT * 
-//         FROM sensor_data 
-//        //    AND data_value = ?  
-
-//         ORDER BY id DESC
-//     `;
-//     // WHERE DATE(date) = CURDATE() 
-
-// //         AND (customer IS NOT NULL AND customer != '') 
-// //         AND (number IS NOT NULL AND number != '')
-//     connection.query(query, [dataValue], (error, results) => {
-//         connection.release(); // إخلاء الاتصال
-
-
-
-//         // حفظ النتائج في متغيرات
-//         if (results.length > 0) {
-//             // const firstRow = results[0]; // أول صف مثلاً
-
-//             const { id, date, time, number, customer, type, data_value } = firstRow;
-
-
-//             console.log("ID:", id);
-//             console.log("date:", date);
-
-//             console.log("number :", number);
-//             console.log("customer:", customer);
-//             console.log("type:", type);
-//             console.log("data_value:", data_value);
-
-
-//         } else {
-//             console.log("0000000000");
-
-//         }
-//     });
-// });
-
-
-
-///////////////////////////////////////////////////////////////
+///
 // ✅ لتحديث حالة الطباعة
 app.get("/set-print/:status", (req, res) => {
     const status = req.params.status === "1" ? 1 : 0;
@@ -365,7 +317,15 @@ let lastMessage = ''; // متغير لتخزين آخر رسالة مستلمة
 let NE = '00';
 // استقبال البيانات من الجهاز وإرسالها إلى الواجهة الأمامية
 parser.on('data', (data) => {
-    const currentMessage = data.trim(); // تنظيف الرسالة الحالية
+    // console.log(data)
+    // const currentMessage = data.trim();
+
+    const currentMessage = data
+        .replace(/[^\p{L}\p{N}]/gu, '')
+        .replace(/[\x00-\x1F\x7F]/g, '')   // رموز التحكم
+        .trim();
+
+    // تنظيف الرسالة الحالية
     // التحقق مما إذا كانت الرسالة الحالية مكررة
     if (currentMessage !== lastMessage) {
         console.log(`rec :: ${currentMessage}`); // عرض الرسالة إذا لم تكن مكررة
