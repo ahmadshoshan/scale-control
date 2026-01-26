@@ -321,7 +321,7 @@ parser.on('data', (data) => {
     // const currentMessage = data.trim();
 
     const currentMessage = data
-        .replace(/[^\p{L}\p{N}]/gu, '')
+        // .replace(/[^\p{L}\p{N}]/gu, '')
         .replace(/[\x00-\x1F\x7F]/g, '')   // رموز التحكم
         .trim();
 
@@ -359,6 +359,7 @@ parser.on('data', (data) => {
     // التحقق مما إذا كانت الرسالة تبدأ بـ "GROSS{"
     if (startsWithGross(currentMessage) && match == "") {
         match = currentMessage.match(/^GROSS\{(.*)\}$/);
+        
     }
     if (startsWithDate(currentMessage) && match1 == "") {
         match1 = currentMessage.match(/^DATE\{(.*)\}$/);
