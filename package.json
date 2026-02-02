@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "@serialport/parser-readline": "^13.0.0",
+    "axios": "^1.13.4",
     "bcrypt": "^5.1.1",
+    "digest-fetch": "^3.1.1",
     "escpos": "^3.0.0-alpha.6",
     "escpos-usb": "^3.0.0-alpha.4",
     "express": "^5.1.0",

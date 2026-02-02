@@ -15,7 +15,7 @@
     .center { text-align: center; }
     .small { font-size: 13px; }
     .medium { font-size: 15px; }
-    .large { font-size: 16px; }
+    .large { font-size: 18px; }
     .large2 { font-size: 25px; }
     .bold { font-weight: 700; }
     .line { border-top: 1px dashed #000; margin: 6px 0; }
@@ -49,10 +49,10 @@
   <div class="line"></div>
 
   <table>
-    <tr><td class="label">التاريخ :</td><td class="value center" id="date"></td></tr>
-    <tr><td class="label">الوقت :</td><td class="value center" id="time"></td></tr>
+    <tr><td class="label">التاريخ :</td><td class="value bold center" id="date"></td></tr>
+    <tr><td class="label">الوقت :</td><td class="value bold center" id="time"></td></tr>
     <tr><td class="label">المسلسل :</td><td class="value center" id="sn"></td></tr>
-    <tr><td class="label">رقم السيارة :</td><td class="value center" id="number"></td></tr>
+    <tr><td class="label ">رقم السيارة :</td><td class="value large bold center" id="number"></td></tr>
   </table>
   <hr>
   <table>
@@ -66,6 +66,7 @@
     <tr><td class="label">اسم العميل :</td><td class="value" id="customer"></td></tr>
   </table>
 
+  <div class="center small" id="total"></div>
   <div class="line"></div>
   <div class="center small">الميزان غير مسئول عن فقدان الكارت</div>
 
@@ -92,6 +93,7 @@
       document.getElementById("net").textContent = toArabicNumbers(row.net || '') + " كيلو";
       document.getElementById("type").textContent = row.type || '';
       document.getElementById("customer").textContent = row.customer || '';
+      document.getElementById("total").textContent = row.total || '000';
     }
 
     // اطبع تلقائي بعد التحميل

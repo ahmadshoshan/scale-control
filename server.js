@@ -41,10 +41,23 @@ let buffer = []; // تخزين المؤقت للبيانات
 const expectedLines = 7; // عدد السطور المتوقعة لكل عملية طباعة
 
 get_printer.on('data', (data) => {
-    const line = data.toString().trim();
-    console.log(`print    : ${line}`);
 
-    if (line) {
+    const line = data
+        .toString('utf8')
+        .replace(/�/g, '')                 // 🔥 حذف الرمز
+        .replace(/[^\x20-\x7E\u0600-\u06FF]/g, '')
+        .trim();
+    console.log(`print    : ${line}`);
+    const isValidLine = (line) => {
+        return (
+            /^\d{2}\/\d{2}\/\d{4}$/.test(line) ||     // تاريخ
+            /^\d{2}:\d{2}[AP]M$/.test(line) ||       // وقت
+            /^\d+$/.test(line) ||                    // أرقام
+            /kg/i.test(line)                         // وزن
+        );
+    };
+
+    if (line && !line.includes('�') && isValidLine(line)) {
 
         buffer.push(line);
 
@@ -57,15 +70,16 @@ get_printer.on('data', (data) => {
             // إدخال البيانات إلى قاعدة البيانات
             const query = `
                 INSERT INTO printer 
-                (date, time, sn, number, gross, tare, net,type,customer) 
-                VALUES (?, ?, ?, ?, ?, ?, ?,?,?)
+                (date, time, sn, number, gross, tare, net,type,customer,total,images) 
+                VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?)
             `;
-
-            pool.query(query, [date, time, sn, number, gross, tare, net, '', ''], async (err, results) => {
+const images =`${Date.now()}_${number}_${net}`;
+            pool.query(query, [date, time, sn, number, gross, tare, net, '', '', '', images], async (err, results) => {
                 if (err) {
                     console.error('printer err db:', err.message);
                 } else {
                     console.log('printer: save     ');
+
                     // 🔥 أرسل إشعار للواجهة
                     io.emit('printer:new', {
                         id: results.insertId,
@@ -77,8 +91,13 @@ get_printer.on('data', (data) => {
                         tare,
                         net,
                         customer: '',
-                        type: ''
+                        type: '',
+                        images
                     });
+                    // استدعاء مباشر مع تأخير
+                    // setTimeout(() => {
+                        captureImage(images,'print');
+                    // }, 800); // تأخير .5 ثانية
 
                 }
 
@@ -98,7 +117,7 @@ get_printer.on('data', (data) => {
                     if (rows.length > 0 && rows[0].print === 1) {
                         // ⬇️ إنشاء ملف التذكرة
                         const filePath = "d:\\dd.pdf";
-                        await createTicket({ date, time, sn, number, gross, tare, net, type_p, customer_p }, filePath);
+                        await createTicket({ date, time, sn, number, gross, tare, net, type_p, customer_p  }, filePath);
 
                         // ⬇️ استدعاء أمر الطباعة
                         printWithSumatra(filePath, "XP-80");
@@ -359,13 +378,14 @@ parser.on('data', (data) => {
     // التحقق مما إذا كانت الرسالة تبدأ بـ "GROSS{"
     if (startsWithGross(currentMessage) && match == "") {
         match = currentMessage.match(/^GROSS\{(.*)\}$/);
-        
+
     }
     if (startsWithDate(currentMessage) && match1 == "") {
         match1 = currentMessage.match(/^DATE\{(.*)\}$/);
+        let images =`${Date.now()}_${match[1]}_${NE}`;
         // تخزين الرسالة في قاعدة البيانات
-        const query = 'INSERT INTO sensor_data (data_value,date,number,type,customer) VALUES (?,?,?,?,?)';
-        pool.query(query, [match[1], match1[1], NE, type_id, customer_id], (err, results) => {
+        const query = 'INSERT INTO sensor_data (data_value,date,number,type,customer,images) VALUES (?,?,?,?,?,?)';
+        pool.query(query, [match[1], match1[1], NE, type_id, customer_id,images], (err, results) => {
             if (err) {
                 console.error('err db:', err.message);
             } else {
@@ -373,9 +393,11 @@ parser.on('data', (data) => {
                 io.emit('responseID', '');
                 type_id = '';
                 customer_id = '';
+                    captureImage(images,'sensor');
             }
             match = ""; match1 = "";
             NE = '';
+           
         });
 
     }
@@ -396,7 +418,7 @@ app.get('/get-data2', (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const offset = parseInt(req.query.offset) || 0;
 
-        const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `net`, `customer`, `type` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
+        const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `net`, `customer`, `type`,`total`,`images` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
         connection.query(query, [limit, offset], (error, results) => {
             connection.release(); // إخلاء الاتصال
             if (error) {
@@ -473,11 +495,11 @@ app.get('/get-data', (req, res) => {
 
 app.put('/update-ticket/:id', (req, res) => {
     const { id } = req.params;
-    const { number, customer, type, gross, tare, net } = req.body;
+    const { number, customer, type, gross, tare, net, total } = req.body;
 
-    const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, net=? WHERE id=?';
+    const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, net=?, total=? WHERE id=?';
 
-    pool.query(sql, [number, customer, type, gross, tare, net, id], (err, result) => {
+    pool.query(sql, [number, customer, type, gross, tare, net, total, id], (err, result) => {
         if (err) {
             console.error('❌ خطأ أثناء التحديث:', err);
             return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
@@ -589,3 +611,88 @@ server.listen(PORT, HOST, () => {
 
 
 
+
+
+
+
+
+
+const DigestFetch = require('digest-fetch').default;
+
+
+
+const client = new DigestFetch('admin', 'admin100');
+
+// async function captureImage(car_No_Date_weight) {
+//   const url = 'http://192.168.1.2/ISAPI/Streaming/channels/201/picture';
+//   const url1 = 'http://192.168.1.2/ISAPI/Streaming/channels/401/picture';
+//   const url2 = 'http://192.168.1.2/ISAPI/Streaming/channels/701/picture';
+
+//   try {
+//     const response = await client.fetch(url);
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+//     const buffer = await response.arrayBuffer();
+//     const fileName = `images/${car_No_Date_weight}.jpg`;
+//     fs.writeFileSync(fileName, Buffer.from(buffer));
+
+//     console.log('📸 تم حفظ الصورة:', fileName);
+//     return fileName;
+//   } catch (error) {
+//     console.error('خطأ في تحميل الصورة:', error.message || error);
+//     return null;
+//   }
+// }
+
+
+
+
+async function captureImage(car_No_Date_weight,path) {
+    // انتظار 1.5 ثانية (1500 ملي ثانية) قبل التقاط الصورة
+
+    const urls = [
+        'http://192.168.1.2/ISAPI/Streaming/channels/201/picture',
+        'http://192.168.1.2/ISAPI/Streaming/channels/401/picture',
+        'http://192.168.1.2/ISAPI/Streaming/channels/701/picture'
+    ];
+
+    try {
+
+
+        // إنشاء مصفوفة من الوعود (Promises)
+        const promises = urls.map(async (url, index) => {
+            try {
+
+                const response = await client.fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const buffer = await response.arrayBuffer();
+                const fileName = `images/${path}/${car_No_Date_weight}_cam${index + 1}.jpg`;
+                fs.writeFileSync(fileName, Buffer.from(buffer));
+
+                console.log(`cam ${index + 1} `);
+                return fileName;
+
+            } catch (error) {
+                console.error(`cam    ${index + 1}:`, error.message || error);
+                return null;
+            }
+        });
+
+        // انتظار اكتمال جميع الوعود
+        const savedFiles = await Promise.all(promises);
+
+        // عرض النتائج
+        const successful = savedFiles.filter(file => file !== null).length;
+        console.log(` save  ${successful} from ${urls.length}  `);
+
+        return savedFiles;
+
+    } catch (error) {
+        console.error('خطأ في تحميل الصور:', error.message || error);
+        return [null, null, null];
+    }
+}
