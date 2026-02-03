@@ -73,7 +73,7 @@ get_printer.on('data', (data) => {
                 (date, time, sn, number, gross, tare, net,type,customer,total,images) 
                 VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?)
             `;
-const images =`${Date.now()}_${number}_${net}`;
+            const images = `${Date.now()}_${number}_${net}`;
             pool.query(query, [date, time, sn, number, gross, tare, net, '', '', '', images], async (err, results) => {
                 if (err) {
                     console.error('printer err db:', err.message);
@@ -96,7 +96,7 @@ const images =`${Date.now()}_${number}_${net}`;
                     });
                     // استدعاء مباشر مع تأخير
                     // setTimeout(() => {
-                        captureImage(images,'print');
+                    captureImage(images, 'print');
                     // }, 800); // تأخير .5 ثانية
 
                 }
@@ -117,7 +117,7 @@ const images =`${Date.now()}_${number}_${net}`;
                     if (rows.length > 0 && rows[0].print === 1) {
                         // ⬇️ إنشاء ملف التذكرة
                         const filePath = "d:\\dd.pdf";
-                        await createTicket({ date, time, sn, number, gross, tare, net, type_p, customer_p  }, filePath);
+                        await createTicket({ date, time, sn, number, gross, tare, net, type_p, customer_p }, filePath);
 
                         // ⬇️ استدعاء أمر الطباعة
                         printWithSumatra(filePath, "XP-80");
@@ -299,7 +299,7 @@ async function createTicket(row, outputPath) {
 
 
 // تقديم الملفات الثابتة
-app.use(express.static(path.join(__dirname)));
+// app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -334,6 +334,10 @@ let match = "";
 let match1 = "";
 let lastMessage = ''; // متغير لتخزين آخر رسالة مستلمة
 let NE = '00';
+
+let sendInterval = null;
+// let alertPlayed = false; // لمنع تكرار الصوت
+
 // استقبال البيانات من الجهاز وإرسالها إلى الواجهة الأمامية
 parser.on('data', (data) => {
     // console.log(data)
@@ -363,9 +367,26 @@ parser.on('data', (data) => {
     if (!isNaN(weight) && weight < -10) {
         playSoundAlert("yagib_tasfier_almezan.mp3", io);
     }
-
+ 
     if (!isNaN(weight) && weight > 300) {
         playSoundAlert('yogad_sayara_almezan1.mp3', io);
+
+        // شغّل الإرسال مرة واحدة فقط
+        if (!sendInterval) {
+            sendInterval = setInterval(() => {
+                port.write(`p\r`, (err) => {
+                    if (err) {
+                        console.error('خطأ في إرسال command:', err.message);
+                    }
+                });
+            }, 1000);
+        }
+    } else {
+        if (sendInterval) {
+            clearInterval(sendInterval);
+            sendInterval = null;
+            console.log('stop send p  ');
+        }
     }
     // دالة للتحقق مما إذا كانت الرسالة تبدأ بـ "GROSS{"
     function startsWithGross(message) {
@@ -381,23 +402,26 @@ parser.on('data', (data) => {
 
     }
     if (startsWithDate(currentMessage) && match1 == "") {
+
         match1 = currentMessage.match(/^DATE\{(.*)\}$/);
-        let images =`${Date.now()}_${match[1]}_${NE}`;
+        let images = `${Date.now()}_${match[1]}_${NE}`;
         // تخزين الرسالة في قاعدة البيانات
         const query = 'INSERT INTO sensor_data (data_value,date,number,type,customer,images) VALUES (?,?,?,?,?,?)';
-        pool.query(query, [match[1], match1[1], NE, type_id, customer_id,images], (err, results) => {
+        pool.query(query, [match[1], match1[1], NE, type_id, customer_id, images], (err, results) => {
             if (err) {
                 console.error('err db:', err.message);
             } else {
+                captureImage(images, 'sensor');
                 console.log('  save  in db.');
+
                 io.emit('responseID', '');
                 type_id = '';
                 customer_id = '';
-                    captureImage(images,'sensor');
+
             }
             match = ""; match1 = "";
             NE = '';
-           
+
         });
 
     }
@@ -525,22 +549,7 @@ io.on('connection', (socket) => {
         console.log(`❌ Disconnected:  (${ip})`);
     });
 
-    // // استقبال أوامر من الواجهة
-    // socket.on('send-command', (data) => {
-    //     const { command, type, customer } = data;
-    //     console.log(`📤 أمر مستلم: ${command} | النوع: ${type} | العميل: ${customer}`);
 
-    //     // تمرير النوع والعميل للوحدات المناسبة
-    //     setPendingTypeCustomer(type, customer);
-    //     setSensorPending(type, customer);
-
-    //     if (command === 'print') {
-    //         // مثال: ممكن تستدعي دالة الطباعة هنا
-    //         console.log('🖨️ تنفيذ أمر الطباعة...');
-    //     }
-
-    //     io.emit('command-received', { success: true });
-    // });
 });
 
 
@@ -593,11 +602,6 @@ app.post('/print-ticket-direct/:id', async (req, res) => {
 
 
 
-// // تشغيل الخادم
-// server.listen(3000, '192.168.1.222', () => {
-//     console.log('http://192.168.1.222:3000');
-
-// });
 
 // تشغيل الخادم
 const PORT = process.env.PORT || 3000;
@@ -623,32 +627,10 @@ const DigestFetch = require('digest-fetch').default;
 
 const client = new DigestFetch('admin', 'admin100');
 
-// async function captureImage(car_No_Date_weight) {
-//   const url = 'http://192.168.1.2/ISAPI/Streaming/channels/201/picture';
-//   const url1 = 'http://192.168.1.2/ISAPI/Streaming/channels/401/picture';
-//   const url2 = 'http://192.168.1.2/ISAPI/Streaming/channels/701/picture';
-
-//   try {
-//     const response = await client.fetch(url);
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-//     const buffer = await response.arrayBuffer();
-//     const fileName = `images/${car_No_Date_weight}.jpg`;
-//     fs.writeFileSync(fileName, Buffer.from(buffer));
-
-//     console.log('📸 تم حفظ الصورة:', fileName);
-//     return fileName;
-//   } catch (error) {
-//     console.error('خطأ في تحميل الصورة:', error.message || error);
-//     return null;
-//   }
-// }
 
 
 
-
-async function captureImage(car_No_Date_weight,path) {
+async function captureImage(car_No_Date_weight, path) {
     // انتظار 1.5 ثانية (1500 ملي ثانية) قبل التقاط الصورة
 
     const urls = [
@@ -670,7 +652,7 @@ async function captureImage(car_No_Date_weight,path) {
                 }
 
                 const buffer = await response.arrayBuffer();
-                const fileName = `images/${path}/${car_No_Date_weight}_cam${index + 1}.jpg`;
+                const fileName = `public/images/${path}/${car_No_Date_weight}_cam${index + 1}.jpg`;
                 fs.writeFileSync(fileName, Buffer.from(buffer));
 
                 console.log(`cam ${index + 1} `);

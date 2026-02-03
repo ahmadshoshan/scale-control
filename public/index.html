@@ -158,9 +158,21 @@
 
 
     </div>
-    <h3 id="response11">
-      --
-    </h3>
+    <div class="container text-center">
+      <div class="row align-items-start">
+        <div class="col">
+          <h3 id="response11">
+            --
+          </h3>
+        </div>
+        <div class="col">
+          <h3 id="response12">
+            --
+          </h3>
+        </div>
+      </div>
+    </div>
+
     <!-- إضافة علامة لتدفق البيانات
     <div id="streamIndicator" style="display: none;">
      
@@ -359,7 +371,7 @@
 
 
     <!-- عنصر الصوت -->
-    <audio id="audioPlayer" controls ></audio>
+    <audio id="audioPlayer" controls></audio>
     <!-- <audio id="audioPlayer" controls style="display:none;"></audio> -->
   </main>
 
@@ -381,9 +393,9 @@
         });
     }
     function sendCommand(command) {
-      if (!isStreaming) {
-        toggleStream();
-      }
+      // if (!isStreaming) {
+      //   toggleStream();
+      // }
       const typeInput = document.getElementById('type');
       const customerInput = document.getElementById('customer');
 
@@ -403,6 +415,9 @@
         // إعادة ضبط الحقول
         typeInput.value = '';
         customerInput.value = '';
+        // console.log('data');
+        // console.log(data);
+
       }
 
     }
@@ -432,10 +447,20 @@
 
         document.getElementById('response1').innerText += " " + data + "\n";
         console.log(data)
+
         if (data.slice(-2).toUpperCase() === "NE") {
           document.getElementById('response11').innerText = data;
         }
-
+        else {
+          if (data.toUpperCase() === "OK") {
+document.getElementById('response12').innerText = data;
+          } else {
+            document.getElementById('response11').innerText = '---';
+          }
+        }
+        if (data.slice(0, 5).toUpperCase() === "GROSS") {
+          document.getElementById('response12').innerText = data;
+        }
 
         const box = document.getElementById('response1');
         box.scrollTop = box.scrollHeight; // يعمل سكرول تلقائي للأسفل   
