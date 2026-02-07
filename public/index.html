@@ -152,27 +152,45 @@
     <!-- <h2>الرد من الجهاز:</h2> -->
     <div i class="alert alert-secondary">
 
-      <h1 id="response">
-        --
-      </h1>
+
+      <div class="container text-center">
+        <div class="row align-items-start">
+          <div class="col">
+            <h1 id="response">
+              --
+            </h1>
+
+            <h3 id="response11">
+              --
+            </h3>
+
+          </div>
 
 
-    </div>
-    <div class="container text-center">
-      <div class="row align-items-start">
-        <div class="col">
-          <h3 id="response11">
-            --
-          </h3>
-        </div>
-        <div class="col">
-          <h3 id="response12">
-            --
-          </h3>
+          <!-- <div class="col">
+            <h6 id="response12">
+              --
+            </h6>
+            <h6 id="response13">
+              --
+            </h6>
+          </div> -->
+          <div class="col">
+
+            <div id="data-table2">
+
+
+            </div>
+          </div>
+
+
+
+
+
+
         </div>
       </div>
     </div>
-
     <!-- إضافة علامة لتدفق البيانات
     <div id="streamIndicator" style="display: none;">
      
@@ -349,7 +367,130 @@
             <!-- البيانات هتظهر هنا -->
           </div>
         </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
 
+          socket = io();
+
+          socket.on('printer:new', (row) => {
+            console.log('🆕 تذكرة جديدة:', row);
+            setTimeout(() => {
+              const tableBody = document.getElementById('data-table2');
+              const printBtnHtml = `
+                   <button id="${row.sn}" class="btn btn-outline-primary btn-sm" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعه🖨</button>
+                  `;
+              tableBody.innerHTML = `
+                        <div>
+                    <img  id="ticketImg"
+                      src="images/print/${row.images}_cam1.jpg"
+                      style="max-width:60px; max-height:40px; cursor:pointer;"
+                      onclick="openImg(this.src)"
+                    >
+                  </div>
+                    <div>
+                       <div>${row.number}</div>
+                       <div>${row.gross}</div>
+                       <div> ${row.tare}</div>
+                       <div> ${row.net}</div>
+                    </div>
+                 <div >${printBtnHtml}</div> `;
+
+
+              const img = document.getElementById('ticketImg');
+              if (img) {
+                let head = `
+                      <div class="card shadow-sm p-2" style="max-width: 420px;">
+                        <div class="row align-items-center">
+                        
+                          <!-- بيانات التذكرة -->
+                          <div class="col-5 small">
+                            <div><strong>رقم:</strong> ${row.number}</div>
+                            <div><strong>الوزن الاول:</strong> ${row.gross}</div>
+                            <div><strong>الوزن الثاني:</strong> ${row.tare}</div>
+                            <div><strong>الصافي:</strong> ${row.net}</div>
+                          </div>
+                        
+                          <!-- زر الطباعة -->
+                          <div class="col-3 text-center">
+                            <button
+                              class="btn btn-outline-primary btn-sm w-100"
+                              onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+                              🖨 طباعة
+                            </button>
+                          </div>
+                        
+                        </div>
+                      </div>
+                    `;
+                openImg(img.src, head);
+
+              }
+
+            }, 500); // تأخير 2 ثانية قبل إضافة الصف
+          });
+
+          //////////////////////////////////////////
+
+          socket.on('id:new', (row) => {
+
+            setTimeout(() => {
+              const tableBody = document.getElementById('data-table2');
+
+              tableBody.innerHTML = `
+                        <div>
+                    <img  id="ticketImg"
+                      src="images/sensor/${row.images}_cam1.jpg"
+                      style="max-width:60px; max-height:40px; cursor:pointer;"
+                      onclick="openImg(this.src)"
+                    >
+                  </div>
+                    <div>
+                      <div> ${row.gross}</div>
+                       <div>${row.NE}</div>
+                    
+                    </div> `;
+
+              // ✅ استدعاء مباشر بعد الإضافة
+              const img = document.getElementById('ticketImg');
+              if (img) {
+                let head = `
+                    <div class="card shadow-sm p-2" style="max-width: 420px;">
+                      <div class="row align-items-center">
+                      
+                        <!-- بيانات التذكرة -->
+                        <div class="col-5 small">
+                          <div><strong>رقم:</strong> ${row.NE}</div>
+                          <div><strong>إجمالي:</strong> ${row.gross}</div>
+                        
+                        </div>
+                      
+                      
+                      
+                      </div>
+                    </div>
+                  `;
+                openImg(img.src, head);
+
+              }
+
+
+
+            }, 500); // تأخير 2 ثانية قبل إضافة الصف
+          });
+
+
+
+          //////////////////////////////////////////
+
+
+
+
+          function printTicket(row) {
+
+            localStorage.setItem("ticketData", JSON.stringify(row));
+            window.open("ticket.html", "_blank", "width=650,height=650");
+          }
+        </script>
       </div>
     </div>
 
@@ -363,7 +504,77 @@
 
 
 
+    <!-- ///////////////////////////////////////// -->
+    <div id="imgModal" class="img-modal" onclick="closeImg()">
+      <span class="img-close">×</span>
 
+      <div class="container mt-4">
+        <div class="row justify-content-center">
+
+          <div class="col-md-8">
+            <div id="head"></div>
+          </div>
+          <div class="col-md-8">
+            <img id="modalImg">
+          </div>
+
+        </div>
+      </div>
+
+
+
+    </div>
+    <style>
+      .img-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .9);
+        z-index: 9999;
+        padding: 10px;
+      }
+
+      .img-modal img {
+        max-width: 100%;
+        max-height: 100%;
+        margin: auto;
+        display: block;
+        object-fit: contain;
+      }
+
+      .img-close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 32px;
+        color: #fff;
+        cursor: pointer;
+      }
+    </style>
+    <script>
+      // 
+
+      function openImg(src, head) {
+        if (head) {
+
+          document.getElementById("head").innerHTML = head;
+        }
+
+
+        document.body.style.overflow = 'hidden';
+        document.getElementById("modalImg").src = src;
+        document.getElementById("imgModal").style.display = "flex";
+      }
+
+      function closeImg() {
+        document.body.style.overflow = 'auto';
+        document.getElementById("imgModal").style.display = "none";
+      }
+
+    </script>
+
+
+    <!-- ///////////////////////////////////////// -->
 
 
 
@@ -372,7 +583,6 @@
 
     <!-- عنصر الصوت -->
     <audio id="audioPlayer" controls></audio>
-    <!-- <audio id="audioPlayer" controls style="display:none;"></audio> -->
   </main>
 
   <!-- تضمين مكتبة Socket.IO -->
@@ -393,9 +603,7 @@
         });
     }
     function sendCommand(command) {
-      // if (!isStreaming) {
-      //   toggleStream();
-      // }
+
       const typeInput = document.getElementById('type');
       const customerInput = document.getElementById('customer');
 
@@ -411,12 +619,10 @@
         });
 
       if (command == 'Kid' || command == 'KPRINT') {
-        // fetchData();
-        // إعادة ضبط الحقول
+
         typeInput.value = '';
         customerInput.value = '';
-        // console.log('data');
-        // console.log(data);
+
 
       }
 
@@ -450,16 +656,17 @@
 
         if (data.slice(-2).toUpperCase() === "NE") {
           document.getElementById('response11').innerText = data;
+          // document.getElementById('response13').innerText = data;
         }
         else {
           if (data.toUpperCase() === "OK") {
-document.getElementById('response12').innerText = data;
+            // document.getElementById('response12').innerText = data;
           } else {
             document.getElementById('response11').innerText = '---';
           }
         }
         if (data.slice(0, 5).toUpperCase() === "GROSS") {
-          document.getElementById('response12').innerText = data;
+          // document.getElementById('response12').innerText = data;
         }
 
         const box = document.getElementById('response1');

@@ -367,7 +367,7 @@ parser.on('data', (data) => {
     if (!isNaN(weight) && weight < -10) {
         playSoundAlert("yagib_tasfier_almezan.mp3", io);
     }
- 
+
     if (!isNaN(weight) && weight > 300) {
         playSoundAlert('yogad_sayara_almezan1.mp3', io);
 
@@ -415,9 +415,17 @@ parser.on('data', (data) => {
                 console.log('  save  in db.');
 
                 io.emit('responseID', '');
+                gross = match[1];
+          
+                // 🔥 أرسل إشعار للواجهة
+                io.emit('id:new', {
+
+                    gross,
+                    NE,
+                    images
+                });
                 type_id = '';
                 customer_id = '';
-
             }
             match = ""; match1 = "";
             NE = '';
@@ -599,10 +607,6 @@ app.post('/print-ticket-direct/:id', async (req, res) => {
 
 
 
-
-
-
-
 // تشغيل الخادم
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '192.168.1.222';
@@ -678,3 +682,9 @@ async function captureImage(car_No_Date_weight, path) {
         return [null, null, null];
     }
 }
+
+
+
+
+
+
