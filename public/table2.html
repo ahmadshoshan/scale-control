@@ -333,6 +333,8 @@
 
     socket.on('printer:new', (row) => {
       console.log('🆕 تذكرة جديدة:', row);
+        // 🔔 إشعار
+
       setTimeout(() => {
         const tableBody = document.querySelector('#data-table2 tbody');
 
@@ -513,7 +515,7 @@
         offset2 += limit2;
       } catch (error) {
         console.error('خطأ:', error);
-      }
+      } 
     }
 
     function openEdit(row) {
@@ -800,6 +802,14 @@ async function updateAndPrint() {
 
     //////////////////////////////////////////
 
+    socket.on('id:new', (row) => {
+      console.log(row);
+      
+       
+        showToast(row);
+
+
+    });
     // socket.on('id:new', (row) => {
 
     //   setTimeout(() => {
@@ -846,6 +856,63 @@ async function updateAndPrint() {
   </script>
 
 
+<script>
+
+
+function showToast(row) { 
+  if (row.NE) {
+    
+  
+  setTimeout(() => {
+  document.getElementById("toastBody").innerHTML =
+    `  تم اضافه سياره قم ${row.NE} (وزن: ${row.gross})`;
+// 🖼️ صورة من الكاميرا الأولى
+  document.getElementById("toastImg1").src =
+    `images/sensor/${row.images}_cam1.jpg`;
+  document.getElementById("toastImg2").src =
+    `images/sensor/${row.images}_cam2.jpg`;
+  document.getElementById("toastImg3").src =
+    `images/sensor/${row.images}_cam3.jpg`;
+
+
+  const toastEl = document.getElementById('liveToast');
+  const toast = new bootstrap.Toast(toastEl, {
+    delay: 10000 // 10 ثواني
+  });
+
+  toast.show();}, 500);
+  // console.log( document.getElementById("toastImg"));
+  }
+  
+}
+
+</script>
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <div id="liveToast" class="toast" role="alert">
+    <div class="toast-header">
+      
+      <strong class="me-auto">📢 إشعار</strong>
+      <small>الآن</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+    </div>
+<div style="display:flex; justify-content:center; gap:4px;">
+     <img id="toastImg1"
+           src=""
+           class="rounded me-2"
+           style="width:80px;height:80px;object-fit:cover;">
+     <img id="toastImg2"
+           src=""
+           class="rounded me-2"
+           style="width:80px;height:80px;object-fit:cover;">
+     <img id="toastImg3"
+           src=""
+           class="rounded me-2"
+           style="width:80px;height:80px;object-fit:cover;"></div>
+
+    <h4 class="toast-body" id="toastBody"></h4>
+
+  </div>
+</div>
 
 
 
