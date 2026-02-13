@@ -139,6 +139,15 @@
 
         <button class="on button2" onclick="setPrint(1)">تشغيل الطباعة الحراريه</button>
         <button class="off button2" onclick="setPrint(0)">إيقاف الطباعةالحراريه</button>
+
+        <button class="on button2" onclick="setSound(1)">🔊 تشغيل الصوت</button>
+        <button class="off button2" onclick="setSound(0)">🔇 إيقاف الصوت</button>
+
+        <p id="soundStatus">جاري تحميل حالة الصوت...</p>
+
+
+        <div class="bootstrap-switch-container" style="width: 126px; margin-left: 0px;"><span class="bootstrap-switch-handle-on bootstrap-switch-success" style="width: 42px;">ON</span><span class="bootstrap-switch-label" style="width: 42px;">&nbsp;</span><span class="bootstrap-switch-handle-off bootstrap-switch-danger" style="width: 42px;">OFF</span><input type="checkbox" name="my-checkbox" checked="" data-bootstrap-switch="" data-off-color="danger" data-on-color="success"></div>
+
         <!-- <button class="btn btn-info w-5 " onclick="sendCommand('SX')">تفعيل</button>
       <button class="btn btn-info w-5 " onclick="sendCommand('EX')">ايقاف</button> -->
         <button type="button" id="streamButton" class="btn btn-primary" onclick="toggleStream()">Start
@@ -146,6 +155,25 @@
       </ul>
     </div>
   </div>
+  <script>
+    async function setSound(status) {
+      await fetch(`/set-sound/${status}`);
+      loadSoundStatus();
+    }
+
+    async function loadSoundStatus() {
+      const res = await fetch("/get-sound");
+      const data = await res.json();
+
+      document.getElementById("soundStatus").innerText =
+        data.sound === 1
+          ? "🔊 الصوت مفعل"
+          : "🔇 الصوت متوقف";
+    }
+
+    loadSoundStatus();
+    setInterval(loadSoundStatus, 3000);
+  </script>
 
   <!-- المحتوى الرئيسي -->
   <main class="container mt-4">

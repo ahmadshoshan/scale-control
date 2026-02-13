@@ -78,36 +78,41 @@
 
   <!-- نافذة التعديل -->
 
-  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+ <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="container">
+      <div class="row g-3 justify-content-center">
 
+        <!-- لوحة التعديل -->
+        <div class="col-md-4">
+          <div class="modal-content">
 
-      <div class="container">
-        <div class=" row g-3 justify-content-center">
-          <!-- <div class="row  align-items-start"></div> -->
-          <!-- لوحة التعديل -->
-          <div class="col-md-4">
+            <div class="modal-header">
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+              <h5 class="modal-title" id="editModalLabel">تعديل </h5>
+            </div>
 
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">تعديل التذكرة</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-              </div>
-              <div class="modal-body">
-                <form id="editForm">
-                  <input type="hidden" id="editId">
-                  <input type="hidden" id="editDate">
-                  <input type="hidden" id="editTime">
-                  <input type="hidden" id="editSn">
+            <div class="modal-body">
+              <form id="editForm">
 
-                  
-                  <div class="mb-2">
-                    <label>رقم السيارة:</label>
+                <input type="hidden" id="editId">
+                <input type="hidden" id="editDate">
+                <input type="hidden" id="editTime">
+                <input type="hidden" id="editSn">
+
+                <!-- رقم السيارة -->
+                <div class="row mb-2 align-items-center">
+                  <label class="col-4 col-form-label fw-bold">رقم السيارة</label>
+                  <div class="col-8">
                     <input type="text" id="editNumber" class="form-control">
                   </div>
-                  <div class="mb-2">
-                    <label>العميل:</label>
-                    <input list="customers" type="text" id="editCustomer" class="form-control" placeholder=" العميل">
+                </div>
+
+                <!-- العميل -->
+                <div class="row mb-2 align-items-center">
+                  <label class="col-4 col-form-label fw-bold">العميل</label>
+                  <div class="col-8">
+                    <input list="customers" type="text" id="editCustomer" class="form-control">
                     <datalist id="customers">
                       <option value="الحاج خالد عبد السلام">
                       <option value="عماد نوح">
@@ -116,80 +121,108 @@
                       <option value="محمود نصير">
                       <option value="هاني عبد الباعث">
                       <option value="الشحات عبد الباعث">
-                      <option value="احمدعلي ">
-                      <option value="علي محروس ">
-                      <option value="محمود ابومنصور  ">
+                      <option value="احمد علي">
+                      <option value="علي محروس">
+                      <option value="محمود ابو منصور">
                     </datalist>
                   </div>
-                  <div class="mb-2">
-                    <label>النوع:</label>
-                    <input list="types" type="text" id="editType" class="form-control" placeholder=" النوع">
+                </div>
 
+                <!-- النوع -->
+                <div class="row mb-2 align-items-center">
+                  <label class="col-4 col-form-label fw-bold">النوع</label>
+                  <div class="col-8">
+                    <input list="types" type="text" id="editType" class="form-control">
                     <datalist id="types">
                       <option value="أرز" data-unit="300">
                       <option value="غلة" data-unit="155">
                       <option value="تبن" data-unit="250">
                       <option value="خشب" data-unit="1000">
-                      <option value="خشب صنعة" data-unit="1000">
-                      <option value="خشب حريق" data-unit="1000">
-                      <option value="كوم " data-unit="1000">
                       <option value="حديد" data-unit="1000">
                       <option value="فول" data-unit="155">
-
                     </datalist>
                   </div>
-                  <div class="mb-2">
-                    <label>الوزن الأول:</label>
+                </div>
+
+                <!-- الوزن الأول -->
+                <div class="row mb-2 align-items-center">
+                  <label class="col-4 col-form-label fw-bold">الوزن الأول</label>
+                  <div class="col-8">
                     <input type="text" id="editGross" class="form-control">
                   </div>
-                  <div class="mb-2">
-                    <label>الوزن الثاني:</label>
+                </div>
+
+                <!-- الوزن الثاني -->
+                <div class="row mb-2 align-items-center">
+                  <label class="col-4 col-form-label fw-bold">الوزن الثاني</label>
+                  <div class="col-8">
                     <input type="text" id="editTare" class="form-control">
                   </div>
-                  <div class="mb-2">
-                    <label>الصافي:</label>
+                </div>
+
+                <!-- الصافي -->
+                <div class="row mb-2 align-items-center">
+                  <label class="col-4 col-form-label fw-bold">الصافي</label>
+                  <div class="col-8">
                     <input type="text" id="editNet" class="form-control">
                   </div>
+                </div>
 
-
-                  <div class="mb-2">
-                    <label>السعر (للوحدة):</label>
+                <!-- السعر -->
+                <div class="row mb-2 align-items-center">
+                  <label class="col-4 col-form-label fw-bold">السعر / وحدة</label>
+                  <div class="col-8">
                     <input type="number" id="editPrice" class="form-control">
                   </div>
+                </div>
 
-                  <div class="mb-2">
-                    <label>الإجمالي:</label>
-                    <!-- <input type="text" id="editTotal" class="form-control" >
-                -->
-                    <textarea id="editTotal" class="form-control" rows="2" readonly></textarea>
-
+                <!-- الإجمالي -->
+                <div class="row mb-2 align-items-center">
+                  <label class="col-2 col-form-label fw-bold">الإجمالي</label>
+                  <div class="col-10">
+                    <textarea id="editTotal" class="form-control" rows="3" readonly></textarea>
                   </div>
+                </div>
 
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-primary" onclick="updateData()">حفظ التعديل</button>
-                <button type="button" class="btn btn-success" onclick="updateAndPrint()">
-                  💾🖨 حفظ وطباعة
-                </button>
-              </div>
+              </form>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+              <button type="button" class="btn btn-primary" onclick="updateData()">حفظ</button>
+              <button type="button" class="btn btn-success" onclick="updateAndPrint()">💾🖨 حفظ وطباعة</button>
             </div>
 
           </div>
+        </div>
 
-          <!-- الصورة -->
-          <div class="col-md-8 text-center">
-            <img id="modalImg2" class="img-fluid rounded shadow">
-          </div>
-
+        <!-- الصورة -->
+        <div class="col-md-8 text-center">
+          <img id="modalImg2" class="img-fluid rounded shadow">
         </div>
 
       </div>
     </div>
   </div>
-  </div>
+</div>
 
+<script>
+document.addEventListener('keydown', function (e) {
+
+  // لو زر Enter
+  if (e.key !== 'Enter') return;
+
+  // تأكد إن المودال مفتوح
+  const modalEl = document.getElementById('editModal');
+  if (!modalEl.classList.contains('show')) return;
+
+  // تجاهل textarea (عشان يسمح بسطر جديد)
+  if (e.target.tagName === 'TEXTAREA') return;
+
+  e.preventDefault(); // منع أي سلوك افتراضي
+  updateAndPrint();   // 💾🖨 حفظ وطباعة
+});
+</script>
 
 
 

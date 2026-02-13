@@ -365,11 +365,15 @@ parser.on('data', (data) => {
     const weight = parseFloat(cleanedWeight.trim());
 
     if (!isNaN(weight) && weight < -10) {
-        playSoundAlert("yagib_tasfier_almezan.mp3", io);
+        // playSoundAlert("yagib_tasfier_almezan.mp3", io);
+        playSoundIfEnabled("yagib_tasfier_almezan.mp3");
+
     }
 
     if (!isNaN(weight) && weight > 300) {
-        playSoundAlert('yogad_sayara_almezan1.mp3', io);
+        // playSoundAlert('yogad_sayara_almezan1.mp3', io);
+        playSoundIfEnabled("yogad_sayara_almezan1.mp3");
+
 
         // شغّل الإرسال مرة واحدة فقط
         if (!sendInterval) {
@@ -416,7 +420,7 @@ parser.on('data', (data) => {
 
                 io.emit('responseID', '');
                 gross = match[1];
-          
+
                 // 🔥 أرسل إشعار للواجهة
                 io.emit('id:new', {
 
@@ -437,6 +441,46 @@ parser.on('data', (data) => {
 
 });
 
+function playSoundIfEnabled(file) {
+    pool.query(
+        "SELECT sound FROM control WHERE id = 1",
+        (err, rows) => {
+            if (!err && rows[0].sound === 1) {
+                playSoundAlert(file, io);
+            }
+        }
+    );
+}
+
+// تشغيل / إيقاف الصوت
+app.get("/set-sound/:status", (req, res) => {
+    const status = req.params.status === "1" ? 1 : 0;
+
+    pool.query(
+        "UPDATE control SET sound = ? WHERE id = 1",
+        [status],
+        (err) => {
+            if (err) {
+                console.error("sound update error:", err.message);
+                return res.status(500).send("DB error");
+            }
+            res.send(`sound status changed to ${status}`);
+        }
+    );
+});
+// جلب حالة الصوت
+app.get("/get-sound", (req, res) => {
+    pool.query(
+        "SELECT sound FROM control WHERE id = 1",
+        (err, rows) => {
+            if (err) {
+                console.error(err.message);
+                return res.status(500).send("DB error");
+            }
+            res.json({ sound: rows[0].sound });
+        }
+    );
+});
 
 // جلب بيانات محددة من قاعدة البيانات باستخدام LIMIT و OFFSET
 app.get('/get-data2', (req, res) => {
