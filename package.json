@@ -26,6 +26,7 @@
     "pdfkit": "^0.17.2",
     "pdfkit-table": "^0.1.99",
     "play-sound": "^1.1.6",
+    "pm2": "^6.0.14",
     "printer": "^0.4.0",
     "puppeteer": "^24.22.3",
     "serialport": "^13.0.0",

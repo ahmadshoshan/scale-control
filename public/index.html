@@ -55,24 +55,22 @@
   <!-- شريط العنوان -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
     <div class="container-fluid">
-      <button class="btn btn-outline-light me-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
-        aria-controls="sidebarMenu">
-        ☰ القائمة
-
-        <!-- إضافة علامة لتدفق البيانات -->
-        <small id="streamIndicator" style="display: none;">
-
-          <span class="badge bg-danger">🔴</span>
-          <span id="online-indicator"></span>
-        </small>
-      </button>
       <button class="btn btn-outline-light ms-3" onclick="takeScreenshot()">📸</button>
 
       <!-- <a class="navbar-brand" href="#">ميزان شوشان</a> -->
 
+      <!-- <p id="printToggle1">جاري تحميل الحالة...</p> -->
+      <!-- إضافة علامة لتدفق البيانات -->
+      <small id="soundStatus1" class="text-muted"> ...</small>
 
+      <small id="streamIndicator" style="display: none;">
+        <span class="badge bg-danger">🔴</span>
 
-      <p id="status">جاري تحميل الحالة...</p>
+      </small>
+
+      <button class="btn btn-outline-light me-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"
+        aria-controls="sidebarMenu">☰</button>
+
     </div>
   </nav>
   <script>
@@ -94,22 +92,6 @@
     }
   </script>
 
-  <script>
-    async function setPrint(status) {
-      await fetch(`/set-print/${status}`);
-      loadStatus();
-    }
-
-    async function loadStatus() {
-      const res = await fetch("/get-print");
-      const data = await res.json();
-      document.getElementById("status").innerText =
-        data.print === 1 ? "✅ الطباعة الحراريه" : "⛔ الطباعة الحراريه";
-    }
-
-    loadStatus();
-    setInterval(loadStatus, 3000); // يحدث الحالة كل 3 ثواني
-  </script>
   <!-- القائمة الجانبية (Offcanvas) -->
   <div class="offcanvas offcanvas-start bg-light" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
     <div class="offcanvas-header">
@@ -121,32 +103,100 @@
         <li class="nav-item">
           <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('XN2')">قراءة الوزن الصافي</button>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('KZERO')">تصفير الميزان</button>
         </li>
         <li class="nav-item">
           <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('KTARE')">تنفيذ التاري</button>
         </li>
         <li class="nav-item">
-          <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('KPRINT')">طباعة التذكرة</button>
+          <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('KPRINT')">طباعة التذكرة</button> -->
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('SX')">تفعيل البث المباشر </button>
         </li>
         <li class="nav-item">
           <button class="btn btn-primary w-100 mb-2" onclick="sendCommand('EX')">ايقاف البث المباشر </button>
+        </li> -->
+        <li class="nav-item mt-3">
+
+          <div class="card shadow-sm border-0">
+            <div class="card-body d-flex align-items-center justify-content-between">
+
+              <div>
+                <div class="fw-bold">البث المباشر للميزان</div>
+                <small id="streamStatusText" class="text-muted">جاري التحميل...</small>
+              </div>
+
+              <div class="form-check form-switch fs-4">
+                <input class="form-check-input" type="checkbox" id="streamToggle" onchange="toggleStreamMonter(this)">
+              </div>
+
+            </div>
+          </div>
+
         </li>
 
-        <button class="on button2" onclick="setPrint(1)">تشغيل الطباعة الحراريه</button>
-        <button class="off button2" onclick="setPrint(0)">إيقاف الطباعةالحراريه</button>
+        <!-- <button class="on button2" onclick="setPrint(1)">تشغيل الطباعة الحراريه</button>
+        <button class="off button2" onclick="setPrint(0)">إيقاف الطباعةالحراريه</button> -->
 
-        <button class="on button2" onclick="setSound(1)">🔊 تشغيل الصوت</button>
-        <button class="off button2" onclick="setSound(0)">🔇 إيقاف الصوت</button>
+        <li class="nav-item mt-3">
 
-        <p id="soundStatus">جاري تحميل حالة الصوت...</p>
+          <div class="card shadow-sm border-0">
+            <div class="card-body d-flex align-items-center justify-content-between">
+
+              <div>
+                <div class="fw-bold">الطباعة الحرارية</div>
+                <small id="printStatusText" class="text-muted">جاري التحميل...</small>
+              </div>
+
+              <div class="form-check form-switch fs-4">
+                <input class="form-check-input" type="checkbox" id="printToggle" onchange="togglePrint(this)">
+              </div>
+
+            </div>
+          </div>
+
+        </li>
+
+        <li class="nav-item mt-3">
+
+          <div class="card shadow-sm border-0">
+            <div class="card-body d-flex align-items-center justify-content-between">
+
+              <div>
+                <div class="fw-bold">الصوت</div>
+                <small id="soundStatus" class="text-muted">جاري التحميل...</small>
+              </div>
+
+              <div class="form-check form-switch fs-4">
+                <input class="form-check-input" type="checkbox" id="soundToggle" onchange="toggleSound(this)">
+              </div>
+
+            </div>
+          </div>
+
+ <li class="nav-item mt-3">
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body d-flex align-items-center justify-content-between">
+
+      <div>
+        <div class="fw-bold">إشعارات Telegram</div>
+        <small id="notifyStatusText" class="text-muted">جاري التحميل...</small>
+      </div>
+
+      <div class="form-check form-switch fs-4">
+        <input class="form-check-input" type="checkbox" id="notifyToggle" onchange="toggleNotify(this)">
+      </div>
+
+    </div>
+  </div>
+
+</li>
 
 
-        <div class="bootstrap-switch-container" style="width: 126px; margin-left: 0px;"><span class="bootstrap-switch-handle-on bootstrap-switch-success" style="width: 42px;">ON</span><span class="bootstrap-switch-label" style="width: 42px;">&nbsp;</span><span class="bootstrap-switch-handle-off bootstrap-switch-danger" style="width: 42px;">OFF</span><input type="checkbox" name="my-checkbox" checked="" data-bootstrap-switch="" data-off-color="danger" data-on-color="success"></div>
+
 
         <!-- <button class="btn btn-info w-5 " onclick="sendCommand('SX')">تفعيل</button>
       <button class="btn btn-info w-5 " onclick="sendCommand('EX')">ايقاف</button> -->
@@ -155,6 +205,224 @@
       </ul>
     </div>
   </div>
+
+  <script>
+
+    let streamEnabled = false;
+
+    function updateStreamUI() {
+
+      const status = document.getElementById("streamStatusText");
+
+      if (streamEnabled) {
+
+        status.innerHTML = "🟢 يعمل الآن";
+        status.classList.remove("text-danger");
+        status.classList.add("text-success");
+
+      } else {
+
+        status.innerHTML = "🔴 متوقف";
+        status.classList.remove("text-success");
+        status.classList.add("text-danger");
+
+      }
+
+    }
+
+    function toggleStreamMonter(element) {
+
+      if (element.checked) {
+
+        sendCommand('SX');
+        streamEnabled = true;
+
+      } else {
+
+        sendCommand('EX');
+        streamEnabled = false;
+
+      }
+
+      updateStreamUI();
+    }
+    
+// تحميل الحالة عند فتح الصفحة
+window.onload = function(){
+
+   streamEnabled = true;
+
+    updateStreamUI();
+}
+
+  </script>
+
+
+ <script>
+
+  let notifyEnabled = false;
+
+async function loadNotifyStatus() {
+
+  const res = await fetch("/get-notify");
+  const data = await res.json();
+
+  notifyEnabled = data.notify === 1;
+
+  document.getElementById("notifyToggle").checked = notifyEnabled;
+
+  updateNotifyUI();
+}
+
+function updateNotifyUI() {
+
+  const status = document.getElementById("notifyStatusText");
+
+  if (notifyEnabled) {
+
+    status.innerHTML = "🟢 تعمل";
+    status.classList.remove("text-danger");
+    status.classList.add("text-success");
+
+  } else {
+
+    status.innerHTML = "🔴 متوقفة";
+    status.classList.remove("text-success");
+    status.classList.add("text-danger");
+
+  }
+
+}
+
+async function toggleNotify(element) {
+
+  const status = element.checked ? 1 : 0;
+
+  await fetch(`/set-notify/${status}`);
+
+  notifyEnabled = element.checked;
+
+  updateNotifyUI();
+}
+loadNotifyStatus();
+
+ </script>
+
+
+
+
+
+
+
+
+
+
+  <script>
+
+    let printEnabled = false;
+
+    async function loadPrintStatus() {
+
+      const res = await fetch("/get-print");
+      const data = await res.json();
+
+      printEnabled = data.print === 1;
+
+      document.getElementById("printToggle").checked = printEnabled;
+
+      updatePrintUI();
+    }
+
+    function updatePrintUI() {
+
+      const status = document.getElementById("printStatusText");
+
+      if (printEnabled) {
+
+        status.innerHTML = "🟢 تعمل";
+        status.classList.remove("text-danger");
+        status.classList.add("text-success");
+
+      } else {
+
+        status.innerHTML = "🔴 متوقفة";
+        status.classList.remove("text-success");
+        status.classList.add("text-danger");
+
+      }
+
+    }
+
+    async function togglePrint(element) {
+
+      const status = element.checked ? 1 : 0;
+
+      await fetch(`/set-print/${status}`);
+
+      printEnabled = element.checked;
+
+      updatePrintUI();
+    }
+
+    loadPrintStatus();
+
+  </script>
+
+
+  <script>
+
+    let soundEnabled = false;
+
+    async function loadSoundStatus() {
+
+      const res = await fetch("/get-sound");
+      const data = await res.json();
+
+      soundEnabled = data.sound === 1;
+
+      document.getElementById("soundToggle").checked = soundEnabled;
+
+      updateSoundUI();
+    }
+
+    function updateSoundUI() {
+
+      const status = document.getElementById("soundStatus");
+      const status1 = document.getElementById("soundStatus1");
+
+      if (soundEnabled) {
+
+        status.innerHTML = "🔊 ";
+        status1.innerHTML = "🔊 ";
+        // status.classList.remove("text-danger");
+        // status.classList.add("text-success");
+
+      } else {
+
+        status.innerHTML = "🔇 ";
+        status1.innerHTML = "🔇 ";
+        // status.classList.remove("text-success");
+        // status.classList.add("text-danger");
+
+      }
+
+    }
+
+    async function toggleSound(element) {
+
+      const status = element.checked ? 1 : 0;
+
+      await fetch(`/set-sound/${status}`);
+
+      soundEnabled = element.checked;
+
+      updateSoundUI();
+    }
+
+    loadSoundStatus();
+
+  </script>
+
   <script>
     async function setSound(status) {
       await fetch(`/set-sound/${status}`);
@@ -167,8 +435,8 @@
 
       document.getElementById("soundStatus").innerText =
         data.sound === 1
-          ? "🔊 الصوت مفعل"
-          : "🔇 الصوت متوقف";
+          ? "🔊  "
+          : "🔇  ";
     }
 
     loadSoundStatus();
@@ -219,12 +487,7 @@
         </div>
       </div>
     </div>
-    <!-- إضافة علامة لتدفق البيانات
-    <div id="streamIndicator" style="display: none;">
-     
-      <span class="badge bg-danger">🔴</span> <small>تدفق البيانات </small>
-      <span id="online-indicator"></span>
-    </div> -->
+
     <!-- لوحة المفاتيح التحكم -->
     <div class="container text-center">
       <div class="row align-items-start">

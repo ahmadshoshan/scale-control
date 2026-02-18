@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <title>طباعة التذكرة</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
       font-family: "Arial", "Tahoma", sans-serif;
@@ -12,33 +14,77 @@
       box-sizing: border-box;
       color: #000;
     }
-    .center { text-align: center; }
-    .small0 { font-size: 13px; }
-    .small { font-size: 15px; }
-    .medium { font-size: 17px; }
-    .large { font-size: 18px; }
-    .large2 { font-size: 25px; }
-    .bold { font-weight: 700; }
-    .line { border-top: 1px dashed #000; margin: 6px 0; }
-    table { 
-      width: 100%; 
-      border-collapse: collapse; 
-      direction: rtl; 
+
+    .center {
+      text-align: center;
+    }
+
+    .small0 {
+      font-size: 13px;
+    }
+
+    .small {
+      font-size: 15px;
+    }
+
+    .medium {
+      font-size: 17px;
+    }
+
+    .large {
+      font-size: 18px;
+    }
+
+    .large2 {
+      font-size: 25px;
+    }
+
+    .bold {
+      font-weight: 700;
+    }
+
+    .line {
+      border-top: 1px dashed #000;
+      margin: 6px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      direction: rtl;
       font-size: 14px;
     }
-    td { 
-      padding: 4px 3px; 
-      vertical-align: middle; 
+
+    td {
+      padding: 4px 3px;
+      vertical-align: middle;
       border: 1px solid #000;
     }
-    .label { width: 40%; font-weight: bold; }
-    .value { width: 60%; }
+
+    .label {
+      width: 40%;
+      font-weight: bold;
+    }
+
+    .value {
+      width: 60%;
+    }
+
     @media print {
-      @page { size: 70mm auto; margin: 0; }
-      body { width: 70mm; margin:0; padding:6px; }
+      @page {
+        size: 70mm auto;
+        margin: 0;
+      }
+
+      body {
+        width: 70mm;
+        margin: 0;
+        padding: 6px;
+      }
     }
   </style>
 </head>
+
 <body class="print-ticket">
 
   <div class="center">
@@ -50,23 +96,55 @@
   <div class="line"></div>
 
   <table>
-    <tr><td class="label">التاريخ :</td><td class="value center" id="date"></td></tr>
-    <tr><td class="label">الوقت :</td><td class="value center" id="time"></td></tr>
-    <tr><td class="label">المسلسل :</td><td class="value center" id="sn"></td></tr>
-    <tr><td class="label">رقم السيارة :</td><td class="value large center" id="number"></td></tr>
+    <tr>
+      <td class="label">التاريخ :</td>
+      <td class="value center" id="date"></td>
+    </tr>
+    <tr>
+      <td class="label">الوقت :</td>
+      <td class="value center" id="time"></td>
+    </tr>
+    <tr>
+      <td class="label">المسلسل :</td>
+      <td class="value center" id="sn"></td>
+    </tr>
+    <tr>
+      <td class="label">رقم السيارة :</td>
+      <td class="value large center" id="number"></td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td class="label">النوع :</td>
+      <td class="value large bold center" id="type"></td>
+    </tr>
+    <tr>
+      <td class="label">اسم العميل :</td>
+      <td class="value large bold center" id="customer"></td>
+    </tr>
   </table>
   <hr>
   <table>
-    <tr><td class="label large bold">الوزن الأول :</td><td class="value large bold center" id="gross"></td></tr>
-    <tr><td class="label large bold">الوزن الثاني :</td><td class="value large bold center" id="tare"></td></tr>
-    <tr><td class="label large bold">الصافي :</td><td class="value large bold center"><div class="large2" id="net"></div></td></tr>
+    <tr>
+      <td class="label large bold">الوزن الأول :</td>
+      <td class="value large bold center" id="gross"></td>
+    </tr>
+    <tr>
+      <td class="label large bold">الوزن الثاني :</td>
+      <td class="value large bold center" id="tare"></td>
+    </tr>
+    <tr>
+      <td class="label large bold">الصافي :</td>
+      <td class="value large bold center">
+        <div class="large2" id="net"></div>
+      </td>
+    </tr>
   </table>
-  <hr>
-  <table>
-    <tr><td class="label">النوع :</td><td class="value large bold center"id="type"></td></tr>
-    <tr><td class="label">اسم العميل :</td><td class="value large bold center"id="customer"></td></tr>
-  </table>
-  <div class="center small" id="total"></div>
+  <!-- <hr> -->
+
+  <!-- <div class="center small" id="total"></div> -->
+  <div class="center small" id="note"></div>
+  <div id="tableBody"></div>
 
   <div class="line"></div>
   <div class="center small">الميزان غير مسئول عن فقدان الكارت</div>
@@ -89,29 +167,105 @@
       document.getElementById("time").textContent = toArabicNumbers(row.time || '');
       document.getElementById("sn").textContent = toArabicNumbers(row.sn || '');
       document.getElementById("number").textContent = toArabicNumbers(row.number || '');
-      document.getElementById("gross").textContent = toArabicNumbers(row.gross || '') + " كيلو";
-      document.getElementById("tare").textContent = toArabicNumbers(row.tare || '') + " كيلو";
-      document.getElementById("net").textContent = toArabicNumbers(row.net || '') + " كيلو";
+      document.getElementById("gross").textContent = toArabicNumbers(row.gross || '') + " كجم";
+      document.getElementById("tare").textContent = toArabicNumbers(row.tare || '') + " كجم";
+      document.getElementById("net").textContent = toArabicNumbers(row.net || '') + " كجم";
       document.getElementById("type").textContent = row.type || '';
       document.getElementById("customer").textContent = row.customer || '';
-      document.getElementById("total").textContent = row.total || '';
+      // document.getElementById("total").textContent = row.total || '';
+      document.getElementById("note").textContent = row.note|| '';
+
+
+      if (row.price > 0) {
+
+
+
+
+
+
+
+
+        ///////////////////////////////////////////////////////////////////
+
+        const net = parseFloat(row.net);
+        const price = parseFloat(row.price);
+        const unitWeight =parseFloat(row.unitWeight);
+
+        const total = (net * price) / unitWeight;
+
+        const units = Math.floor(net / unitWeight);
+        const remain = net % unitWeight;
+
+        document.getElementById("tableBody").innerHTML = `
+
+
+<div class="row mb-2">
+  <label class="col-12 col-form-label fw-bold text-center">تفاصيل الحساب</label>
+  <div class="col-12">
+
+    <table >
+      <tbody >
+        <tr>
+        
+          <td class="label">سعر الوحدة</td>
+          <td class="label">وزن الوحدة</td>
+          <td class="label">عدد الوحدات</td>
+          <td class="label">الباقي</td>
+          <td class="label">الإجمالي</td>
+        </tr>
+      </tbody>
+
+      <tbody >
+        <tr>
+     
+      <td class="value center" >${price}</td>
+      <td class="value center" >${unitWeight}</td>
+      <td class="value center" >${units}</td>
+      <td class="value center" >${remain} كجم</td>
+      <td class="value center" >${total.toFixed(2)} جنيه</td>
+    </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+ 
+  `;
+      }
     }
 
-    // اطبع تلقائي بعد التحميل
-    window.onload = function() {
-      setTimeout(() => {
-        window.print();
-      }, 200);
-    };
+
+
+
+
+
+
+
+
+    // // اطبع تلقائي بعد التحميلPrice
+    // window.onload = function() {
+    //   setTimeout(() => {
+    //     window.print();
+    //   }, 200);
+    // };
+
+
   </script>
   <script>
-  window.onload = function () {
-    window.print();
-    setTimeout(() => {
-      window.close();
-    }, 2000); // ثانيتين بعد الطباعة
-  };
-</script>
+    window.onload = function () {
+      window.print();
+      setTimeout(() => {
+        window.close();
+      }, 2000); // ثانيتين بعد الطباعة
+    };
+  </script>
 
 </body>
+
 </html>
+
+
+
+
+<!-- الإجمالي -->

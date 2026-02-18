@@ -68,7 +68,7 @@
         <th>الوزن الاول</th>
         <th>الوزن الثاني</th>
         <th>الصافي</th>
-        <th hidden>ملحوظه </th>
+        <th>ملحوظه </th>
         <th>خيارات</th>
       </tr>
     </thead>
@@ -78,151 +78,177 @@
 
   <!-- نافذة التعديل -->
 
- <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="container">
-      <div class="row g-3 justify-content-center">
+  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="container">
+        <div class="row g-3 justify-content-center">
 
-        <!-- لوحة التعديل -->
-        <div class="col-md-4">
-          <div class="modal-content">
+          <!-- لوحة التعديل -->
+          <div class="col-md-4">
+            <div class="modal-content">
 
-            <div class="modal-header">
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-              <h5 class="modal-title" id="editModalLabel">تعديل </h5>
+              <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                <h5 class="modal-title" id="editModalLabel">تعديل </h5>
+              </div>
+
+              <div class="modal-body">
+                <form id="editForm">
+
+                  <input type="hidden" id="editId">
+                  <input type="hidden" id="editDate">
+                  <input type="hidden" id="editTime">
+                  <input type="hidden" id="editSn">
+
+                  <!-- رقم السيارة -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">رقم السيارة</label>
+                    <div class="col-8">
+                      <input type="text" id="editNumber" class="form-control">
+                    </div>
+                  </div>
+
+                  <!-- العميل -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">العميل</label>
+                    <div class="col-8">
+                      <input list="customers" type="text" id="editCustomer" class="form-control">
+                      <datalist id="customers">
+                        <option value="الحاج خالد عبد السلام">
+                        <option value="عماد نوح">
+                        <option value="محمد الصندفاوي">
+                        <option value="محمد منصور">
+                        <option value="محمود نصير">
+                        <option value="هاني عبد الباعث">
+                        <option value="الشحات عبد الباعث">
+                        <option value="احمد علي">
+                        <option value="علي محروس">
+                        <option value="محمود ابو منصور">
+                      </datalist>
+                    </div>
+                  </div>
+
+                  <!-- النوع -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">النوع</label>
+                    <div class="col-8">
+                      <input list="types" type="text" id="editType" class="form-control">
+                      <datalist id="types">
+                        <option value="أرز" data-unit="300">
+                        <option value="غلة" data-unit="155">
+                        <option value="تبن" data-unit="250">
+                        <option value="خشب" data-unit="1000">
+                        <option value="حديد" data-unit="1000">
+                        <option value="فول" data-unit="155">
+                      </datalist>
+                    </div>
+                  </div>
+
+                  <!-- الوزن الأول -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">الوزن الأول</label>
+                    <div class="col-8">
+                      <input type="text" id="editGross" class="form-control">
+                    </div>
+                  </div>
+
+                  <!-- الوزن الثاني -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">الوزن الثاني</label>
+                    <div class="col-8">
+                      <input type="text" id="editTare" class="form-control">
+                    </div>
+                  </div>
+
+                  <!-- الصافي -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">الصافي</label>
+                    <div class="col-8">
+                      <input type="text" id="editNet" class="form-control">
+                    </div>
+                  </div>
+
+                  <!-- السعر -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">السعر / وحدة</label>
+                    <div class="col-8">
+                      <input type="number" id="editPrice" class="form-control">
+                    </div>
+                  </div>
+
+                  <!-- الإجمالي -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-2 col-form-label fw-bold">ملحوظه</label>
+                    <div class="col-10">
+                      <textarea id="editNote" class="form-control" rows="3"></textarea>
+                    </div>
+                  </div>
+                  <!-- الإجمالي -->
+                  <div class="row mb-2">
+                    <label class="col-12 col-form-label fw-bold text-center">تفاصيل الحساب</label>
+                    <div class="col-12">
+
+                      <table class="table table-bordered table-sm text-center mb-0">
+                        <thead class="table-light">
+                          <tr>
+
+                            <th>سعر الوحدة</th>
+                            <th>وزن الوحدة</th>
+                            <th>عدد الوحدات</th>
+                            <th>الباقي</th>
+                            <th>الإجمالي</th>
+                          </tr>
+                        </thead>
+
+                        <tbody id="totalTableBody">
+                          <tr>
+                            <td colspan="6" class="text-muted">لا توجد بيانات</td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="updateData()">حفظ</button>
+                <button type="button" class="btn btn-success" onclick="updateAndPrint()">💾🖨 حفظ وطباعة</button>
+              </div>
+
             </div>
-
-            <div class="modal-body">
-              <form id="editForm">
-
-                <input type="hidden" id="editId">
-                <input type="hidden" id="editDate">
-                <input type="hidden" id="editTime">
-                <input type="hidden" id="editSn">
-
-                <!-- رقم السيارة -->
-                <div class="row mb-2 align-items-center">
-                  <label class="col-4 col-form-label fw-bold">رقم السيارة</label>
-                  <div class="col-8">
-                    <input type="text" id="editNumber" class="form-control">
-                  </div>
-                </div>
-
-                <!-- العميل -->
-                <div class="row mb-2 align-items-center">
-                  <label class="col-4 col-form-label fw-bold">العميل</label>
-                  <div class="col-8">
-                    <input list="customers" type="text" id="editCustomer" class="form-control">
-                    <datalist id="customers">
-                      <option value="الحاج خالد عبد السلام">
-                      <option value="عماد نوح">
-                      <option value="محمد الصندفاوي">
-                      <option value="محمد منصور">
-                      <option value="محمود نصير">
-                      <option value="هاني عبد الباعث">
-                      <option value="الشحات عبد الباعث">
-                      <option value="احمد علي">
-                      <option value="علي محروس">
-                      <option value="محمود ابو منصور">
-                    </datalist>
-                  </div>
-                </div>
-
-                <!-- النوع -->
-                <div class="row mb-2 align-items-center">
-                  <label class="col-4 col-form-label fw-bold">النوع</label>
-                  <div class="col-8">
-                    <input list="types" type="text" id="editType" class="form-control">
-                    <datalist id="types">
-                      <option value="أرز" data-unit="300">
-                      <option value="غلة" data-unit="155">
-                      <option value="تبن" data-unit="250">
-                      <option value="خشب" data-unit="1000">
-                      <option value="حديد" data-unit="1000">
-                      <option value="فول" data-unit="155">
-                    </datalist>
-                  </div>
-                </div>
-
-                <!-- الوزن الأول -->
-                <div class="row mb-2 align-items-center">
-                  <label class="col-4 col-form-label fw-bold">الوزن الأول</label>
-                  <div class="col-8">
-                    <input type="text" id="editGross" class="form-control">
-                  </div>
-                </div>
-
-                <!-- الوزن الثاني -->
-                <div class="row mb-2 align-items-center">
-                  <label class="col-4 col-form-label fw-bold">الوزن الثاني</label>
-                  <div class="col-8">
-                    <input type="text" id="editTare" class="form-control">
-                  </div>
-                </div>
-
-                <!-- الصافي -->
-                <div class="row mb-2 align-items-center">
-                  <label class="col-4 col-form-label fw-bold">الصافي</label>
-                  <div class="col-8">
-                    <input type="text" id="editNet" class="form-control">
-                  </div>
-                </div>
-
-                <!-- السعر -->
-                <div class="row mb-2 align-items-center">
-                  <label class="col-4 col-form-label fw-bold">السعر / وحدة</label>
-                  <div class="col-8">
-                    <input type="number" id="editPrice" class="form-control">
-                  </div>
-                </div>
-
-                <!-- الإجمالي -->
-                <div class="row mb-2 align-items-center">
-                  <label class="col-2 col-form-label fw-bold">الإجمالي</label>
-                  <div class="col-10">
-                    <textarea id="editTotal" class="form-control" rows="3" readonly></textarea>
-                  </div>
-                </div>
-
-              </form>
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-              <button type="button" class="btn btn-primary" onclick="updateData()">حفظ</button>
-              <button type="button" class="btn btn-success" onclick="updateAndPrint()">💾🖨 حفظ وطباعة</button>
-            </div>
-
           </div>
-        </div>
 
-        <!-- الصورة -->
-        <div class="col-md-8 text-center">
-          <img id="modalImg2" class="img-fluid rounded shadow">
-        </div>
+          <!-- الصورة -->
+          <div class="col-md-8 text-center">
+            <img id="modalImg2" class="img-fluid rounded shadow">
+          </div>
 
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-document.addEventListener('keydown', function (e) {
+  <script>
+    document.addEventListener('keydown', function (e) {
 
-  // لو زر Enter
-  if (e.key !== 'Enter') return;
+      // لو زر Enter
+      if (e.key !== 'Enter') return;
 
-  // تأكد إن المودال مفتوح
-  const modalEl = document.getElementById('editModal');
-  if (!modalEl.classList.contains('show')) return;
+      // تأكد إن المودال مفتوح
+      const modalEl = document.getElementById('editModal');
+      if (!modalEl.classList.contains('show')) return;
 
-  // تجاهل textarea (عشان يسمح بسطر جديد)
-  if (e.target.tagName === 'TEXTAREA') return;
+      // تجاهل textarea (عشان يسمح بسطر جديد)
+      if (e.target.tagName === 'TEXTAREA') return;
 
-  e.preventDefault(); // منع أي سلوك افتراضي
-  updateAndPrint();   // 💾🖨 حفظ وطباعة
-});
-</script>
+      e.preventDefault(); // منع أي سلوك افتراضي
+      updateAndPrint();   // 💾🖨 حفظ وطباعة
+    });
+  </script>
 
 
 
@@ -311,7 +337,7 @@ document.addEventListener('keydown', function (e) {
     const typeInput = document.getElementById("editType");
     const priceInput = document.getElementById("editPrice");
     const netInput = document.getElementById("editNet");
-    const totalInput = document.getElementById("editTotal");
+
     const typesList = document.getElementById("types");
 
     function getUnitWeight(typeName) {
@@ -321,6 +347,7 @@ document.addEventListener('keydown', function (e) {
     }
 
     function calculateTotal() {
+
       const net = parseFloat(netInput.value);
       const price = parseFloat(priceInput.value);
       const unitWeight = getUnitWeight(typeInput.value);
@@ -337,20 +364,41 @@ document.addEventListener('keydown', function (e) {
         }
 
         const total = (net * price) / unitWeight;
-        totalInput.value = total.toFixed(2);
 
-        // console.log("وزن الوحدة:", unitWeight);
+
+
       });
 
 
       if (!net || !price || !unitWeight) {
-        totalInput.value = "";
+
         return;
       }
 
       const total = (net * price) / unitWeight;
 
-      totalInput.value = `(الصافي: ${net} × السعر: ${price}) ÷ الوحدة: ${unitWeight} = ${total.toFixed(2)} جنية || ${Math.floor(net / unitWeight)} وحدة  (باقي: ${(net % unitWeight)})كيلو`;
+
+
+      ///////////////////////////////////////////////////////////////////
+      if (!net || !price || !unitWeight) {
+        document.getElementById("totalTableBody").innerHTML =
+          `<tr><td colspan="6" class="text-muted">لا توجد بيانات</td></tr>`;
+        return;
+      }
+
+      const units = Math.floor(net / unitWeight);
+      const remain = net % unitWeight;
+
+      document.getElementById("totalTableBody").innerHTML = `
+    <tr>
+     
+      <td>${price}</td>
+      <td>${unitWeight}</td>
+      <td>${units}</td>
+      <td>${remain}</td>
+      <td class="fw-bold text-success">${total.toFixed(2)} جنيه</td>
+    </tr>
+  `;
     }
 
 
@@ -366,7 +414,7 @@ document.addEventListener('keydown', function (e) {
 
     socket.on('printer:new', (row) => {
       console.log('🆕 تذكرة جديدة:', row);
-        // 🔔 إشعار
+      // 🔔 إشعار
 
       setTimeout(() => {
         const tableBody = document.querySelector('#data-table2 tbody');
@@ -432,9 +480,7 @@ document.addEventListener('keydown', function (e) {
           const EditBtn = document.getElementById(`Edit${row.sn}`);
 
 
-          // if (printBtn) {
-          //   printBtn.click();
-          //   // ⏱️ اقفل نافذة الطباعة بعد ثانية
+
 
           // }
           if (EditBtn) {
@@ -442,9 +488,7 @@ document.addEventListener('keydown', function (e) {
             // ⏱️ اقفل نافذة الطباعة بعد ثانية
 
           }
-          //      setTimeout(() => {
-          //     window.close();
-          //   }, 1000)
+
 
         }, 300); // تأخير بسيط عشان DOM يكتمل
 
@@ -470,9 +514,7 @@ document.addEventListener('keydown', function (e) {
         data.forEach(row => {
           const tr = document.createElement('tr');
           const printBtnHtml = `<button class="btn btn-outline-primary btn-sm print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>🖨</button>`;
-          const printDirectBtnHtml = `<button class="btn btn-outline-success btn-sm print-btn" onclick='printTicketDirect(${row.id})'>🖨️ مباشر</button>`;
           const editBtnHtml = `<button class="btn btn-outline-warning btn-sm" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>✏</button>`;
-          // console.log(row);
 
           tr.innerHTML = `
  <td style="text-align:center;">
@@ -525,19 +567,18 @@ document.addEventListener('keydown', function (e) {
         >
         </div>
         </td>
-<td>${row.date}<br>${row.time}</td>
-<td hidden>${row.sn}</td>
-<td>${row.number}</td>
-<td>${row.gross}</td>
-<td>${row.tare}</td>
-<td> <h5>${row.net}</h5></td>
-   <td hidden>${row.total}</td>
+              <td>${row.date}<br>${row.time}</td>
+              <td hidden>${row.sn}</td>
+              <td>${row.number}</td>
+              <td>${row.gross}</td>
+              <td>${row.tare}</td>
+              <td> <h5>${row.net}</h5></td>
+              <td >${row.note}</td>
 
 
     
   <td>
     ${printBtnHtml}
-    ${printDirectBtnHtml}
     ${editBtnHtml}
   </td>
 `;
@@ -548,16 +589,19 @@ document.addEventListener('keydown', function (e) {
         offset2 += limit2;
       } catch (error) {
         console.error('خطأ:', error);
-      } 
+      }
     }
 
     function openEdit(row) {
       console.log(row);
-      
+
       document.getElementById('editDate').value = row.date;
       document.getElementById('editTime').value = row.time;
       document.getElementById('editSn').value = row.sn;
 
+      document.getElementById('editPrice').value = '';
+      document.getElementById("totalTableBody").innerHTML =
+        `<tr><td colspan="6" class="text-muted">لا توجد بيانات</td></tr>`;
       document.getElementById('editId').value = row.id;
       document.getElementById('editNumber').value = row.number;
       document.getElementById('editCustomer').value = row.customer;
@@ -565,7 +609,7 @@ document.addEventListener('keydown', function (e) {
       document.getElementById('editGross').value = row.gross;
       document.getElementById('editTare').value = row.tare;
       document.getElementById('editNet').value = row.net;
-      document.getElementById('editTotal').value = row.total;
+      document.getElementById('editNote').value = row.note||'';
 
       src = `images/print/${row.images}_cam1.jpg`;
       document.getElementById("modalImg2").src = src;
@@ -583,7 +627,7 @@ document.addEventListener('keydown', function (e) {
         gross: document.getElementById('editGross').value,
         tare: document.getElementById('editTare').value,
         net: document.getElementById('editNet').value,
-        total: document.getElementById('editTotal').value
+        note: document.getElementById('editNote').value
       };
 
       try {
@@ -592,7 +636,7 @@ document.addEventListener('keydown', function (e) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedData)
         });
-        
+
 
         if (response.ok) {
           alert('✅ تم تحديث التذكرة بنجاح');
@@ -605,43 +649,49 @@ document.addEventListener('keydown', function (e) {
       }
     }
 
-async function updateAndPrint() {
-  const id = document.getElementById('editId').value;
+    async function updateAndPrint() {
+      const id = document.getElementById('editId').value;
 
-  const updatedData = {
-    date: document.getElementById('editDate').value,
-    time: document.getElementById('editTime').value,
-    sn: document.getElementById('editSn').value,
-    number: document.getElementById('editNumber').value,
-    customer: document.getElementById('editCustomer').value,
-    type: document.getElementById('editType').value,
-    gross: document.getElementById('editGross').value,
-    tare: document.getElementById('editTare').value,
-    net: document.getElementById('editNet').value,
-    total: document.getElementById('editTotal').value
-  };
 
-  try {
-    const response = await fetch(`/update-ticket/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedData)
-    });
-   
+      const updatedData = {
+        date: document.getElementById('editDate').value,
+        time: document.getElementById('editTime').value,
+        sn: document.getElementById('editSn').value,
+        number: document.getElementById('editNumber').value,
+        customer: document.getElementById('editCustomer').value,
+        type: document.getElementById('editType').value,
+        gross: document.getElementById('editGross').value,
+        tare: document.getElementById('editTare').value,
+        net: document.getElementById('editNet').value,
+        note: document.getElementById('editNote').value,
+        price: document.getElementById('editPrice').value,
 
-    // 🔥 اطبع مباشرة بعد الحفظ
-    printTicket(updatedData);
 
-    // اقفل المودال
-    const modalEl = document.getElementById('editModal');
-    const modal = bootstrap.Modal.getInstance(modalEl);
-    modal.hide();
+        unitWeight: getUnitWeight(document.getElementById('editType').value)
+      };
+      console.log(updatedData);
 
-  } catch (error) {
-    console.error(error);
-    alert('❌ خطأ في الاتصال بالسيرفر');
-  }
-}
+      try {
+        const response = await fetch(`/update-ticket/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData)
+        });
+
+
+        // 🔥 اطبع مباشرة بعد الحفظ
+        printTicket(updatedData);
+
+        // اقفل المودال
+        const modalEl = document.getElementById('editModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+      } catch (error) {
+        console.error(error);
+        alert('❌ خطأ في الاتصال بالسيرفر');
+      }
+    }
 
 
 
@@ -731,12 +781,13 @@ async function updateAndPrint() {
         >
         </div>
         </td>
-<td>${row.date}<br>${row.time}</td>
-<td hidden>${row.sn}</td>
+            <td>${row.date}<br>${row.time}</td>
+            <td hidden>${row.sn}</td>
             <td>${row.number}</td>
             <td>${row.gross}</td>
             <td>${row.tare}</td>
             <td>${row.net}</td>
+             <td ></td>
             <td>${printBtnHtml}</td>
           `;
           tableBody.appendChild(tr);
@@ -757,26 +808,8 @@ async function updateAndPrint() {
 
 
 
-    async function printTicketDirect(id) {
-      if (!confirm("هل أنت متأكد من طباعة هذه التذكرة مباشرة؟")) return;
 
-      try {
-        const response = await fetch(`/print-ticket-direct/${id}`, {
-          method: 'POST'
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          alert('✅ تم إرسال أمر الطباعة بنجاح!');
-        } else {
-          alert('❌ فشل في الطباعة: ' + (result.message || 'خطأ غير معروف'));
-        }
-      } catch (error) {
-        console.error('خطأ في طباعة التذكرة:', error);
-        alert('❌ حدث خطأ أثناء محاولة الطباعة.');
-      }
-    }
-  </script>
+    // </script>
 
 
 
@@ -786,101 +819,14 @@ async function updateAndPrint() {
 
   <script>
 
-    // socket = io();
 
-    // socket.on('printer:new', (row) => {
-    //   setTimeout(() => {
-
-
-
-    //      img = document.getElementById('ticketImg');
-    //     if (img) {
-    //       let head = `
-    //                   <div class="card shadow-sm p-2" style="max-width: 420px;">
-    //                     <div class="row align-items-center">
-                        
-    //                       <!-- بيانات التذكرة -->
-    //                       <div class="col-5 small">
-    //                         <div><strong>رقم:</strong> ${row.number}</div>
-    //                         <div><strong>الوزن الاول:</strong> ${row.gross}</div>
-    //                         <div><strong>الوزن الثاني:</strong> ${row.tare}</div>
-    //                         <div><strong>الصافي:</strong> ${row.net}</div>
-    //                       </div>
-                        
-    //                       <!-- زر الطباعة -->
-    //                       <div class="col-3 text-center">
-    //                         <button
-    //                           class="btn btn-outline-primary btn-sm w-100"
-    //                           onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
-    //                           🖨 طباعة
-    //                         </button>
-    //                       </div>
-    //                       <div class="col-3 text-center">
-    //                            <button class="btn btn-outline-warning btn-sm" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>✏</button>
-
-    //                       </div>
-                        
-
-
-                          
-    //                     </div>
-    //                   </div>
-    //                 `;
-    //       openImg(img.src, head);
-
-    //     }
-
-    //   }, 500); // تأخير 2 ثانية قبل إضافة الصف
-    // });
 
     //////////////////////////////////////////
 
     socket.on('id:new', (row) => {
-      console.log(row);
-      
-       
-        showToast(row);
-
+      showToast(row);
 
     });
-    // socket.on('id:new', (row) => {
-
-    //   setTimeout(() => {
-    //     const tableBody = document.getElementById('data-table2');
-
-
-
-    //     // ✅ استدعاء مباشر بعد الإضافة
-    //      img = document.getElementById('ticketImg');
-    //     if (img) {
-    //       let head = `
-    //                 <div class="card shadow-sm p-2" style="max-width: 420px;">
-    //                   <div class="row align-items-center">
-                      
-    //                     <!-- بيانات التذكرة -->
-    //                     <div class="col-5 small">
-    //                       <div><strong>رقم:</strong> ${row.NE}</div>
-    //                       <div><strong>إجمالي:</strong> ${row.gross}</div>
-                        
-    //                     </div>
-                      
-                      
-                      
-    //                   </div>
-    //                 </div>
-    //               `;
-    //       openImg(img.src, head);
-
-    //     }
-
-
-
-    //   }, 500); // تأخير 2 ثانية قبل إضافة الصف
-    // });
-
-
-
-    //////////////////////////////////////////
 
 
 
@@ -889,63 +835,55 @@ async function updateAndPrint() {
   </script>
 
 
-<script>
+  <script>
 
 
-function showToast(row) { 
-  if (row.NE) {
-    
-  
-  setTimeout(() => {
-  document.getElementById("toastBody").innerHTML =
-    `  تم اضافه سياره قم ${row.NE} (وزن: ${row.gross})`;
-// 🖼️ صورة من الكاميرا الأولى
-  document.getElementById("toastImg1").src =
-    `images/sensor/${row.images}_cam1.jpg`;
-  document.getElementById("toastImg2").src =
-    `images/sensor/${row.images}_cam2.jpg`;
-  document.getElementById("toastImg3").src =
-    `images/sensor/${row.images}_cam3.jpg`;
+    function showToast(row) {
+      if (row.NE) {
 
 
-  const toastEl = document.getElementById('liveToast');
-  const toast = new bootstrap.Toast(toastEl, {
-    delay: 10000 // 10 ثواني
-  });
+        setTimeout(() => {
+          document.getElementById("toastBody").innerHTML =
+            `  تم اضافه سياره قم ${row.NE} (وزن: ${row.gross})`;
+          // 🖼️ صورة من الكاميرا الأولى
+          document.getElementById("toastImg1").src =
+            `images/sensor/${row.images}_cam1.jpg`;
+          document.getElementById("toastImg2").src =
+            `images/sensor/${row.images}_cam2.jpg`;
+          document.getElementById("toastImg3").src =
+            `images/sensor/${row.images}_cam3.jpg`;
 
-  toast.show();}, 500);
-  // console.log( document.getElementById("toastImg"));
-  }
-  
-}
 
-</script>
-<div class="toast-container position-fixed top-0 end-0 p-3">
-  <div id="liveToast" class="toast" role="alert">
-    <div class="toast-header">
-      
-      <strong class="me-auto">📢 إشعار</strong>
-      <small>الآن</small>
-      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+          const toastEl = document.getElementById('liveToast');
+          const toast = new bootstrap.Toast(toastEl, {
+            delay: 10000 // 10 ثواني
+          });
+
+          toast.show();
+        }, 500);
+      }
+
+    }
+
+  </script>
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert">
+      <div class="toast-header">
+
+        <strong class="me-auto">📢 إشعار</strong>
+        <small>الآن</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+      </div>
+      <div style="display:flex; justify-content:center; gap:4px;">
+        <img id="toastImg1" src="" class="rounded me-2" style="width:80px;height:80px;object-fit:cover;">
+        <img id="toastImg2" src="" class="rounded me-2" style="width:80px;height:80px;object-fit:cover;">
+        <img id="toastImg3" src="" class="rounded me-2" style="width:80px;height:80px;object-fit:cover;">
+      </div>
+
+      <h4 class="toast-body" id="toastBody"></h4>
+
     </div>
-<div style="display:flex; justify-content:center; gap:4px;">
-     <img id="toastImg1"
-           src=""
-           class="rounded me-2"
-           style="width:80px;height:80px;object-fit:cover;">
-     <img id="toastImg2"
-           src=""
-           class="rounded me-2"
-           style="width:80px;height:80px;object-fit:cover;">
-     <img id="toastImg3"
-           src=""
-           class="rounded me-2"
-           style="width:80px;height:80px;object-fit:cover;"></div>
-
-    <h4 class="toast-body" id="toastBody"></h4>
-
   </div>
-</div>
 
 
 

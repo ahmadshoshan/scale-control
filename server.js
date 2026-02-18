@@ -70,7 +70,7 @@ get_printer.on('data', (data) => {
             // إدخال البيانات إلى قاعدة البيانات
             const query = `
                 INSERT INTO printer 
-                (date, time, sn, number, gross, tare, net,type,customer,total,images) 
+                (date, time, sn, number, gross, tare, net,type,customer,note,images) 
                 VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?)
             `;
             const images = `${Date.now()}_${number}_${net}`;
@@ -94,11 +94,22 @@ get_printer.on('data', (data) => {
                         type: '',
                         images
                     });
+
+
                     // استدعاء مباشر مع تأخير
                     // setTimeout(() => {
                     captureImage(images, 'print');
                     // }, 800); // تأخير .5 ثانية
-
+////////////////////////////////////////////////////////////
+ // 🔹 هنا نضيف إشعار Telegram
+        sendMessageIfEnabled(`✅ تم إضافة تذكرة جديدة:
+📅 التاريخ: ${date}
+🕒 الوقت: ${time}
+📌 المسلسل: ${sn}
+🚛 رقم السيارة: ${number}
+⚖️ الوزن الصافي: ${net} كيلو
+`);
+////////////////////////////////////////////////////////////
                 }
 
                 // // ⬇️ إنشاء ملف التذكرة
@@ -430,6 +441,16 @@ parser.on('data', (data) => {
                 });
                 type_id = '';
                 customer_id = '';
+
+                ////////////////////////////////////////////
+                        // 🔹 إشعار Telegram
+        sendMessageIfEnabled(`📡 تم إضافة بيانات من الجهاز:
+⚖️ الوزن: ${match[1]}
+📅 التاريخ: ${match1[1]}
+🆔 الرقم: ${NE}
+`);
+                ////////////////////////////////////////////
+
             }
             match = ""; match1 = "";
             NE = '';
@@ -494,7 +515,7 @@ app.get('/get-data2', (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const offset = parseInt(req.query.offset) || 0;
 
-        const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `net`, `customer`, `type`,`total`,`images` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
+        const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `net`, `customer`, `type`,`note`,`images` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
         connection.query(query, [limit, offset], (error, results) => {
             connection.release(); // إخلاء الاتصال
             if (error) {
@@ -571,11 +592,11 @@ app.get('/get-data', (req, res) => {
 
 app.put('/update-ticket/:id', (req, res) => {
     const { id } = req.params;
-    const { number, customer, type, gross, tare, net, total } = req.body;
+    const { number, customer, type, gross, tare, net, note } = req.body;
 
-    const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, net=?, total=? WHERE id=?';
+    const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, net=?, note=? WHERE id=?';
 
-    pool.query(sql, [number, customer, type, gross, tare, net, total, id], (err, result) => {
+    pool.query(sql, [number, customer, type, gross, tare, net, note, id], (err, result) => {
         if (err) {
             console.error('❌ خطأ أثناء التحديث:', err);
             return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
@@ -730,5 +751,66 @@ async function captureImage(car_No_Date_weight, path) {
 
 
 
+
+
+const pm2 = require('pm2');
+const { sendMessageIfEnabled } = require('./public/pm2-telegram');
+
+pm2.connect(function(err) {
+  if (err) {
+    console.error(err);
+    process.exit(2);
+  }
+
+  pm2.launchBus(function(err, bus) {
+    console.log('PM2 Bus launched');
+  sendMessageIfEnabled(`🔄 open `);
+    bus.on('process:event', function(data) {
+      if (data.event === 'exit') {
+        sendMessageIfEnabled(`⚠️ Process ${data.process.name} stopped with code ${data.process.exit_code}`);
+      }
+      if (data.event === 'restart') {
+        sendMessageIfEnabled(`🔄 Process ${data.process.name} restarted`);
+      }
+      if (data.event === 'online') {
+        sendMessageIfEnabled(`✅ Process ${data.process.name} is online`);
+      }
+      if (data.event === 'stop') {
+        sendMessageIfEnabled(`🛑 Process ${data.process.name} stopped`);
+      }
+    });
+  });
+});
+
+// const https = require('https');
+
+// https.get("https://api.telegram.org/bot7965946681:AAEBYL15_UiA3FzvN5r_j1LcgwqLTn8RHuw/sendMessageIfEnabled?chat_id=1390890695&text=Test", res => {
+//   console.log(res.statusCode);
+// });
+
+
+// تشغيل / إيقاف الإشعارات
+app.get("/set-notify/:status", (req, res) => {
+    const status = req.params.status === "1" ? 1 : 0;
+
+    pool.query("UPDATE control SET notify = ? WHERE id = 1", [status], (err) => {
+        if (err) {
+            console.error("notify update error:", err.message);
+            return res.status(500).send("DB error");
+        }
+        res.send(`notify status changed to ${status}`);
+    });
+});
+
+// جلب حالة الإشعارات
+app.get("/get-notify", (req, res) => {
+    pool.query("SELECT notify FROM control WHERE id = 1", (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).send("DB error");
+        }
+        res.json({ notify: rows[0].notify });
+    });
+});
 
 
