@@ -1,7 +1,7 @@
 const https = require("https");
 
-const BOT_TOKEN = "7965946681:AAEBYL15_UiA3FzvN5r_j1LcgwqLTn8RHuw";
-const CHAT_ID = "1390890695";
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const CHAT_ID = process.env.CHAT_ID;
 
 const pool = require('../modules/db'); // تأكد من استدعاء قاعدة البيانات
 
