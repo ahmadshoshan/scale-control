@@ -30,6 +30,6 @@ function sendMessage(text) {
 
 
 
-module.exports = { sendMessageIfEnabled };
+module.exports = { sendMessageIfEnabled ,sendMessage};
 
 

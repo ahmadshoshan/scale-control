@@ -754,7 +754,7 @@ async function captureImage(car_No_Date_weight, path) {
 
 
 const pm2 = require('pm2');
-const { sendMessageIfEnabled } = require('./public/pm2-telegram');
+const { sendMessageIfEnabled ,sendMessage} = require('./public/pm2-telegram');
 
 pm2.connect(function(err) {
   if (err) {
@@ -764,19 +764,19 @@ pm2.connect(function(err) {
 
   pm2.launchBus(function(err, bus) {
     console.log('PM2 Bus launched');
-  sendMessageIfEnabled(`🔄 open `);
+  sendMessage(`🔄 open `);
     bus.on('process:event', function(data) {
       if (data.event === 'exit') {
-        sendMessageIfEnabled(`⚠️ Process ${data.process.name} stopped with code ${data.process.exit_code}`);
+        sendMessage(`⚠️ Process ${data.process.name} stopped with code ${data.process.exit_code}`);
       }
       if (data.event === 'restart') {
-        sendMessageIfEnabled(`🔄 Process ${data.process.name} restarted`);
+        sendMessage(`🔄 Process ${data.process.name} restarted`);
       }
       if (data.event === 'online') {
-        sendMessageIfEnabled(`✅ Process ${data.process.name} is online`);
+        sendMessage(`✅ Process ${data.process.name} is online`);
       }
       if (data.event === 'stop') {
-        sendMessageIfEnabled(`🛑 Process ${data.process.name} stopped`);
+        sendMessage(`🛑 Process ${data.process.name} stopped`);
       }
     });
   });

@@ -478,56 +478,39 @@
 
       <hr>
 
-      <!-- أزرار سريعة - 4 في صف -->
-      <div class="row g-2 mb-4">
-        <div class="col-3">
-          <button class="quick-action-btn w-100 p-3" onclick="sendCommand('XN2')">
-            <i class="fas fa-weight-scale d-block fs-4 mb-2"></i>
-            <small>قراءة الوزن</small>
+      <!-- أزرار سريعة -->
+      <div class="row g-2">
+        <div class="col-6">
+          <button class="quick-action-btn w-100" onclick="sendCommand('XN2')">
+            <i class="fas fa-weight-scale"></i>
+            <span class="d-block small">قراءة الوزن</span>
           </button>
         </div>
-        <div class="col-3">
-          <button class="quick-action-btn w-100 p-3" onclick="sendCommand('KTARE')"
+        <div class="col-6">
+          <button class="quick-action-btn w-100" onclick="sendCommand('KTARE')"
             style="background: var(--secondary-gradient);">
-            <i class="fas fa-tare d-block fs-4 mb-2"></i>
-            <small>TARE</small>
+            <i class="fas fa-tare"></i>
+            <span class="d-block small">TARE</span>
           </button>
         </div>
-        <div class="col-3">
-          <button class="quick-action-btn w-100 p-3" onclick="sendCommand('KZERO')"
+        <div class="col-6">
+          <button class="quick-action-btn w-100" onclick="sendCommand('KZERO')"
             style="background: linear-gradient(135deg, #fad0c4 0%, #ff9a9e 100%);">
-            <i class="fas fa-broom d-block fs-4 mb-2"></i>
-            <small>ZERO</small>
+            <i class="fas fa-zero"></i>
+            <span class="d-block small">ZERO</span>
           </button>
         </div>
-        <div class="col-3">
-          <button class="quick-action-btn w-100 p-3" onclick="sendCommand('KPRINT')"
+        <div class="col-6">
+          <button class="quick-action-btn w-100" onclick="sendCommand('KPRINT')"
             style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
-            <i class="fas fa-print d-block fs-4 mb-2"></i>
-            <small>PRINT</small>
+            <i class="fas fa-print"></i>
+            <span class="d-block small">PRINT</span>
           </button>
         </div>
       </div>
 
-      <!-- روابط سريعة - 2 في صف -->
-      <div class="row g-3">
-        <div class="col-6">
-          <a href="table1.html" class="btn btn-outline-primary w-100 py-3 rounded-4">
-            <i class="fas fa-table me-2"></i>
-            جدول البيانات
-          </a>
-        </div>
-        <div class="col-6">
-          <a href="table2.html" class="btn btn-outline-success w-100 py-3 rounded-4">
-            <i class="fas fa-ticket me-2"></i>
-            جدول التذاكر
-          </a>
-        </div>
-      </div>
     </div>
-
   </div>
-
 
   <!-- المحتوى الرئيسي -->
   <main class="container">
@@ -543,7 +526,7 @@
       </div>
     </div>
 
-    
+
     <!-- صف التحكم السريع - مع نصوص مصغرة في الهاتف -->
     <div class="row g-2 mb-3">
       <div class="col-3 col-md-3">
@@ -731,7 +714,10 @@
 
   </main>
 
-
+  <!-- زر الإجراء السريع (FAB) -->
+  <!-- <button class="fab-button" onclick="sendCommand('XN2')">
+    <i class="fas fa-weight-scale"></i>
+  </button> -->
 
   <!-- معرض الصور المنبثق -->
   <div id="imgModal" class="img-gallery-modal" onclick="closeImg(event)">
@@ -894,42 +880,17 @@
         const weightDisplay = document.getElementById('response');
         weightDisplay.innerHTML = `${data} <span class="weight-unit">كجم</span>`;
         // weightDisplay.classList.add('weight-pulse');
-        // setTimeout(() => weightDisplay.classList.remove('weight-pulse'), 500);
+        setTimeout(() => weightDisplay.classList.remove('weight-pulse'), 500);
       } else {
-        // document.getElementById('response1').innerText += " " + data + "\n";
         const box = document.getElementById('response1');
-        box.innerText += `→ ${data} ` + '\n';
+        box.innerHTML += `→ ${data}\n`;
         box.scrollTop = box.scrollHeight;
 
         if (data.slice(-2).toUpperCase() === "NE") {
           document.getElementById('response11').innerHTML = `<span class="badge bg-primary">${data}</span>`;
-        } else {
-          if (data.toUpperCase() === "OK") {
-            sendCommand('p')
-          } else {
-            document.getElementById('response11').innerText = '---';
-          }
-        }
-        if (data.slice(0, 5).toUpperCase() === "GROSS") {
-          // document.getElementById('response12').innerText = data;
         }
       }
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // استقبال التذاكر الجديدة
     socket.on('printer:new', (row) => {
@@ -1015,7 +976,7 @@
       loadPrintStatus();
       loadSoundStatus();
       loadNotifyStatus();
-      // setInterval(() => sendCommand('p'), 1000);
+      setInterval(() => sendCommand('p'), 1000);
     };
   </script>
 

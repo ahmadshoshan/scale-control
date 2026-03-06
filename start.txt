@@ -171,3 +171,11 @@ pm2 startup
 
 pm2 unstartup
 pm2 save
+
+
+pm2 stop scale-app
+pm2 stop 0
+pm2 delete name
+pm2 list
+pm2 stop all
+pm2 restart all

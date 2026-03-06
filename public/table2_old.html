@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>جدول التذاكر</title>
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+  <!-- Bootstrap CSS محلي -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- !-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      padding: 16px;
+    }
+
+    .print-btn {
+      min-width: 90px;
+    }
+
+    @media print {
+      @page {
+        size: 80mm auto;
+        margin: 0mm;
+      }
+
+      body.print-ticket {
+        margin: 0;
+        width: 80mm;
+      }
+    }
+  </style>
+</head>
+
+<body class="container mt-5">
+  <div class="mb-3">
+    <a href="index.html" class="btn btn-secondary">⬅ رجوع للوحة التحكم</a>
+
+    <a href="table1.html" class="btn btn-primary">جدول البيانات</a>
+
+
+  </div>
+
+  <h2>عرض بيانات التذاكر</h2>
+
+  <!-- مربع بحث -->
+  <div class="input-group mb-3">
+    <select id="searchType" class="form-select" style="max-width: 200px;">
+      <option value="number">رقم السيارة</option>
+      <option value="date">التاريخ</option>
+      <option value="sn">المسلسل</option>
+    </select>
+
+    <input id="searchValue" type="text" placeholder="اكتب هنا" class="form-control">
+    <button type="button" class="btn btn-secondary" onclick="fetchData3()">بحث</button>
+    <button type="button" class="btn btn-outline-danger" onclick="clearSearch()">مسح</button>
+  </div>
+
+  <table id="data-table2" class="table table-striped">
+    <thead>
+      <tr>
+        <th>الصور</th>
+        <th>العميل والنوع</th>
+        <th>التاريخ</th>
+        <th hidden>المسلسل</th>
+        <th>رقم السيارة</th>
+        <th>الوزن الاول</th>
+        <th>الوزن الثاني</th>
+        <th>الصافي</th>
+        <th>ملحوظه </th>
+        <th>خيارات</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button id="load-more-btn2" class="btn btn-success w-100">تحميل المزيد</button>
+
+  <!-- نافذة التعديل -->
+
+  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="container">
+        <div class="row g-3 justify-content-center">
+
+          <!-- لوحة التعديل -->
+          <div class="col-md-4">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                <h5 class="modal-title" id="editModalLabel">تعديل </h5>
+              </div>
+
+              <div class="modal-body">
+                <form id="editForm">
+
+                  <input type="hidden" id="editId">
+                  <input type="hidden" id="editDate">
+                  <input type="hidden" id="editTime">
+                  <input type="hidden" id="editSn">
+
+                  <!-- رقم السيارة -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">رقم السيارة</label>
+                    <div class="col-8">
+                      <input type="text" id="editNumber" class="form-control">
+                    </div>
+                  </div>
+
+                  <!-- العميل -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">العميل</label>
+                    <div class="col-8">
+                      <input list="customers" type="text" id="editCustomer" class="form-control">
+                      <datalist id="customers">
+                        <option value="الحاج خالد عبد السلام">
+                        <option value="عماد نوح">
+                        <option value="محمد الصندفاوي">
+                        <option value="محمد منصور">
+                        <option value="محمود نصير">
+                        <option value="هاني عبد الباعث">
+                        <option value="الشحات عبد الباعث">
+                        <option value="احمد علي">
+                        <option value="علي محروس">
+                        <option value="محمود ابو منصور">
+                      </datalist>
+                    </div>
+                  </div>
+
+                  <!-- النوع -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">النوع</label>
+                    <div class="col-8">
+                      <input list="types" type="text" id="editType" class="form-control">
+                      <datalist id="types">
+                        <option value="أرز" data-unit="300">
+                        <option value="غلة" data-unit="155">
+                        <option value="تبن" data-unit="250">
+                        <option value="خشب" data-unit="1000">
+                        <option value="حديد" data-unit="1000">
+                        <option value="فول" data-unit="155">
+                      </datalist>
+                    </div>
+                  </div>
+
+                  <!-- الوزن الأول -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">الوزن الأول</label>
+                    <div class="col-8">
+                      <input type="text" id="editGross" class="form-control">
+                    </div>
+                  </div>
+
+                  <!-- الوزن الثاني -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">الوزن الثاني</label>
+                    <div class="col-8">
+                      <input type="text" id="editTare" class="form-control">
+                    </div>
+                  </div>
+
+                  <!-- الصافي -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">الصافي</label>
+                    <div class="col-8">
+                      <input type="text" id="editNet" class="form-control">
+                    </div>
+                  </div>
+
+                  <!-- السعر -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-4 col-form-label fw-bold">السعر / وحدة</label>
+                    <div class="col-8">
+                      <input type="number" id="editPrice" class="form-control">
+                    </div>
+                  </div>
+
+                  <!-- الإجمالي -->
+                  <div class="row mb-2 align-items-center">
+                    <label class="col-2 col-form-label fw-bold">ملحوظه</label>
+                    <div class="col-10">
+                      <textarea id="editNote" class="form-control" rows="3"></textarea>
+                    </div>
+                  </div>
+                  <!-- الإجمالي -->
+                  <div class="row mb-2">
+                    <label class="col-12 col-form-label fw-bold text-center">تفاصيل الحساب</label>
+                    <div class="col-12">
+
+                      <table class="table table-bordered table-sm text-center mb-0">
+                        <thead class="table-light">
+                          <tr>
+
+                            <th>سعر الوحدة</th>
+                            <th>وزن الوحدة</th>
+                            <th>عدد الوحدات</th>
+                            <th>الباقي</th>
+                            <th>الإجمالي</th>
+                          </tr>
+                        </thead>
+
+                        <tbody id="totalTableBody">
+                          <tr>
+                            <td colspan="6" class="text-muted">لا توجد بيانات</td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="updateData()">حفظ</button>
+                <button type="button" class="btn btn-success" onclick="updateAndPrint()">💾🖨 حفظ وطباعة</button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- الصورة -->
+          <div class="col-md-8 text-center">
+            <img id="modalImg2" class="img-fluid rounded shadow">
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('keydown', function (e) {
+
+      // لو زر Enter
+      if (e.key !== 'Enter') return;
+
+      // تأكد إن المودال مفتوح
+      const modalEl = document.getElementById('editModal');
+      if (!modalEl.classList.contains('show')) return;
+
+      // تجاهل textarea (عشان يسمح بسطر جديد)
+      if (e.target.tagName === 'TEXTAREA') return;
+
+      e.preventDefault(); // منع أي سلوك افتراضي
+      updateAndPrint();   // 💾🖨 حفظ وطباعة
+    });
+  </script>
+
+
+
+  <!-- ///////////////////////////////////////// -->
+  <div id="imgModal" class="img-modal" onclick="closeImg()">
+    <span class="img-close">×</span>
+
+    <div class="container mt-4">
+      <div class="row justify-content-center">
+
+        <div class="col-md-8">
+          <div id="head"></div>
+        </div>
+        <div class="col-md-8">
+          <img id="modalImg">
+        </div>
+
+      </div>
+    </div>
+
+
+
+  </div>
+  <style>
+    .img-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .9);
+      z-index: 9999;
+      padding: 10px;
+    }
+
+    .img-modal img {
+      max-width: 100%;
+      max-height: 100%;
+      margin: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .img-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 32px;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    // 
+
+
+    function openImg(src, head) {
+      if (head) {
+
+        document.getElementById("head").innerHTML = head;
+      }
+
+
+      document.body.style.overflow = 'hidden';
+      document.getElementById("modalImg").src = src;
+      document.getElementById("imgModal").style.display = "flex";
+    }
+
+    function closeImg() {
+      document.body.style.overflow = 'auto';
+      document.getElementById("imgModal").style.display = "none";
+    }
+
+  </script>
+
+
+  <!-- ///////////////////////////////////////// -->
+
+
+
+
+
+
+
+
+
+  <script>
+    const typeInput = document.getElementById("editType");
+    const priceInput = document.getElementById("editPrice");
+    const netInput = document.getElementById("editNet");
+
+    const typesList = document.getElementById("types");
+
+    function getUnitWeight(typeName) {
+      const option = Array.from(typesList.options)
+        .find(o => o.value === typeName);
+      return option ? parseFloat(option.dataset.unit) : 0;
+    }
+
+    function calculateTotal() {
+
+      const net = parseFloat(netInput.value);
+      const price = parseFloat(priceInput.value);
+      const unitWeight = getUnitWeight(typeInput.value);
+
+
+
+      document.getElementById("editType").addEventListener("input", function () {
+        const value = this.value.trim();
+        let unitWeight = 0;
+
+        // لو المستخدم كتب رقم → وزن يدوي
+        if (!isNaN(value) && value !== "") {
+          unitWeight = parseFloat(Number(value));
+        }
+
+        const total = (net * price) / unitWeight;
+
+
+
+      });
+
+
+      if (!net || !price || !unitWeight) {
+
+        return;
+      }
+
+      const total = (net * price) / unitWeight;
+
+
+
+      ///////////////////////////////////////////////////////////////////
+      if (!net || !price || !unitWeight) {
+        document.getElementById("totalTableBody").innerHTML =
+          `<tr><td colspan="6" class="text-muted">لا توجد بيانات</td></tr>`;
+        return;
+      }
+
+      const units = Math.floor(net / unitWeight);
+      const remain = net % unitWeight;
+
+      document.getElementById("totalTableBody").innerHTML = `
+    <tr>
+     
+      <td>${price}</td>
+      <td>${unitWeight}</td>
+      <td>${units}</td>
+      <td>${remain}</td>
+      <td class="fw-bold text-success">${total.toFixed(2)} جنيه</td>
+    </tr>
+  `;
+    }
+
+
+    typeInput.addEventListener("input", calculateTotal);
+    priceInput.addEventListener("input", calculateTotal);
+    netInput.addEventListener("input", calculateTotal);
+
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('printer:new', (row) => {
+      console.log('🆕 تذكرة جديدة:', row);
+      // 🔔 إشعار
+
+      setTimeout(() => {
+        const tableBody = document.querySelector('#data-table2 tbody');
+
+        const tr = document.createElement('tr');
+
+        const printBtnHtml = `
+         <button id="${row.sn}" class="btn btn-outline-primary btn-sm" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعه🖨</button>
+         <button id="Edit${row.sn}"  class="btn btn-outline-warning btn-sm" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>✏</button>
+        `;
+
+        tr.innerHTML = `
+              <td>
+          <img id="ticketImg"
+            src="images/print/${row.images}_cam1.jpg"
+            style="max-width:80px; max-height:60px; cursor:pointer;"
+            onclick="openImg(this.src)"
+          >
+        </td>
+
+        <td>${row.customer || ''} -- ${row.type || ''}
+         <!-- الصورتين الصغيرتين -->
+       <div style="display:flex; justify-content:center; gap:4px;">
+         <img 
+         src="images/print/${row.images}_cam2.jpg"
+         style="
+             width: 45px;
+        height: 35px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+        "
+        onclick="openImg(this.src)"
+        >
+        <img
+        src="images/print/${row.images}_cam3.jpg"
+        style="
+        width: 45px;
+        height: 35px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+        "
+        onclick="openImg(this.src)"
+        >
+        </div>
+        </td>
+        </td>
+          <td>${row.date}<br>${row.time}</td>
+          <td hidden>${row.sn}</td>
+          <td>${row.number}</td>
+          <td>${row.gross}</td>
+          <td>${row.tare}</td>
+          <td> <h5>${row.net}</h5></td>
+
+       <td >${printBtnHtml}</td> `;
+
+        // 🔥 أضف الصف في أول الجدول
+        tableBody.prepend(tr);
+        // 🔥 اضغط تلقائيًا على زر الطباعة
+        setTimeout(() => {
+          const printBtn = document.getElementById(`${row.sn}`);
+          const EditBtn = document.getElementById(`Edit${row.sn}`);
+
+
+
+
+          // }
+          if (EditBtn) {
+            EditBtn.click();
+            // ⏱️ اقفل نافذة الطباعة بعد ثانية
+
+          }
+
+
+        }, 300); // تأخير بسيط عشان DOM يكتمل
+
+
+      }, 500); // تأخير 2 ثانية قبل إضافة الصف
+    });
+
+    //////////////////////////////////////////
+    let offset2 = 0;
+    const limit2 = 5;
+
+    async function fetchData2() {
+      try {
+        const response = await fetch(`/get-data2?limit=${limit2}&offset=${offset2}`);
+        const data = await response.json();
+        const tableBody = document.querySelector('#data-table2 tbody');
+
+        if (data.length === 0) {
+          document.getElementById('load-more-btn2').style.display = 'none';
+          return;
+        }
+
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          const printBtnHtml = `<button class="btn btn-outline-primary btn-sm print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>🖨</button>`;
+          const editBtnHtml = `<button class="btn btn-outline-warning btn-sm" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>✏</button>`;
+
+          tr.innerHTML = `
+ <td style="text-align:center;">
+  <!-- الصورة الكبيرة -->
+  <div>
+    <img
+      src="images/print/${row.images}_cam1.jpg"
+      style="
+        width: 100%;
+        max-width: 90px;
+        max-height: 70px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 6px;
+        margin-bottom: 4px;
+      "
+      onclick="openImg(this.src)"
+    >
+  </div>
+
+  
+</td>
+
+
+<td>
+  ${row.customer} -- ${row.type}
+  <!-- الصورتين الصغيرتين -->
+  <div style="display:flex; justify-content:center; gap:4px;">
+    <img
+    src="images/print/${row.images}_cam2.jpg"
+    style="
+        width: 45px;
+        height: 35px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+        "
+        onclick="openImg(this.src)"
+        >
+        <img
+        src="images/print/${row.images}_cam3.jpg"
+        style="
+        width: 45px;
+        height: 35px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+        "
+        onclick="openImg(this.src)"
+        >
+        </div>
+        </td>
+              <td>${row.date}<br>${row.time}</td>
+              <td hidden>${row.sn}</td>
+              <td>${row.number}</td>
+              <td>${row.gross}</td>
+              <td>${row.tare}</td>
+              <td> <h5>${row.net}</h5></td>
+              <td >${row.note}</td>
+
+
+    
+  <td>
+    ${printBtnHtml}
+    ${editBtnHtml}
+  </td>
+`;
+
+          tableBody.appendChild(tr);
+        });
+
+        offset2 += limit2;
+      } catch (error) {
+        console.error('خطأ:', error);
+      }
+    }
+
+    function openEdit(row) {
+      console.log(row);
+
+      document.getElementById('editDate').value = row.date;
+      document.getElementById('editTime').value = row.time;
+      document.getElementById('editSn').value = row.sn;
+
+      document.getElementById('editPrice').value = '';
+      document.getElementById("totalTableBody").innerHTML =
+        `<tr><td colspan="6" class="text-muted">لا توجد بيانات</td></tr>`;
+      document.getElementById('editId').value = row.id;
+      document.getElementById('editNumber').value = row.number;
+      document.getElementById('editCustomer').value = row.customer;
+      document.getElementById('editType').value = row.type;
+      document.getElementById('editGross').value = row.gross;
+      document.getElementById('editTare').value = row.tare;
+      document.getElementById('editNet').value = row.net;
+      document.getElementById('editNote').value = row.note||'';
+
+      src = `images/print/${row.images}_cam1.jpg`;
+      document.getElementById("modalImg2").src = src;
+
+      const modal = new bootstrap.Modal(document.getElementById('editModal'));
+      modal.show();
+    }
+
+    async function updateData() {
+      const id = document.getElementById('editId').value;
+      const updatedData = {
+        number: document.getElementById('editNumber').value,
+        customer: document.getElementById('editCustomer').value,
+        type: document.getElementById('editType').value,
+        gross: document.getElementById('editGross').value,
+        tare: document.getElementById('editTare').value,
+        net: document.getElementById('editNet').value,
+        note: document.getElementById('editNote').value
+      };
+
+      try {
+        const response = await fetch(`/update-ticket/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData)
+        });
+
+
+        if (response.ok) {
+          alert('✅ تم تحديث التذكرة بنجاح');
+          location.reload();
+        } else {
+          alert('❌ حدث خطأ أثناء التحديث');
+        }
+      } catch (error) {
+        console.error('خطأ:', error);
+      }
+    }
+
+    async function updateAndPrint() {
+      const id = document.getElementById('editId').value;
+
+
+      const updatedData = {
+        date: document.getElementById('editDate').value,
+        time: document.getElementById('editTime').value,
+        sn: document.getElementById('editSn').value,
+        number: document.getElementById('editNumber').value,
+        customer: document.getElementById('editCustomer').value,
+        type: document.getElementById('editType').value,
+        gross: document.getElementById('editGross').value,
+        tare: document.getElementById('editTare').value,
+        net: document.getElementById('editNet').value,
+        note: document.getElementById('editNote').value,
+        price: document.getElementById('editPrice').value,
+
+
+        unitWeight: getUnitWeight(document.getElementById('editType').value)
+      };
+      console.log(updatedData);
+
+      try {
+        const response = await fetch(`/update-ticket/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData)
+        });
+
+
+        // 🔥 اطبع مباشرة بعد الحفظ
+        printTicket(updatedData);
+
+        // اقفل المودال
+        const modalEl = document.getElementById('editModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+      } catch (error) {
+        console.error(error);
+        alert('❌ خطأ في الاتصال بالسيرفر');
+      }
+    }
+
+
+
+
+    function printTicket(row) {
+
+      localStorage.setItem("ticketData", JSON.stringify(row));
+      window.open("ticket.html", "_blank", "width=650,height=650");
+    }
+
+    window.onload = fetchData2;
+    document.getElementById('load-more-btn2').addEventListener('click', fetchData2);
+
+
+
+
+    // طباعة بحث برقم العربية
+    async function fetchData3() {
+      const searchType = document.getElementById('searchType').value;
+      const searchValue = document.getElementById('searchValue').value;
+      console.log(searchType);
+      console.log(searchValue);
+      try {
+        const response = await fetch(`/get-data3?type=${encodeURIComponent(searchType)}&value=${encodeURIComponent(searchValue)}`);
+        const data = await response.json();
+        const tableBody = document.querySelector('#data-table2 tbody');
+        tableBody.innerHTML = "";
+
+        if (data.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">لا توجد نتائج</td></tr>`;
+          return;
+        }
+
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          const printBtnHtml = `<button class="btn btn-outline-primary print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعة</button>`;
+
+          tr.innerHTML = `
+          
+        <td style="text-align:center;">
+  <!-- الصورة الكبيرة -->
+  <div>
+    <img 
+      src="images/print/${row.images}_cam1.jpg"
+      style="
+        width: 100%;
+        max-width: 90px;
+        max-height: 70px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 6px;
+        margin-bottom: 4px;
+      "
+      onclick="openImg(this.src)"
+    >
+  </div>
+
+  
+</td>
+
+
+<td>
+  ${row.customer} -- ${row.type}
+  <!-- الصورتين الصغيرتين -->
+  <div style="display:flex; justify-content:center; gap:4px;">
+    <img
+    src="images/print/${row.images}_cam2.jpg"
+    style="
+        width: 45px;
+        height: 35px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+        "
+        onclick="openImg(this.src)"
+        >
+        <img 
+        src="images/print/${row.images}_cam3.jpg"
+        style="
+        width: 45px;
+        height: 35px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+        "
+        onclick="openImg(this.src)"
+        >
+        </div>
+        </td>
+            <td>${row.date}<br>${row.time}</td>
+            <td hidden>${row.sn}</td>
+            <td>${row.number}</td>
+            <td>${row.gross}</td>
+            <td>${row.tare}</td>
+            <td>${row.net}</td>
+             <td ></td>
+            <td>${printBtnHtml}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+      } catch (error) {
+        console.error('خطأ:', error);
+      }
+    }
+
+    function clearSearch() {
+      document.getElementById('searchValue').value = "";
+      document.querySelector('#data-table2 tbody').innerHTML = "";
+      offset2 = 0;
+      fetchData2();
+    }
+
+
+
+
+
+    // </script>
+
+
+
+
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+
+
+
+    //////////////////////////////////////////
+
+    socket.on('id:new', (row) => {
+      showToast(row);
+
+    });
+
+
+
+
+
+  </script>
+
+
+  <script>
+
+
+    function showToast(row) {
+      if (row.NE) {
+
+
+        setTimeout(() => {
+          document.getElementById("toastBody").innerHTML =
+            `  تم اضافه سياره قم ${row.NE} (وزن: ${row.gross})`;
+          // 🖼️ صورة من الكاميرا الأولى
+          document.getElementById("toastImg1").src =
+            `images/sensor/${row.images}_cam1.jpg`;
+          document.getElementById("toastImg2").src =
+            `images/sensor/${row.images}_cam2.jpg`;
+          document.getElementById("toastImg3").src =
+            `images/sensor/${row.images}_cam3.jpg`;
+
+
+          const toastEl = document.getElementById('liveToast');
+          const toast = new bootstrap.Toast(toastEl, {
+            delay: 10000 // 10 ثواني
+          });
+
+          toast.show();
+        }, 500);
+      }
+
+    }
+
+  </script>
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert">
+      <div class="toast-header">
+
+        <strong class="me-auto">📢 إشعار</strong>
+        <small>الآن</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+      </div>
+      <div style="display:flex; justify-content:center; gap:4px;">
+        <img id="toastImg1" src="" class="rounded me-2" style="width:80px;height:80px;object-fit:cover;">
+        <img id="toastImg2" src="" class="rounded me-2" style="width:80px;height:80px;object-fit:cover;">
+        <img id="toastImg3" src="" class="rounded me-2" style="width:80px;height:80px;object-fit:cover;">
+      </div>
+
+      <h4 class="toast-body" id="toastBody"></h4>
+
+    </div>
+  </div>
+
+    <!-- عنصر الصوت -->
+    <audio id="audioPlayer" controls></audio>
+
+
+
+    <!-- تضمين مكتبة Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    
+
+      // الحصول على عنصر الصوت
+      const audioPlayer = document.getElementById('audioPlayer');
+      // const statusElement = document.getElementById('status');
+
+      // استما إلى إشارات تشغيل الصوت من الخادم
+      socket.on('play-audio', (fileName) => {
+        const audioUrl = `/audio/${fileName}`; // المسار إلى الملف الصوتي
+        // statusElement.textContent = `جاري تشغيل: ${fileName}`;
+        // تحديث مصدر الصوت وتشغيله
+        audioPlayer.src = audioUrl;
+        audioPlayer.play();
+      });
+
+
+
+    </script>
+
+</body>
+
+</html>

@@ -4,499 +4,895 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>جدول التذاكر</title>
-  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+  <title>نظام إدارة التذاكر المتقدم</title>
   <!-- Bootstrap CSS محلي -->
   <link href="css/bootstrap.min.css" rel="stylesheet">
-  <!-- !-- PWA -->
-  <link rel="manifest" href="manifest.json">
+  <!-- Font Awesome للأيقونات -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- PWA -->
+  <!-- <link rel="manifest" href="manifest.json"> -->
   <style>
+    :root {
+      --primary-color: #4361ee;
+      --success-color: #06d6a0;
+      --danger-color: #ef476f;
+      --warning-color: #ffd166;
+      --dark-color: #2b2d42;
+      --light-color: #f8f9fa;
+    }
+
     body {
-      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
     }
 
-    .print-btn {
-      min-width: 90px;
+    /* تحسين المظهر العام */
+    .main-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 10px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      margin-bottom: 10px;
     }
 
-    @media print {
-      @page {
-        size: 80mm auto;
-        margin: 0mm;
-      }
+    /* ترويسة الصفحة */
+    .page-header {
+      background: linear-gradient(45deg, var(--primary-color), var(--dark-color));
+      color: white;
+      padding: 10px;
+      border-radius: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
+    }
 
-      body.print-ticket {
-        margin: 0;
-        width: 80mm;
-      }
+    .page-header h2 {
+      margin: 0;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .page-header h2 i {
+      font-size: 2rem;
+    }
+
+    /* أزرار التنقل */
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* مربع البحث المتقدم */
+    .search-container {
+    
+     
+      border-radius: 5px;
+      margin-bottom: 5px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-label {
+      font-weight: 600;
+      color: var(--dark-color);
+      margin-bottom: 10px;
+    }
+
+    .search-input-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-input-group select,
+    .search-input-group input {
+      flex: 1;
+      min-width: 200px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 12px;
+      transition: all 0.3s;
+    }
+
+    .search-input-group select:focus,
+    .search-input-group input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+      outline: none;
+    }
+
+    .search-btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .search-btn i {
+      margin-left: 8px;
+    }
+
+    /* بطاقات الإحصائيات */
+    .stats-card {
+      background: linear-gradient(45deg, var(--success-color), #0cb8b8);
+      color: white;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 5px;
+      box-shadow: 0 10px 30px rgba(6, 214, 160, 0.3);
+    }
+
+    .stats-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .stats-label {
+      font-size: 1rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    /* الجدول المحسن */
+    .table-container {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+    }
+
+    .modern-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+    }
+
+    .modern-table thead th {
+      background: linear-gradient(45deg, var(--dark-color), #1a1b2f);
+      color: white;
+      padding: 15px;
+      font-weight: 600;
+      border: none;
+      white-space: nowrap;
+    }
+
+    .modern-table thead th:first-child {
+      border-radius: 10px 0 0 10px;
+    }
+
+    .modern-table thead th:last-child {
+      border-radius: 0 10px 10px 0;
+    }
+
+    .modern-table tbody tr {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+      border-radius: 10px;
+    }
+
+    .modern-table tbody tr:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .modern-table tbody td {
+      padding: 15px;
+      vertical-align: middle;
+      border: none;
+    }
+
+    /* بطاقة الصورة المحسنة */
+    .image-card {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .image-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: all 0.3s;
+    }
+
+    .image-card:hover img {
+      transform: scale(1.1);
+    }
+
+    .image-card::after {
+      content: '🔍';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 5px;
+      border-radius: 50%;
+      opacity: 0;
+      transition: all 0.3s;
+    }
+
+    .image-card:hover::after {
+      opacity: 1;
+    }
+
+    /* معرض الصور المصغر */
+    .thumbnail-gallery {
+      display: flex;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .thumbnail {
+      width: 35px;
+      height: 35px;
+      border-radius: 6px;
+      object-fit: cover;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid transparent;
+    }
+
+    .thumbnail:hover {
+      transform: scale(1.2);
+      border-color: var(--primary-color);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* شارة الوزن */
+    .weight-badge {
+      background: linear-gradient(45deg, var(--primary-color), #7209b7);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      display: inline-block;
+    }
+
+    /* أزرار الإجراءات */
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-3px);
+    }
+
+    .btn-print {
+      background: linear-gradient(45deg, var(--success-color), #0cb8b8);
+      color: white;
+    }
+
+    .btn-edit {
+      background: linear-gradient(45deg, var(--warning-color), #fbbf24);
+      color: white;
+    }
+
+    /* زر تحميل المزيد */
+    .load-more-btn {
+      background: linear-gradient(45deg, var(--dark-color), #1a1b2f);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 10px;
+      font-weight: 600;
+      margin-top: 20px;
+      transition: all 0.3s;
+    }
+
+    .load-more-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    /* تحسين المودال */
+    .modal-modern .modal-content {
+      border-radius: 20px;
+      border: none;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-modern .modal-header {
+      background: linear-gradient(45deg, var(--primary-color), var(--dark-color));
+      color: white;
+      border-radius: 20px 20px 0 0;
+      padding: 20px;
+    }
+
+    .modal-modern .modal-body {
+      padding: 25px;
+    }
+
+    .modal-modern .modal-footer {
+      border-top: 2px solid #e0e0e0;
+      padding: 20px;
+    }
+
+    /* تحسين حقول الإدخال */
+    .modern-input {
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 12px;
+      transition: all 0.3s;
+      width: 100%;
+    }
+
+    .modern-input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+      outline: none;
+    }
+
+    .input-label {
+      font-weight: 600;
+      color: var(--dark-color);
+      margin-bottom: 5px;
+    }
+
+    /* جدول الحسابات المحسن */
+    .calculation-table {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 15px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .calculation-table table {
+      margin: 0;
+      background: white;
+    }
+
+    .calculation-table th {
+      background: var(--dark-color);
+      color: white;
+      padding: 12px;
+    }
+
+    /* إشعار toast محسن */
+    .custom-toast {
+      background: white;
+      border-radius: 15px;
+      border-right: 5px solid var(--success-color);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .toast-image-gallery {
+      display: flex;
+      gap: 5px;
+      padding: 10px;
+    }
+
+    .toast-image {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    /* مشغل الصوت */
+    .audio-player {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: white;
+      border-radius: 50px;
+      padding: 5px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* معرض الصور المنبثق */
+    .img-gallery-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .gallery-container {
+      max-width: 90%;
+      margin: auto;
+    }
+
+    .gallery-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+    }
+
+    .gallery-nav:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .gallery-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 40px;
+      color: white;
+      cursor: pointer;
+      z-index: 10000;
     }
   </style>
 </head>
 
-<body class="container mt-5">
-  <div class="mb-3">
-    <a href="index.html" class="btn btn-secondary">⬅ رجوع للوحة التحكم</a>
+<body>
 
-    <a href="table1.html" class="btn btn-primary">جدول البيانات</a>
-
-
+  <!-- مشغل الصوت -->
+  <div class="audio-player">
+    <audio id="audioPlayer" controls style="width: 250px;"></audio>
   </div>
 
-  <h2>عرض بيانات التذاكر</h2>
+  <div class="container-fluid">
+    <div class="main-container">
 
-  <!-- مربع بحث -->
-  <div class="input-group mb-3">
-    <select id="searchType" class="form-select" style="max-width: 200px;">
-      <option value="number">رقم السيارة</option>
-      <option value="date">التاريخ</option>
-      <option value="sn">المسلسل</option>
-    </select>
+      <!-- ترويسة الصفحة -->
+      <div class="page-header d-flex justify-content-between align-items-center">
+        <h2>
+          <i class="fas fa-ticket-alt"></i>
+          نظام إدارة التذاكر المتقدم
+        </h2>
+        <div class="nav-buttons">
+          <a href="index.html" class="nav-btn btn btn-light">
+            <i class="fas fa-arrow-right"></i>
+            لوحة التحكم
+          </a>
+          <a href="table1.html" class="nav-btn btn btn-primary">
+            <i class="fas fa-table"></i>
+            جدول البيانات
+          </a>
+        </div>
+      </div>
 
-    <input id="searchValue" type="text" placeholder="اكتب هنا" class="form-control">
-    <button type="button" class="btn btn-secondary" onclick="fetchData3()">بحث</button>
-    <button type="button" class="btn btn-outline-danger" onclick="clearSearch()">مسح</button>
-  </div>
+      <!-- بطاقات الإحصائيات -->
+      <div class="row">
+        <div class="col-md-3">
+          <div class="stats-card">
+            <i class="fas fa-truck fa-2x mb-2"></i> <b class="stats-label">إجمالي التذاكر</b>
+            <p class="stats-number" id="totalTickets">0</p>
+           
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card" style="background: linear-gradient(45deg, #ef476f, #b5179e);">
+            <i class="fas fa-weight-scale fa-2x mb-2"></i>
+            <b class="stats-label">إجمالي الوزن</b>
+            <p class="stats-number" id="response">0</p>
+            <!-- <p class="stats-number" id="totalWeight">0</p> -->
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card" style="background: linear-gradient(45deg, #ffd166, #f59e0b);">
+            <i class="fas fa-users fa-2x mb-2"></i>
+            <b class="stats-label">NE </b>
+            <p class="stats-number" id="response11">0</p>
+            <!-- <p class="stats-number" id="totalCustomers">0</p> -->
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card" style="background: linear-gradient(45deg, #4361ee, #3a0ca3);">
+            <i class="fas fa-clock fa-2x mb-2"></i>
+            <b class="stats-label">تذاكر اليوم</b>
+            <p class="stats-number" id="todayTickets">0</p>
+          </div>
+        </div>
+      </div>
 
-  <table id="data-table2" class="table table-striped">
-    <thead>
-      <tr>
-        <th>الصور</th>
-        <th>العميل والنوع</th>
-        <th>التاريخ</th>
-        <th hidden>المسلسل</th>
-        <th>رقم السيارة</th>
-        <th>الوزن الاول</th>
-        <th>الوزن الثاني</th>
-        <th>الصافي</th>
-        <th>ملحوظه </th>
-        <th>خيارات</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <button id="load-more-btn2" class="btn btn-success w-100">تحميل المزيد</button>
-
-  <!-- نافذة التعديل -->
-
-  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="container">
-        <div class="row g-3 justify-content-center">
-
-          <!-- لوحة التعديل -->
-          <div class="col-md-4">
-            <div class="modal-content">
-
-              <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                <h5 class="modal-title" id="editModalLabel">تعديل </h5>
-              </div>
-
-              <div class="modal-body">
-                <form id="editForm">
-
-                  <input type="hidden" id="editId">
-                  <input type="hidden" id="editDate">
-                  <input type="hidden" id="editTime">
-                  <input type="hidden" id="editSn">
-
-                  <!-- رقم السيارة -->
-                  <div class="row mb-2 align-items-center">
-                    <label class="col-4 col-form-label fw-bold">رقم السيارة</label>
-                    <div class="col-8">
-                      <input type="text" id="editNumber" class="form-control">
-                    </div>
-                  </div>
-
-                  <!-- العميل -->
-                  <div class="row mb-2 align-items-center">
-                    <label class="col-4 col-form-label fw-bold">العميل</label>
-                    <div class="col-8">
-                      <input list="customers" type="text" id="editCustomer" class="form-control">
-                      <datalist id="customers">
-                        <option value="الحاج خالد عبد السلام">
-                        <option value="عماد نوح">
-                        <option value="محمد الصندفاوي">
-                        <option value="محمد منصور">
-                        <option value="محمود نصير">
-                        <option value="هاني عبد الباعث">
-                        <option value="الشحات عبد الباعث">
-                        <option value="احمد علي">
-                        <option value="علي محروس">
-                        <option value="محمود ابو منصور">
-                      </datalist>
-                    </div>
-                  </div>
-
-                  <!-- النوع -->
-                  <div class="row mb-2 align-items-center">
-                    <label class="col-4 col-form-label fw-bold">النوع</label>
-                    <div class="col-8">
-                      <input list="types" type="text" id="editType" class="form-control">
-                      <datalist id="types">
-                        <option value="أرز" data-unit="300">
-                        <option value="غلة" data-unit="155">
-                        <option value="تبن" data-unit="250">
-                        <option value="خشب" data-unit="1000">
-                        <option value="حديد" data-unit="1000">
-                        <option value="فول" data-unit="155">
-                      </datalist>
-                    </div>
-                  </div>
-
-                  <!-- الوزن الأول -->
-                  <div class="row mb-2 align-items-center">
-                    <label class="col-4 col-form-label fw-bold">الوزن الأول</label>
-                    <div class="col-8">
-                      <input type="text" id="editGross" class="form-control">
-                    </div>
-                  </div>
-
-                  <!-- الوزن الثاني -->
-                  <div class="row mb-2 align-items-center">
-                    <label class="col-4 col-form-label fw-bold">الوزن الثاني</label>
-                    <div class="col-8">
-                      <input type="text" id="editTare" class="form-control">
-                    </div>
-                  </div>
-
-                  <!-- الصافي -->
-                  <div class="row mb-2 align-items-center">
-                    <label class="col-4 col-form-label fw-bold">الصافي</label>
-                    <div class="col-8">
-                      <input type="text" id="editNet" class="form-control">
-                    </div>
-                  </div>
-
-                  <!-- السعر -->
-                  <div class="row mb-2 align-items-center">
-                    <label class="col-4 col-form-label fw-bold">السعر / وحدة</label>
-                    <div class="col-8">
-                      <input type="number" id="editPrice" class="form-control">
-                    </div>
-                  </div>
-
-                  <!-- الإجمالي -->
-                  <div class="row mb-2 align-items-center">
-                    <label class="col-2 col-form-label fw-bold">ملحوظه</label>
-                    <div class="col-10">
-                      <textarea id="editNote" class="form-control" rows="3"></textarea>
-                    </div>
-                  </div>
-                  <!-- الإجمالي -->
-                  <div class="row mb-2">
-                    <label class="col-12 col-form-label fw-bold text-center">تفاصيل الحساب</label>
-                    <div class="col-12">
-
-                      <table class="table table-bordered table-sm text-center mb-0">
-                        <thead class="table-light">
-                          <tr>
-
-                            <th>سعر الوحدة</th>
-                            <th>وزن الوحدة</th>
-                            <th>عدد الوحدات</th>
-                            <th>الباقي</th>
-                            <th>الإجمالي</th>
-                          </tr>
-                        </thead>
-
-                        <tbody id="totalTableBody">
-                          <tr>
-                            <td colspan="6" class="text-muted">لا توجد بيانات</td>
-                          </tr>
-                        </tbody>
-                      </table>
-
-                    </div>
-                  </div>
-
-                </form>
-              </div>
-
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-primary" onclick="updateData()">حفظ</button>
-                <button type="button" class="btn btn-success" onclick="updateAndPrint()">💾🖨 حفظ وطباعة</button>
-              </div>
-
+      <!-- مربع البحث المتقدم -->
+      <div class="search-container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="search-label">
+              <i class="fas fa-search"></i>
+              بحث متقدم
+            </div>
+            <div class="search-input-group">
+              <select id="searchType" class="form-select">
+                <option value="number">🚛 رقم السيارة</option>
+                <option value="date">📅 التاريخ</option>
+                <option value="sn">🔢 المسلسل</option>
+                <option value="customer">👤 العميل</option>
+                <option value="type">📦 النوع</option>
+              </select>
+              <input id="searchValue" type="text" placeholder="اكتب كلمة البحث..." class="form-control">
+              <button type="button" class="search-btn btn btn-primary" onclick="fetchData3()">
+                <i class="fas fa-search"></i>
+                بحث
+              </button>
+              <button type="button" class="search-btn btn btn-outline-danger" onclick="clearSearch()">
+                <i class="fas fa-times"></i>
+                مسح
+              </button>
             </div>
           </div>
+        </div>
+      </div>
 
-          <!-- الصورة -->
-          <div class="col-md-8 text-center">
-            <img id="modalImg2" class="img-fluid rounded shadow">
+      <!-- الجدول المحسن -->
+      <div class="table-container">
+        <table id="data-table2" class="modern-table">
+          <thead>
+            <tr>
+              <th>الصور</th>
+              <th>العميل / النوع</th>
+              <th>التاريخ / الوقت</th>
+              <th hidden>المسلسل</th>
+              <th>رقم السيارة</th>
+              <th>الوزن الأول</th>
+              <th>الوزن الثاني</th>
+              <th>الصافي</th>
+              <th>ملحوظة</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <button id="load-more-btn2" class="load-more-btn w-100">
+          <i class="fas fa-arrow-down"></i>
+          تحميل المزيد من التذاكر
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة التعديل المحسنة -->
+  <div class="modal fade modal-modern" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-edit"></i>
+            تعديل بيانات التذكرة
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <!-- نموذج التعديل -->
+            <div class="col-md-6">
+              <form id="editForm">
+                <input type="hidden" id="editId">
+                <input type="hidden" id="editDate">
+                <input type="hidden" id="editTime">
+                <input type="hidden" id="editSn">
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <div class="input-label">رقم السيارة</div>
+                    <input type="text" id="editNumber" class="modern-input">
+                  </div>
+                  <div class="col-md-6">
+                    <div class="input-label">العميل</div>
+                    <input list="customers" type="text" id="editCustomer" class="modern-input">
+                    <datalist id="customers">
+                      <option value="الحاج خالد عبد السلام">
+                      <option value="عماد نوح">
+                      <option value="محمد الصندفاوي">
+                      <option value="محمد منصور">
+                      <option value="محمود نصير">
+                      <option value="هاني عبد الباعث">
+                      <option value="الشحات عبد الباعث">
+                      <option value="احمد علي">
+                      <option value="علي محروس">
+                      <option value="محمود ابو منصور">
+                    </datalist>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <div class="input-label">النوع</div>
+                    <input list="types" type="text" id="editType" class="modern-input">
+                    <datalist id="types">
+                      <option value="أرز" data-unit="300">
+                      <option value="غلة" data-unit="155">
+                      <option value="تبن" data-unit="250">
+                      <option value="خشب" data-unit="1000">
+                      <option value="حديد" data-unit="1000">
+                      <option value="فول" data-unit="155">
+                    </datalist>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="input-label">السعر / وحدة</div>
+                    <input type="number" id="editPrice" class="modern-input">
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    <div class="input-label">الوزن الأول</div>
+                    <input type="text" id="editGross" class="modern-input">
+                  </div>
+                  <div class="col-md-4">
+                    <div class="input-label">الوزن الثاني</div>
+                    <input type="text" id="editTare" class="modern-input">
+                  </div>
+                  <div class="col-md-4">
+                    <div class="input-label">الصافي</div>
+                    <input type="text" id="editNet" class="modern-input">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <div class="input-label">ملحوظة</div>
+                  <textarea id="editNote" class="modern-input" rows="3"></textarea>
+                </div>
+              </form>
+
+              <!-- جدول الحسابات -->
+              <div class="calculation-table">
+                <table class="table table-bordered mb-0">
+                  <thead>
+                    <tr>
+                      <th>سعر الوحدة</th>
+                      <th>وزن الوحدة</th>
+                      <th>عدد الوحدات</th>
+                      <th>الباقي</th>
+                      <th>الإجمالي</th>
+                    </tr>
+                  </thead>
+                  <tbody id="totalTableBody">
+                    <tr>
+                      <td colspan="5" class="text-center text-muted">لا توجد بيانات</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- عرض الصورة -->
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header bg-primary text-white">
+                  <i class="fas fa-camera"></i>
+                  صورة التذكرة
+                </div>
+                <div class="card-body text-center">
+                  <img id="modalImg2" class="img-fluid rounded shadow" style="max-height: 400px;">
+                </div>
+              </div>
+            </div>
           </div>
-
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i>
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-primary" onclick="updateData()">
+            <i class="fas fa-save"></i>
+            حفظ
+          </button>
+          <button type="button" class="btn btn-success" onclick="updateAndPrint()">
+            <i class="fas fa-save"></i>
+            <i class="fas fa-print"></i>
+            حفظ وطباعة
+          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <script>
-    document.addEventListener('keydown', function (e) {
-
-      // لو زر Enter
-      if (e.key !== 'Enter') return;
-
-      // تأكد إن المودال مفتوح
-      const modalEl = document.getElementById('editModal');
-      if (!modalEl.classList.contains('show')) return;
-
-      // تجاهل textarea (عشان يسمح بسطر جديد)
-      if (e.target.tagName === 'TEXTAREA') return;
-
-      e.preventDefault(); // منع أي سلوك افتراضي
-      updateAndPrint();   // 💾🖨 حفظ وطباعة
-    });
-  </script>
-
-
-
-  <!-- ///////////////////////////////////////// -->
-  <div id="imgModal" class="img-modal" onclick="closeImg()">
-    <span class="img-close">×</span>
-
-    <div class="container mt-4">
-      <div class="row justify-content-center">
-
-        <div class="col-md-8">
-          <div id="head"></div>
+  <!-- معرض الصور المنبثق -->
+  <div id="imgGallery" class="img-gallery-modal" onclick="closeGallery(event)">
+    <span class="gallery-close" onclick="closeGallery()">&times;</span>
+    <div class="gallery-nav" style="left: 20px;" onclick="changeImage(-1)">
+      <i class="fas fa-chevron-right fa-2x"></i>
+    </div>
+    <div class="gallery-nav" style="right: 20px;" onclick="changeImage(1)">
+      <i class="fas fa-chevron-left fa-2x"></i>
+    </div>
+    <div class="gallery-container">
+      <div class="row justify-content-center align-items-center h-100">
+        <div class="col-md-8 text-center">
+          <div id="galleryHead" class="text-white mb-3"></div>
+          <img id="galleryImg" class="img-fluid" style="max-height: 80vh;">
         </div>
-        <div class="col-md-8">
-          <img id="modalImg">
-        </div>
-
       </div>
     </div>
-
-
-
   </div>
-  <style>
-    .img-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .9);
-      z-index: 9999;
-      padding: 10px;
-    }
 
-    .img-modal img {
-      max-width: 100%;
-      max-height: 100%;
-      margin: auto;
-      display: block;
-      object-fit: contain;
-    }
+  <!-- إشعار Toast محسن -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="liveToast" class="toast custom-toast" role="alert">
+      <div class="toast-header">
+        <i class="fas fa-bell text-success me-2"></i>
+        <strong class="me-auto">إشعار جديد</strong>
+        <small>الآن</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-image-gallery">
+        <img id="toastImg1" class="toast-image">
+        <img id="toastImg2" class="toast-image">
+        <img id="toastImg3" class="toast-image">
+      </div>
+      <div class="toast-body" id="toastBody"></div>
+    </div>
+  </div>
 
-    .img-close {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 32px;
-      color: #fff;
-      cursor: pointer;
-    }
-  </style>
+  <!-- باقي السكربتات مع نفس الوظائف ولكن مع تحسينات -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
   <script>
-    // 
+    // متغيرات المعرض
+    let currentImages = [];
+    let currentImageIndex = 0;
 
-
-    function openImg(src, head) {
-      if (head) {
-
-        document.getElementById("head").innerHTML = head;
-      }
-
-
+    // تحسين دالة فتح الصور
+    function openGallery(images, title) {
+      currentImages = images;
+      currentImageIndex = 0;
+      document.getElementById('galleryHead').innerHTML = title || '';
+      updateGalleryImage();
+      document.getElementById('imgGallery').style.display = 'flex';
       document.body.style.overflow = 'hidden';
-      document.getElementById("modalImg").src = src;
-      document.getElementById("imgModal").style.display = "flex";
     }
 
-    function closeImg() {
-      document.body.style.overflow = 'auto';
-      document.getElementById("imgModal").style.display = "none";
-    }
-
-  </script>
-
-
-  <!-- ///////////////////////////////////////// -->
-
-
-
-
-
-
-
-
-
-  <script>
-    const typeInput = document.getElementById("editType");
-    const priceInput = document.getElementById("editPrice");
-    const netInput = document.getElementById("editNet");
-
-    const typesList = document.getElementById("types");
-
-    function getUnitWeight(typeName) {
-      const option = Array.from(typesList.options)
-        .find(o => o.value === typeName);
-      return option ? parseFloat(option.dataset.unit) : 0;
-    }
-
-    function calculateTotal() {
-
-      const net = parseFloat(netInput.value);
-      const price = parseFloat(priceInput.value);
-      const unitWeight = getUnitWeight(typeInput.value);
-
-
-
-      document.getElementById("editType").addEventListener("input", function () {
-        const value = this.value.trim();
-        let unitWeight = 0;
-
-        // لو المستخدم كتب رقم → وزن يدوي
-        if (!isNaN(value) && value !== "") {
-          unitWeight = parseFloat(Number(value));
-        }
-
-        const total = (net * price) / unitWeight;
-
-
-
-      });
-
-
-      if (!net || !price || !unitWeight) {
-
-        return;
+    function updateGalleryImage() {
+      if (currentImages.length > 0) {
+        document.getElementById('galleryImg').src = currentImages[currentImageIndex];
       }
+    }
 
-      const total = (net * price) / unitWeight;
+    function changeImage(direction) {
+      currentImageIndex += direction;
+      if (currentImageIndex < 0) currentImageIndex = currentImages.length - 1;
+      if (currentImageIndex >= currentImages.length) currentImageIndex = 0;
+      updateGalleryImage();
+    }
 
-
-
-      ///////////////////////////////////////////////////////////////////
-      if (!net || !price || !unitWeight) {
-        document.getElementById("totalTableBody").innerHTML =
-          `<tr><td colspan="6" class="text-muted">لا توجد بيانات</td></tr>`;
-        return;
+    function closeGallery(event) {
+      if (!event || event.target === document.getElementById('imgGallery')) {
+        document.getElementById('imgGallery').style.display = 'none';
+        document.body.style.overflow = 'auto';
       }
+    }
 
-      const units = Math.floor(net / unitWeight);
-      const remain = net % unitWeight;
 
-      document.getElementById("totalTableBody").innerHTML = `
+
+    // استبدل دالة createTableRow بهذه النسخة المحسنة
+    function createTableRow(row) {
+      const images = [
+        `images/print/${row.images}_cam1.jpg`,
+        `images/print/${row.images}_cam2.jpg`,
+        `images/print/${row.images}_cam3.jpg`
+      ];
+
+      // تحويل القيم إلى أرقام مع التأكد من عدم ظهور NaN
+      const gross = row.gross && !isNaN(parseFloat(row.gross)) ? parseFloat(row.gross).toLocaleString() : '0';
+      const tare = row.tare && !isNaN(parseFloat(row.tare)) ? parseFloat(row.tare).toLocaleString() : '0';
+      const net = row.net && !isNaN(parseFloat(row.net)) ? parseFloat(row.net).toLocaleString() : '0';
+
+      // التأكد من وجود قيمة net رقمية للشاشة
+      const netValue = row.net && !isNaN(parseFloat(row.net)) ? parseFloat(row.net) : 0;
+
+      return `
     <tr>
-     
-      <td>${price}</td>
-      <td>${unitWeight}</td>
-      <td>${units}</td>
-      <td>${remain}</td>
-      <td class="fw-bold text-success">${total.toFixed(2)} جنيه</td>
+      <td>
+        <div class="image-card" onclick='openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")'>
+          <img src="${images[0]}" alt="صورة التذكرة" >
+        </div>
+        <div class="thumbnail-gallery">
+          <img src="${images[1]}" class="thumbnail" onclick='event.stopPropagation(); openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")' ">
+          <img src="${images[2]}" class="thumbnail" onclick='event.stopPropagation(); openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")' ">
+        </div>
+      </td>
+      <td>
+        <strong>${row.customer || 'غير محدد'}</strong>
+        <br>
+        <span class="badge bg-info">${row.type || 'غير محدد'}</span>
+      </td>
+      <td>
+        <i class="fas fa-calendar"></i> ${row.date || '----/--/--'}
+        <br>
+        <i class="fas fa-clock"></i> ${row.time || '--:--'}
+      </td>
+      <td hidden>${row.sn || ''}</td>
+      <td><span class="badge bg-dark">${row.number || 'غير محدد'}</span></td>
+      <td>${gross}</td>
+      <td>${tare}</td>
+      <td><span class="weight-badge">${net}</span></td>
+      <td>${row.note || '—'}</td>
+      <td>
+        <div class="action-buttons">
+          <button class="action-btn btn-print" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+            <i class="fas fa-print"></i>
+          </button>
+          <button class="action-btn btn-edit" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+      </td>
     </tr>
   `;
     }
 
-
-    typeInput.addEventListener("input", calculateTotal);
-    priceInput.addEventListener("input", calculateTotal);
-    netInput.addEventListener("input", calculateTotal);
-
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-
-    socket.on('printer:new', (row) => {
-      console.log('🆕 تذكرة جديدة:', row);
-      // 🔔 إشعار
-
-      setTimeout(() => {
-        const tableBody = document.querySelector('#data-table2 tbody');
-
-        const tr = document.createElement('tr');
-
-        const printBtnHtml = `
-         <button id="${row.sn}" class="btn btn-outline-primary btn-sm" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعه🖨</button>
-         <button id="Edit${row.sn}"  class="btn btn-outline-warning btn-sm" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>✏</button>
-        `;
-
-        tr.innerHTML = `
-              <td>
-          <img id="ticketImg"
-            src="images/print/${row.images}_cam1.jpg"
-            style="max-width:80px; max-height:60px; cursor:pointer;"
-            onclick="openImg(this.src)"
-          >
-        </td>
-
-        <td>${row.customer || ''} -- ${row.type || ''}
-         <!-- الصورتين الصغيرتين -->
-       <div style="display:flex; justify-content:center; gap:4px;">
-         <img 
-         src="images/print/${row.images}_cam2.jpg"
-         style="
-             width: 45px;
-        height: 35px;
-        object-fit: cover;
-        cursor: pointer;
-        border-radius: 4px;
-        "
-        onclick="openImg(this.src)"
-        >
-        <img
-        src="images/print/${row.images}_cam3.jpg"
-        style="
-        width: 45px;
-        height: 35px;
-        object-fit: cover;
-        cursor: pointer;
-        border-radius: 4px;
-        "
-        onclick="openImg(this.src)"
-        >
-        </div>
-        </td>
-        </td>
-          <td>${row.date}<br>${row.time}</td>
-          <td hidden>${row.sn}</td>
-          <td>${row.number}</td>
-          <td>${row.gross}</td>
-          <td>${row.tare}</td>
-          <td> <h5>${row.net}</h5></td>
-
-       <td >${printBtnHtml}</td> `;
-
-        // 🔥 أضف الصف في أول الجدول
-        tableBody.prepend(tr);
-        // 🔥 اضغط تلقائيًا على زر الطباعة
-        setTimeout(() => {
-          const printBtn = document.getElementById(`${row.sn}`);
-          const EditBtn = document.getElementById(`Edit${row.sn}`);
+    
+    // إضافة دالة للتحقق من الأرقام
+    function safeNumber(value, defaultValue = 0) {
+      if (value === undefined || value === null || value === '') return defaultValue;
+      const num = parseFloat(value);
+      return isNaN(num) ? defaultValue : num;
+    }
 
 
 
+    // إضافة صورة placeholder في حالة عدم وجود صور
+    function addPlaceholderImage() {
+      // يمكنك إضافة هذا الكود في الـ head أو في ملف CSS منفصل
+      const style = document.createElement('style');
+      style.textContent = `
+    img[src=""], 
+    img:not([src]), 
+    img[src="undefined"] {
+      content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50" y="50" font-size="12" text-anchor="middle" dy=".3em" fill="%23999">لا توجد صورة</text></svg>');
+    }
+  `;
+      document.head.appendChild(style);
+    }
 
-          // }
-          if (EditBtn) {
-            EditBtn.click();
-            // ⏱️ اقفل نافذة الطباعة بعد ثانية
-
-          }
-
-
-        }, 300); // تأخير بسيط عشان DOM يكتمل
-
-
-      }, 500); // تأخير 2 ثانية قبل إضافة الصف
-    });
-
-    //////////////////////////////////////////
+    // استدعاء الدالة عند تحميل الصفحة
+    addPlaceholderImage();
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // باقي الدوال مع تحسينات بسيطة
     let offset2 = 0;
     const limit2 = 5;
 
@@ -512,96 +908,91 @@
         }
 
         data.forEach(row => {
-          const tr = document.createElement('tr');
-          const printBtnHtml = `<button class="btn btn-outline-primary btn-sm print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>🖨</button>`;
-          const editBtnHtml = `<button class="btn btn-outline-warning btn-sm" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>✏</button>`;
-
-          tr.innerHTML = `
- <td style="text-align:center;">
-  <!-- الصورة الكبيرة -->
-  <div>
-    <img
-      src="images/print/${row.images}_cam1.jpg"
-      style="
-        width: 100%;
-        max-width: 90px;
-        max-height: 70px;
-        object-fit: cover;
-        cursor: pointer;
-        border-radius: 6px;
-        margin-bottom: 4px;
-      "
-      onclick="openImg(this.src)"
-    >
-  </div>
-
-  
-</td>
-
-
-<td>
-  ${row.customer} -- ${row.type}
-  <!-- الصورتين الصغيرتين -->
-  <div style="display:flex; justify-content:center; gap:4px;">
-    <img
-    src="images/print/${row.images}_cam2.jpg"
-    style="
-        width: 45px;
-        height: 35px;
-        object-fit: cover;
-        cursor: pointer;
-        border-radius: 4px;
-        "
-        onclick="openImg(this.src)"
-        >
-        <img
-        src="images/print/${row.images}_cam3.jpg"
-        style="
-        width: 45px;
-        height: 35px;
-        object-fit: cover;
-        cursor: pointer;
-        border-radius: 4px;
-        "
-        onclick="openImg(this.src)"
-        >
-        </div>
-        </td>
-              <td>${row.date}<br>${row.time}</td>
-              <td hidden>${row.sn}</td>
-              <td>${row.number}</td>
-              <td>${row.gross}</td>
-              <td>${row.tare}</td>
-              <td> <h5>${row.net}</h5></td>
-              <td >${row.note}</td>
-
-
-    
-  <td>
-    ${printBtnHtml}
-    ${editBtnHtml}
-  </td>
-`;
-
-          tableBody.appendChild(tr);
+          tableBody.innerHTML += createTableRow(row);
         });
 
         offset2 += limit2;
+        updateStats(data);
       } catch (error) {
         console.error('خطأ:', error);
       }
     }
 
-    function openEdit(row) {
-      console.log(row);
+    // تحديث الإحصائيات
+    // تحديث دالة updateStats لاستخدام الدالة الأبسط
+    function updateStats(data) {
+      // let totalWeight = 0;
+      // const customers = new Set();
 
+      // data.forEach(row => {
+    
+
+      //   // totalWeight += Number(row.net) || 0;
+      //   // if (row.customer) customers.add(row.customer);
+      // });
+
+      document.getElementById('totalTickets').textContent = offset2;
+      // document.getElementById('totalWeight').textContent = totalWeight.toLocaleString();
+      // document.getElementById('totalCustomers').textContent = customers.size;
+
+      // حساب تذاكر اليوم - الطريقة الأبسط
+      const today = new Date();
+      const todayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+
+      const todayTickets = data.filter(row => row.date === todayStr).length;
+
+      document.getElementById('todayTickets').textContent = todayTickets;
+
+    }
+
+    // تحسين دالة البحث
+    async function fetchData3() {
+      const searchType = document.getElementById('searchType').value;
+      const searchValue = document.getElementById('searchValue').value;
+
+      if (!searchValue.trim()) {
+        alert('الرجاء إدخال قيمة للبحث');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/get-data3?type=${encodeURIComponent(searchType)}&value=${encodeURIComponent(searchValue)}`);
+        const data = await response.json();
+        const tableBody = document.querySelector('#data-table2 tbody');
+        tableBody.innerHTML = "";
+
+        if (data.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-danger p-4">
+            <i class="fas fa-exclamation-circle fa-2x"></i>
+            <br>لا توجد نتائج للبحث
+          </td></tr>`;
+          return;
+        }
+
+        data.forEach(row => {
+          tableBody.innerHTML += createTableRow(row);
+        });
+
+        updateStats(data);
+      } catch (error) {
+        console.error('خطأ:', error);
+      }
+    }
+
+    // دالة الطباعة المحسنة
+    function printTicket(row) {
+      localStorage.setItem("ticketData", JSON.stringify(row));
+      window.open("ticket.html", "_blank", "width=650,height=650,scrollbars=yes");
+    }
+
+    // باقي الدوال (openEdit, updateData, updateAndPrint) كما هي مع تحسين الألert
+    function openEdit(row) {
       document.getElementById('editDate').value = row.date;
       document.getElementById('editTime').value = row.time;
       document.getElementById('editSn').value = row.sn;
-
       document.getElementById('editPrice').value = '';
       document.getElementById("totalTableBody").innerHTML =
-        `<tr><td colspan="6" class="text-muted">لا توجد بيانات</td></tr>`;
+        `<tr><td colspan="5" class="text-center text-muted">لا توجد بيانات</td></tr>`;
       document.getElementById('editId').value = row.id;
       document.getElementById('editNumber').value = row.number;
       document.getElementById('editCustomer').value = row.customer;
@@ -609,16 +1000,17 @@
       document.getElementById('editGross').value = row.gross;
       document.getElementById('editTare').value = row.tare;
       document.getElementById('editNet').value = row.net;
-      document.getElementById('editNote').value = row.note||'';
+      document.getElementById('editNote').value = row.note || '';
 
-      src = `images/print/${row.images}_cam1.jpg`;
-      document.getElementById("modalImg2").src = src;
+      document.getElementById("modalImg2").src = `images/print/${row.images}_cam1.jpg`;
 
       const modal = new bootstrap.Modal(document.getElementById('editModal'));
       modal.show();
     }
 
     async function updateData() {
+      if (!confirm('هل أنت متأكد من حفظ التغييرات؟')) return;
+
       const id = document.getElementById('editId').value;
       const updatedData = {
         number: document.getElementById('editNumber').value,
@@ -637,7 +1029,6 @@
           body: JSON.stringify(updatedData)
         });
 
-
         if (response.ok) {
           alert('✅ تم تحديث التذكرة بنجاح');
           location.reload();
@@ -646,12 +1037,12 @@
         }
       } catch (error) {
         console.error('خطأ:', error);
+        alert('❌ فشل الاتصال بالخادم');
       }
     }
 
     async function updateAndPrint() {
       const id = document.getElementById('editId').value;
-
 
       const updatedData = {
         date: document.getElementById('editDate').value,
@@ -665,11 +1056,8 @@
         net: document.getElementById('editNet').value,
         note: document.getElementById('editNote').value,
         price: document.getElementById('editPrice').value,
-
-
         unitWeight: getUnitWeight(document.getElementById('editType').value)
       };
-      console.log(updatedData);
 
       try {
         const response = await fetch(`/update-ticket/${id}`, {
@@ -678,123 +1066,15 @@
           body: JSON.stringify(updatedData)
         });
 
-
-        // 🔥 اطبع مباشرة بعد الحفظ
-        printTicket(updatedData);
-
-        // اقفل المودال
-        const modalEl = document.getElementById('editModal');
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal.hide();
-
+        if (response.ok) {
+          printTicket(updatedData);
+          const modalEl = document.getElementById('editModal');
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          modal.hide();
+        }
       } catch (error) {
         console.error(error);
         alert('❌ خطأ في الاتصال بالسيرفر');
-      }
-    }
-
-
-
-
-    function printTicket(row) {
-
-      localStorage.setItem("ticketData", JSON.stringify(row));
-      window.open("ticket.html", "_blank", "width=650,height=650");
-    }
-
-    window.onload = fetchData2;
-    document.getElementById('load-more-btn2').addEventListener('click', fetchData2);
-
-
-
-
-    // طباعة بحث برقم العربية
-    async function fetchData3() {
-      const searchType = document.getElementById('searchType').value;
-      const searchValue = document.getElementById('searchValue').value;
-      console.log(searchType);
-      console.log(searchValue);
-      try {
-        const response = await fetch(`/get-data3?type=${encodeURIComponent(searchType)}&value=${encodeURIComponent(searchValue)}`);
-        const data = await response.json();
-        const tableBody = document.querySelector('#data-table2 tbody');
-        tableBody.innerHTML = "";
-
-        if (data.length === 0) {
-          tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">لا توجد نتائج</td></tr>`;
-          return;
-        }
-
-        data.forEach(row => {
-          const tr = document.createElement('tr');
-          const printBtnHtml = `<button class="btn btn-outline-primary print-btn" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>طباعة</button>`;
-
-          tr.innerHTML = `
-          
-        <td style="text-align:center;">
-  <!-- الصورة الكبيرة -->
-  <div>
-    <img 
-      src="images/print/${row.images}_cam1.jpg"
-      style="
-        width: 100%;
-        max-width: 90px;
-        max-height: 70px;
-        object-fit: cover;
-        cursor: pointer;
-        border-radius: 6px;
-        margin-bottom: 4px;
-      "
-      onclick="openImg(this.src)"
-    >
-  </div>
-
-  
-</td>
-
-
-<td>
-  ${row.customer} -- ${row.type}
-  <!-- الصورتين الصغيرتين -->
-  <div style="display:flex; justify-content:center; gap:4px;">
-    <img
-    src="images/print/${row.images}_cam2.jpg"
-    style="
-        width: 45px;
-        height: 35px;
-        object-fit: cover;
-        cursor: pointer;
-        border-radius: 4px;
-        "
-        onclick="openImg(this.src)"
-        >
-        <img 
-        src="images/print/${row.images}_cam3.jpg"
-        style="
-        width: 45px;
-        height: 35px;
-        object-fit: cover;
-        cursor: pointer;
-        border-radius: 4px;
-        "
-        onclick="openImg(this.src)"
-        >
-        </div>
-        </td>
-            <td>${row.date}<br>${row.time}</td>
-            <td hidden>${row.sn}</td>
-            <td>${row.number}</td>
-            <td>${row.gross}</td>
-            <td>${row.tare}</td>
-            <td>${row.net}</td>
-             <td ></td>
-            <td>${printBtnHtml}</td>
-          `;
-          tableBody.appendChild(tr);
-        });
-
-      } catch (error) {
-        console.error('خطأ:', error);
       }
     }
 
@@ -805,87 +1085,124 @@
       fetchData2();
     }
 
+    // Socket.IO events
+    const socket = io();
 
+    socket.on('printer:new', (row) => {
+      console.log('🆕 تذكرة جديدة:', row);
 
+      setTimeout(() => {
+        const tableBody = document.querySelector('#data-table2 tbody');
+        const newRowHtml = createTableRow(row);
+        tableBody.insertAdjacentHTML('afterbegin', newRowHtml);
 
-
-    // </script>
-
-
-
-
-
-  <script src="/socket.io/socket.io.js"></script>
-
-  <script>
-
-
-
-    //////////////////////////////////////////
-
-    socket.on('id:new', (row) => {
-      showToast(row);
-
+        // فتح التعديل تلقائياً
+        setTimeout(() => {
+          openEdit(row);
+        }, 300);
+      }, 500);
     });
 
-
-
-
-
-  </script>
-
-
-  <script>
-
-
-    function showToast(row) {
+    socket.on('id:new', (row) => {
       if (row.NE) {
-
-
         setTimeout(() => {
           document.getElementById("toastBody").innerHTML =
-            `  تم اضافه سياره قم ${row.NE} (وزن: ${row.gross})`;
-          // 🖼️ صورة من الكاميرا الأولى
-          document.getElementById("toastImg1").src =
-            `images/sensor/${row.images}_cam1.jpg`;
-          document.getElementById("toastImg2").src =
-            `images/sensor/${row.images}_cam2.jpg`;
-          document.getElementById("toastImg3").src =
-            `images/sensor/${row.images}_cam3.jpg`;
-
+            `تم إضافة سيارة جديدة ${row.NE} (الوزن: ${row.gross})`;
+          document.getElementById("toastImg1").src = `images/sensor/${row.images}_cam1.jpg`;
+          document.getElementById("toastImg2").src = `images/sensor/${row.images}_cam2.jpg`;
+          document.getElementById("toastImg3").src = `images/sensor/${row.images}_cam3.jpg`;
 
           const toastEl = document.getElementById('liveToast');
-          const toast = new bootstrap.Toast(toastEl, {
-            delay: 10000 // 10 ثواني
-          });
-
+          const toast = new bootstrap.Toast(toastEl, { delay: 10000 });
           toast.show();
         }, 500);
       }
+    });
 
+    socket.on('play-audio', (fileName) => {
+      const audioPlayer = document.getElementById('audioPlayer');
+      audioPlayer.src = `/audio/${fileName}`;
+      audioPlayer.play().catch(e => console.log('تشغيل الصوت:', e));
+    });
+
+    // Keyboard shortcut للمودال
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+
+      const modalEl = document.getElementById('editModal');
+      if (!modalEl.classList.contains('show')) return;
+      if (e.target.tagName === 'TEXTAREA') return;
+
+      e.preventDefault();
+      updateAndPrint();
+    });
+
+    // دوال مساعدة
+    function getUnitWeight(typeName) {
+      const typesList = document.getElementById("types");
+      const option = Array.from(typesList.options)
+        .find(o => o.value === typeName);
+      return option ? parseFloat(option.dataset.unit) : 0;
     }
 
+    // حساب الإجمالي
+    const typeInput = document.getElementById("editType");
+    const priceInput = document.getElementById("editPrice");
+    const netInput = document.getElementById("editNet");
+
+    function calculateTotal() {
+      const net = parseFloat(netInput.value);
+      const price = parseFloat(priceInput.value);
+      const unitWeight = getUnitWeight(typeInput.value);
+
+      if (!net || !price || !unitWeight) {
+        document.getElementById("totalTableBody").innerHTML =
+          `<tr><td colspan="5" class="text-center text-muted">لا توجد بيانات</td></tr>`;
+        return;
+      }
+
+      const units = Math.floor(net / unitWeight);
+      const remain = net % unitWeight;
+      const total = (net * price) / unitWeight;
+
+      document.getElementById("totalTableBody").innerHTML = `
+        <tr>
+          <td>${price}</td>
+          <td>${unitWeight}</td>
+          <td>${units}</td>
+          <td>${remain}</td>
+          <td class="fw-bold text-success">${total.toFixed(2)} جنيه</td>
+        </tr>
+      `;
+    }
+
+    typeInput?.addEventListener("input", calculateTotal);
+    priceInput?.addEventListener("input", calculateTotal);
+    netInput?.addEventListener("input", calculateTotal);
+
+    // بدء التحميل
+    window.onload = fetchData2;
+    document.getElementById('load-more-btn2')?.addEventListener('click', fetchData2);
+  
+  
+      // استقبال الردود
+    socket.on('response', (data) => {
+      if (data.length == 11 || data.length == 12) {
+        const weightDisplay = document.getElementById('response');
+        weightDisplay.innerHTML = `${data} <span class="weight-unit">كجم</span>`;
+        // weightDisplay.classList.add('weight-pulse');
+        setTimeout(() => weightDisplay.classList.remove('weight-pulse'), 500);
+      } else {
+        // const box = document.getElementById('response1');
+        // box.innerHTML += `→ ${data}\n`;
+        // box.scrollTop = box.scrollHeight;
+
+        if (data.slice(-2).toUpperCase() === "NE") {
+          document.getElementById('response11').innerHTML = `<span class="badge bg-primary">${data}</span>`;
+        }
+      }
+    });
   </script>
-  <div class="toast-container position-fixed top-0 end-0 p-3">
-    <div id="liveToast" class="toast" role="alert">
-      <div class="toast-header">
-
-        <strong class="me-auto">📢 إشعار</strong>
-        <small>الآن</small>
-        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-      </div>
-      <div style="display:flex; justify-content:center; gap:4px;">
-        <img id="toastImg1" src="" class="rounded me-2" style="width:80px;height:80px;object-fit:cover;">
-        <img id="toastImg2" src="" class="rounded me-2" style="width:80px;height:80px;object-fit:cover;">
-        <img id="toastImg3" src="" class="rounded me-2" style="width:80px;height:80px;object-fit:cover;">
-      </div>
-
-      <h4 class="toast-body" id="toastBody"></h4>
-
-    </div>
-  </div>
-
-
 
 </body>
 
