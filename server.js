@@ -13,7 +13,32 @@ const server = http.createServer(app);
 const io = require('socket.io')(server);
 
 const fs = require('fs');
+
+
+
+// ✅ 1. خدمة المجلد public كامل (  )
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ✅ 2. إضافة مسار إضافي لمجلد webfonts في الجذر
+app.use('/webfonts', express.static(path.join(__dirname, 'public/css/webfonts')));
+
+// ✅ 3. إضافة مسار إضافي لمجلد css في الجذر
+app.use('/css', express.static(path.join(__dirname, 'public/css')));
+
+// ✅ 4. إضافة مسار إضافي لمجلد js في الجذر
+app.use('/js', express.static(path.join(__dirname, 'public/js')));
+
+// ✅ 5. إضافة مسار للصور (اختياري)
+// app.use('/images', express.static(path.join(__dirname, 'public/images')));
+
+// ✅ 6. إعادة توجيه تلقائي للمسارات المفقودة (اختياري)
+app.get('/webfonts/:file', (req, res) => {
+    res.redirect(`/public/css/webfonts/${req.params.file}`);
+});
+
+
+
+
 require('dotenv').config();
 
 

@@ -179,3 +179,20 @@ pm2 delete name
 pm2 list
 pm2 stop all
 pm2 restart all
+
+
+
+
+
+
+
+
+
+
+# في مجلد المشروع
+git init
+git add .
+git commit -m "المشروع كامل"
+git branch -M main
+git remote add origin https://github.com/ahmadshoshan/scale-control.git
+git push -u origin main

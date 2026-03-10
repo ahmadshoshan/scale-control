@@ -16,6 +16,7 @@
   <style>
     * {
       font-family: 'Tajawal', sans-serif;
+      box-sizing: border-box;
     }
 
     :root {
@@ -31,8 +32,9 @@
     body {
       background: var(--primary-gradient);
       min-height: 100vh;
-      padding-top: 70px;
+      padding-top: 60px;
       padding-bottom: 20px;
+      overflow-x: hidden;
     }
 
     /* شريط التنقل المحسن */
@@ -42,6 +44,7 @@
       -webkit-backdrop-filter: blur(10px);
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
       border-bottom: var(--glass-border);
+      padding: 8px 16px;
     }
 
     .navbar-modern .navbar-brand {
@@ -49,7 +52,7 @@
       background: var(--primary-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      font-size: 1.5rem;
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
     }
 
     /* بطاقة الوزن الرئيسية */
@@ -59,30 +62,31 @@
       -webkit-backdrop-filter: blur(10px);
       border-radius: 30px;
       padding: 8px;
-      margin-bottom: 8px;
+      margin: 8px 8px 12px 8px;
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
       border: var(--glass-border);
       text-align: center;
     }
 
     .weight-display {
-      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-size: clamp(2rem, 10vw, 5rem);
       font-weight: 900;
       background: var(--primary-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       line-height: 1.2;
       margin: 5px 0;
+      word-break: break-word;
     }
 
     .weight-unit {
-      font-size: 1.2rem;
+      font-size: clamp(0.9rem, 3vw, 1.2rem);
       color: #666;
       margin-right: 10px;
     }
 
     .weight-label {
-      font-size: 1rem;
+      font-size: 0.9rem;
       color: #888;
       letter-spacing: 2px;
     }
@@ -94,7 +98,7 @@
       -webkit-backdrop-filter: blur(10px);
       border-radius: 20px;
       padding: 15px;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       border: var(--glass-border);
       transition: all 0.3s ease;
     }
@@ -105,15 +109,16 @@
     }
 
     .settings-icon {
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       border-radius: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       background: var(--primary-gradient);
       color: white;
+      flex-shrink: 0;
     }
 
     /* أزرار التحكم السريع */
@@ -121,21 +126,35 @@
       background: var(--primary-gradient);
       border: none;
       border-radius: 15px;
-      padding: 15px;
+      padding: 12px 8px;
       color: white;
       font-weight: 700;
       transition: all 0.3s ease;
       box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    .quick-action-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+      min-height: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .quick-action-btn i {
-      font-size: 1.5rem;
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
       margin-bottom: 5px;
+    }
+
+    .quick-action-btn small {
+      font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+    }
+
+    /* صف الأزرار السريعة السفلي */
+    .row.g-2.mb-3 .quick-action-btn {
+      padding: 8px 4px;
+      min-height: 60px;
+    }
+
+    .row.g-2.mb-3 .quick-action-btn i {
+      font-size: clamp(1rem, 4vw, 1.3rem);
     }
 
     /* لوحة المفاتيح الرقمية */
@@ -143,22 +162,24 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      padding: 10px;
+      padding: 5px;
     }
 
     .keypad-btn {
-      aspect-ratio: 1.5;
+      aspect-ratio: 1.2/1;
       border-radius: 15px;
       border: none;
       background: white;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      font-size: 1.5rem;
+      font-size: clamp(1.1rem, 4vw, 1.5rem);
       font-weight: 700;
       color: #333;
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 50px;
+      padding: 5px;
     }
 
     .keypad-btn:active {
@@ -170,30 +191,21 @@
     .keypad-btn.special {
       background: var(--primary-gradient);
       color: white;
-      font-size: 1.2rem;
+      font-size: clamp(0.9rem, 3vw, 1.2rem);
     }
 
     /* صندوق الردود */
     .response-box {
       background: #1a1a2e;
       border-radius: 20px;
-      padding: 15px;
+      padding: 12px;
       color: #0ff;
       font-family: 'Courier New', monospace;
-      height: 200px;
+      height: 180px;
       overflow-y: auto;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       border: 2px solid rgba(255, 255, 255, 0.1);
       box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.1);
-    }
-
-    .response-box::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    .response-box::-webkit-scrollbar-thumb {
-      background: var(--primary-gradient);
-      border-radius: 10px;
     }
 
     /* تذييل الصفحة */
@@ -201,104 +213,125 @@
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border-radius: 50px;
-      padding: 10px;
-      margin-top: 20px;
+      padding: 8px;
+      margin: 15px 8px 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
     }
 
     .footer-links a {
       color: #333;
       text-decoration: none;
       font-weight: 700;
-      padding: 8px 20px;
+      padding: 8px 15px;
       border-radius: 50px;
       transition: all 0.3s ease;
+      font-size: clamp(0.8rem, 3vw, 1rem);
+      white-space: nowrap;
     }
 
-    .footer-links a:hover {
-      background: var(--primary-gradient);
-      color: white;
-    }
-
-    /* معرض الصور المنبثق */
-    .img-gallery-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(10px);
-      z-index: 9999;
-      padding: 20px;
-    }
-
-    .gallery-content {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .gallery-close {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      font-size: 40px;
-      color: white;
-      cursor: pointer;
-      z-index: 10000;
-      width: 50px;
-      height: 50px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* زر الـ Floating Action */
-    .fab-button {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: var(--primary-gradient);
-      color: white;
-      border: none;
-      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.6);
-      z-index: 1000;
-      transition: all 0.3s ease;
-    }
-
-    .fab-button:hover {
-      transform: scale(1.1) rotate(90deg);
-    }
-
-    /* تحسينات للجوال */
-    @media (max-width: 768px) {
+    /* تحسينات للشاشات الصغيرة */
+    @media (max-width: 576px) {
       body {
-        padding-top: 60px;
+        padding-top: 55px;
       }
 
-      .weight-display {
-        font-size: 3rem;
+      .container {
+        padding-left: 10px;
+        padding-right: 10px;
       }
 
-      .keypad-btn {
-        font-size: 1.2rem;
+      .weight-card {
+        margin: 5px 5px 10px;
+        padding: 5px;
       }
 
       .settings-card {
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+
+      .keypad-grid {
+        gap: 6px;
+      }
+
+      .keypad-btn {
+        border-radius: 12px;
+        min-height: 45px;
+      }
+
+      /* تكبير منطقة اللمس للأزرار الصغيرة */
+      .btn,
+      .keypad-btn,
+      .quick-action-btn,
+      .footer-links a {
+        touch-action: manipulation;
+      }
+
+      /* تحسين عرض العناصر في صف واحد */
+      .row.g-2.mb-3 .col-3 {
+        padding-left: 4px;
+        padding-right: 4px;
+      }
+
+      /* ضبط حجم الخط في الـ offcanvas */
+      .offcanvas-body {
+        padding: 15px;
+      }
+
+      .offcanvas-body .settings-card {
         padding: 10px;
       }
 
-      .settings-icon {
+      .offcanvas-body .settings-icon {
         width: 40px;
         height: 40px;
         font-size: 1.2rem;
+      }
+
+      /* تحسين عرض حقول الإدخال */
+      .input-group {
+        flex-wrap: nowrap;
+      }
+
+      .form-control {
+        font-size: 16px;
+        /* منع التكبير التلقائي في iOS */
+      }
+
+      /* تحسين عرض البطاقات في الموبايل */
+      #data-table2 .text-center img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      /* إخفاء بعض العناصر غير الضرورية في الموبايل */
+      .d-mobile-none {
+        display: none;
+      }
+    }
+
+    /* تحسينات للشاشات المتوسطة */
+    @media (min-width: 577px) and (max-width: 768px) {
+      .weight-display {
+        font-size: 3.5rem;
+      }
+
+      .keypad-btn {
+        aspect-ratio: 1.3/1;
+      }
+    }
+
+    /* تحسينات للشاشات الكبيرة */
+    @media (min-width: 992px) {
+      .weight-display {
+        font-size: 5rem;
+      }
+
+      .keypad-btn {
+        aspect-ratio: 1.5/1;
       }
     }
 
@@ -321,50 +354,129 @@
       animation: pulse 0.5s ease;
     }
 
-    /* Switch مخصص */
-    .custom-switch {
+    /* معرض الصور المنبثق */
+    .img-gallery-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 9999;
+      padding: 10px;
+    }
+
+    .gallery-content {
       position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
-    .custom-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
+    .gallery-close {
       position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 35px;
+      color: white;
       cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 34px;
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
+      z-index: 10000;
+      width: 45px;
+      height: 45px;
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    input:checked+.slider {
+    /* زر الـ Floating Action */
+    .fab-button {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
       background: var(--primary-gradient);
+      color: white;
+      border: none;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.6);
+      z-index: 1000;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
     }
 
-    input:checked+.slider:before {
-      transform: translateX(26px);
+    /* تحسينات للعناصر الأخرى */
+    .badge {
+      font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+      padding: 0.5em 0.8em;
+    }
+
+    h5 {
+      font-size: clamp(1rem, 4vw, 1.25rem);
+    }
+
+    small,
+    .small {
+      font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    }
+
+    /* تحسين شريط التمرير */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-gradient);
+      border-radius: 10px;
+    }
+  </style>
+  <style>
+    /* أضف هذا الـ CSS في قسم <style> */
+    .toast-container {
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast-container .toast {
+      pointer-events: auto;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .toast .btn-close {
+      filter: brightness(0) invert(1);
+    }
+
+    /* للتجاوب مع الجوال */
+    @media (max-width: 576px) {
+      .toast-container {
+        width: 90%;
+        left: 5%;
+        transform: none;
+      }
+
+      .toast-container .toast {
+        min-width: auto !important;
+      }
     }
   </style>
 </head>
@@ -375,21 +487,23 @@
   <nav class="navbar navbar-expand-lg navbar-modern fixed-top">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">
-        <!-- <i class="fas fa-weight-scale me-2"></i> -->
         ميزان شوشان
       </a>
 
-      <div class="d-flex align-items-center ">
-        <button class="btn btn-outline-primary rounded-circle" onclick="takeScreenshot()">
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-primary rounded-circle p-2" onclick="takeScreenshot()"
+          style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
           <i class="fas fa-camera"></i>
         </button>
 
-        <span id="soundStatus1" class="badge bg-light text-dark p-2">
+        <span id="soundStatus1" class="badge bg-light text-dark p-2"
+          style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
           <i class="fas fa-volume-up"></i>
         </span>
 
-        <button class="btn btn-primary rounded-circle" type="button" data-bs-toggle="offcanvas"
-          data-bs-target="#sidebarMenu">
+        <button class="btn btn-primary rounded-circle p-2" type="button" data-bs-toggle="offcanvas"
+          data-bs-target="#sidebarMenu"
+          style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
           <i class="fas fa-bars"></i>
         </button>
       </div>
@@ -398,7 +512,7 @@
 
   <!-- القائمة الجانبية المحسنة -->
   <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu"
-    style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+    style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); width: 280px;">
     <div class="offcanvas-header">
       <h5 class="offcanvas-title">
         <i class="fas fa-cog ms-2"></i>
@@ -406,104 +520,104 @@
       </h5>
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
-    <div class="offcanvas-body">
+    <div class="offcanvas-body p-3">
 
       <!-- بطاقة البث المباشر -->
-      <div class="settings-card">
+      <div class="settings-card p-3">
         <div class="d-flex align-items-center gap-3">
           <div class="settings-icon">
             <i class="fas fa-broadcast-tower"></i>
           </div>
           <div class="flex-grow-1">
-            <h6 class="mb-1">البث المباشر</h6>
+            <h6 class="mb-1 fs-6">البث المباشر</h6>
             <small id="streamStatusText" class="text-muted">جاري التحميل...</small>
           </div>
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="streamToggle" onchange="toggleStreamMonter(this)"
-              style="transform: scale(1.5);">
+              style="transform: scale(1.2);">
           </div>
         </div>
       </div>
 
       <!-- بطاقة الطباعة الحرارية -->
-      <div class="settings-card">
+      <div class="settings-card p-3">
         <div class="d-flex align-items-center gap-3">
           <div class="settings-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
             <i class="fas fa-print"></i>
           </div>
           <div class="flex-grow-1">
-            <h6 class="mb-1">الطباعة الحرارية</h6>
+            <h6 class="mb-1 fs-6">الطباعة الحرارية</h6>
             <small id="printStatusText" class="text-muted">جاري التحميل...</small>
           </div>
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="printToggle" onchange="togglePrint(this)"
-              style="transform: scale(1.5);">
+              style="transform: scale(1.2);">
           </div>
         </div>
       </div>
 
       <!-- بطاقة الصوت -->
-      <div class="settings-card">
+      <div class="settings-card p-3">
         <div class="d-flex align-items-center gap-3">
           <div class="settings-icon" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);">
             <i class="fas fa-volume-up"></i>
           </div>
           <div class="flex-grow-1">
-            <h6 class="mb-1">الصوت</h6>
+            <h6 class="mb-1 fs-6">الصوت</h6>
             <small id="soundStatus" class="text-muted">جاري التحميل...</small>
           </div>
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="soundToggle" onchange="toggleSound(this)"
-              style="transform: scale(1.5);">
+              style="transform: scale(1.2);">
           </div>
         </div>
       </div>
 
       <!-- بطاقة إشعارات Telegram -->
-      <div class="settings-card">
+      <div class="settings-card p-3">
         <div class="d-flex align-items-center gap-3">
           <div class="settings-icon" style="background: linear-gradient(135deg, #f43b47 0%, #453a94 100%);">
             <i class="fab fa-telegram"></i>
           </div>
           <div class="flex-grow-1">
-            <h6 class="mb-1">إشعارات Telegram</h6>
+            <h6 class="mb-1 fs-6">إشعارات Telegram</h6>
             <small id="notifyStatusText" class="text-muted">جاري التحميل...</small>
           </div>
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="notifyToggle" onchange="toggleNotify(this)"
-              style="transform: scale(1.5);">
+              style="transform: scale(1.2);">
           </div>
         </div>
       </div>
 
-      <hr>
+      <hr class="my-3">
 
       <!-- أزرار سريعة - 4 في صف -->
       <div class="row g-2 mb-4">
         <div class="col-3">
-          <button class="quick-action-btn w-100 p-3" onclick="sendCommand('XN2')">
-            <i class="fas fa-weight-scale d-block fs-4 mb-2"></i>
+          <button class="quick-action-btn w-100" onclick="sendCommand('XN2')">
+            <i class="fas fa-weight-scale d-block fs-5 mb-1"></i>
             <small>قراءة الوزن</small>
           </button>
         </div>
         <div class="col-3">
-          <button class="quick-action-btn w-100 p-3" onclick="sendCommand('KTARE')"
+          <button class="quick-action-btn w-100" onclick="sendCommand('KTARE')"
             style="background: var(--secondary-gradient);">
-            <i class="fas fa-tare d-block fs-4 mb-2"></i>
+            <i class="fas fa-tare d-block fs-5 mb-1"></i>
             <small>TARE</small>
           </button>
         </div>
         <div class="col-3">
-          <button class="quick-action-btn w-100 p-3" onclick="sendCommand('KZERO')"
+          <button class="quick-action-btn w-100" onclick="sendCommand('KZERO')"
             style="background: linear-gradient(135deg, #fad0c4 0%, #ff9a9e 100%);">
-            <i class="fas fa-broom d-block fs-4 mb-2"></i>
+            <i class="fas fa-broom d-block fs-5 mb-1"></i>
             <small>ZERO</small>
           </button>
         </div>
         <div class="col-3">
-          <button class="quick-action-btn w-100 p-3" onclick="sendCommand('KPRINT')"
+          <button class="quick-action-btn w-100" onclick="sendCommand('KPRINT')"
             style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
-            <i class="fas fa-print d-block fs-4 mb-2"></i>
+            <i class="fas fa-print d-block fs-5 mb-1"></i>
             <small>PRINT</small>
           </button>
         </div>
@@ -512,79 +626,76 @@
       <!-- روابط سريعة - 2 في صف -->
       <div class="row g-3">
         <div class="col-6">
-          <a href="table1.html" class="btn btn-outline-primary w-100 py-3 rounded-4">
-            <i class="fas fa-table me-2"></i>
-            جدول البيانات
+          <a href="table1.html"
+            class="btn btn-outline-primary w-100 py-3 rounded-4 d-flex align-items-center justify-content-center gap-2">
+            <i class="fas fa-table"></i>
+            <span>جدول البيانات</span>
           </a>
         </div>
         <div class="col-6">
-          <a href="table2.html" class="btn btn-outline-success w-100 py-3 rounded-4">
-            <i class="fas fa-ticket me-2"></i>
-            جدول التذاكر
+          <a href="table2.html"
+            class="btn btn-outline-success w-100 py-3 rounded-4 d-flex align-items-center justify-content-center gap-2">
+            <i class="fas fa-ticket"></i>
+            <span>جدول التذاكر</span>
           </a>
         </div>
       </div>
     </div>
-
   </div>
 
-
   <!-- المحتوى الرئيسي -->
-  <main class="container">
+  <main class="container px-2">
 
     <!-- بطاقة الوزن -->
     <div class="weight-card">
-      <!-- <div class="weight-label">الوزن الحالي</div> -->
-      <div class="weight-display" id="response">
+
+      <div class="weight-display " id="response">
         -- <span class="weight-unit">كجم</span>
       </div>
+
+
       <div class="d-flex justify-content-center gap-3 mt-2">
-        <h3 class=" " id="response11">---</h3>
+        <h3 class="" id="response11">---</h3>
       </div>
     </div>
 
-    
     <!-- صف التحكم السريع - مع نصوص مصغرة في الهاتف -->
     <div class="row g-2 mb-3">
-      <div class="col-3 col-md-3">
-        <button class="quick-action-btn w-100 d-flex flex-column align-items-center p-2" onclick="sendCommand('KPRINT')"
+      <div class="col-3">
+        <button class="quick-action-btn w-100" onclick="sendCommand('KPRINT')"
           style="background: var(--secondary-gradient);">
           <i class="fas fa-print fs-5"></i>
           <span class="small mt-1">PRINT</span>
         </button>
       </div>
-      <div class="col-3 col-md-3">
-        <button class="quick-action-btn w-100 d-flex flex-column align-items-center p-2" onclick="sendCommand('KTARE')"
+      <div class="col-3">
+        <button class="quick-action-btn w-100" onclick="sendCommand('KTARE')"
           style="background: var(--secondary-gradient);">
-          <i class="fa-solid fa-t"></i>
+          <i class="fa-solid fa-t fs-5"></i>
           <span class="small mt-1">TARE</span>
         </button>
       </div>
-      <div class="col-3 col-md-3">
-        <button class="quick-action-btn w-100 d-flex flex-column align-items-center p-2" onclick="sendCommand('KZERO')"
+      <div class="col-3">
+        <button class="quick-action-btn w-100" onclick="sendCommand('KZERO')"
           style="background: var(--secondary-gradient);">
-          <i class="fa-solid fa-0"></i>
+          <i class="fa-solid fa-0 fs-5"></i>
           <span class="small mt-1">ZERO</span>
         </button>
       </div>
-      <div class="col-3 col-md-3">
-        <button class="quick-action-btn w-100 d-flex flex-column align-items-center p-2" onclick="sendCommand('Kid')"
+      <div class="col-3">
+        <button class="quick-action-btn w-100" onclick="sendCommand('Kid')"
           style="background: var(--secondary-gradient);">
           <i class="fas fa-id-card fs-5"></i>
           <span class="small mt-1">ID</span>
         </button>
       </div>
     </div>
+
     <!-- لوحة المفاتيح وحقول الإدخال -->
     <div class="row g-3">
       <!-- لوحة المفاتيح -->
       <div class="col-lg-5">
         <div class="settings-card">
-          <!-- <h5 class="mb-3">
-            <i class="fas fa-keyboard ms-2"></i>
-            لوحة المفاتيح
-          </h5> -->
-
           <div class="keypad-grid">
             <!-- أرقام 1-9 -->
             <button class="keypad-btn" onclick="sendCommand('K1')">1</button>
@@ -620,105 +731,104 @@
       </div>
 
       <!-- الجانب الأيمن - الإدخالات والردود -->
-      <div class="col-lg-7 p-3">
+      <div class="col-lg-7">
         <div class="row g-3">
           <!-- عرض التذكرة -->
-          <div class="settings-card col-lg-6 mb-2" id="data-table2">
-            <div class="text-center text-muted py-3">
-              <i class="fas fa-ticket-alt fa-2x mb-2"></i>
-              <p class="small mb-0">في انتظار التذكرة...</p>
+          <div class="col-lg-6">
+            <div class="settings-card" id="data-table2">
+              <div class="text-center text-muted py-3">
+                <i class="fas fa-ticket-alt fa-2x mb-2"></i>
+                <p class="small mb-0">في انتظار التذكرة...</p>
+              </div>
             </div>
           </div>
 
           <!-- صندوق الردود -->
-          <div class="settings-card col-lg-6">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h5 class="mb-0">
-                <i class="fas fa-terminal ms-2"></i>
-                سجل الأوامر
-              </h5>
-              <small class="text-muted" id="streamIndicator">🟢 مباشر</small>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label small">أمر EDP</label>
-              <div class="input-group">
-                <input id="edpInput" type="text" class="form-control" placeholder="اكتب الأمر...">
-                <button class="btn btn-outline-secondary" onclick="clearInput('edpInput')">
-                  <i class="fas fa-times"></i>
-                </button>
-                <button class="btn btn-primary" onclick="sendTextCommand()">
-                  <i class="fas fa-paper-plane"></i>
-                </button>
+          <div class="col-lg-6">
+            <div class="settings-card">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0 fs-6">
+                  <i class="fas fa-terminal ms-2"></i>
+                  سجل الأوامر
+                </h5>
+                <small class="text-muted" id="streamIndicator">🟢 مباشر</small>
               </div>
+
+              <div class="mb-3">
+                <label class="form-label small">أمر EDP</label>
+                <div class="input-group input-group-sm">
+                  <input id="edpInput" type="text" class="form-control" placeholder="اكتب الأمر...">
+                  <button class="btn btn-outline-secondary" type="button" onclick="clearInput('edpInput')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <button class="btn btn-primary" type="button" onclick="sendTextCommand()">
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div id="response1" class="response-box"></div>
             </div>
-
-
-
-            <div id="response1" class="response-box"></div>
           </div>
 
-
-
           <!-- حقول الإدخال -->
-          <div class="settings-card col-lg-12">
-            <h5 class="mb-3">
-              <i class="fas fa-pen ms-2"></i>
-              بيانات التذكرة
-            </h5>
+          <div class="col-12">
+            <div class="settings-card">
+              <h5 class="mb-3 fs-6">
+                <i class="fas fa-pen ms-2"></i>
+                بيانات التذكرة
+              </h5>
 
-            <div class="mb-3">
-              <label class="form-label small">النوع</label>
-              <div class="input-group">
-                <input list="types" id="type" class="form-control" placeholder="اختر النوع">
-                <button class="btn btn-outline-danger" type="button" onclick="clearType()">
-                  <i class="fas fa-times"></i>
-                </button>
+              <div class="mb-3">
+                <label class="form-label small">النوع</label>
+                <div class="input-group input-group-sm">
+                  <input list="types" id="type" class="form-control" placeholder="اختر النوع">
+                  <button class="btn btn-outline-danger" type="button" onclick="clearType()">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <datalist id="types">
+                  <option value="أرز">
+                  <option value="غلة">
+                  <option value="تبن">
+                  <option value="خشب">
+                  <option value="خشب صنعه">
+                  <option value="خشب حريق">
+                  <option value="خشب ناشف">
+                  <option value="لب">
+                  <option value="فول">
+                </datalist>
               </div>
-              <datalist id="types">
-                <option value="أرز">
-                <option value="غلة">
-                <option value="تبن">
-                <option value="خشب">
-                <option value="خشب صنعه">
-                <option value="خشب حريق">
-                <option value="خشب ناشف">
-                <option value="لب">
-                <option value="فول">
-              </datalist>
-            </div>
 
-            <div class="mb-3">
-              <label class="form-label small">العميل</label>
-              <div class="input-group">
-                <input list="customers" id="customer" type="text" class="form-control" placeholder="اختر العميل">
-                <button class="btn btn-outline-danger" type="button" onclick="clearCustomer()">
-                  <i class="fas fa-times"></i>
-                </button>
+              <div class="mb-2">
+                <label class="form-label small">العميل</label>
+                <div class="input-group input-group-sm">
+                  <input list="customers" id="customer" type="text" class="form-control" placeholder="اختر العميل">
+                  <button class="btn btn-outline-danger" type="button" onclick="clearCustomer()">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <datalist id="customers">
+                  <option value="الحاج خالد عبد السلام">
+                  <option value="عماد نوح">
+                  <option value="محمد الصندفاوي">
+                  <option value="محمد منصور">
+                  <option value="محمود نصير">
+                  <option value="هاني عبد الباعث">
+                  <option value="الشحات عبد الباعث">
+                  <option value="احمدعلي">
+                  <option value="علي محروس">
+                  <option value="محمود ابو منصور">
+                </datalist>
               </div>
-              <datalist id="customers">
-                <option value="الحاج خالد عبد السلام">
-                <option value="عماد نوح">
-                <option value="محمد الصندفاوي">
-                <option value="محمد منصور">
-                <option value="محمود نصير">
-                <option value="هاني عبد الباعث">
-                <option value="الشحات عبد الباعث">
-                <option value="احمدعلي">
-                <option value="علي محروس">
-                <option value="محمود ابو منصور">
-              </datalist>
             </div>
-
-
           </div>
         </div>
       </div>
     </div>
 
-
     <!-- روابط سريعة -->
-    <div class="footer-links d-flex justify-content-center gap-3">
+    <div class="footer-links">
       <a href="table1.html">
         <i class="fas fa-table ms-1"></i>
         جدول البيانات
@@ -731,14 +841,17 @@
 
   </main>
 
-
+  <!-- زر الفلوتينج أكشن -->
+  <button class="fab-button" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">
+    <i class="fas fa-arrow-up"></i>
+  </button>
 
   <!-- معرض الصور المنبثق -->
   <div id="imgModal" class="img-gallery-modal" onclick="closeImg(event)">
     <div class="gallery-content">
       <span class="gallery-close" onclick="closeImg()">×</span>
-      <div id="head" class="text-white mb-3"></div>
-      <img id="modalImg" class="img-fluid" style="max-height: 80vh;">
+      <div id="head" class="text-white mb-2 text-center px-3"></div>
+      <img id="modalImg" class="img-fluid" style="max-height: 80vh; max-width: 100%;">
     </div>
   </div>
 
@@ -754,7 +867,6 @@
     // تهيئة Socket.IO
     const socket = io();
     let streamEnabled = false;
-    let count = 0;
 
     // وظائف مساعدة
     function clearInput(id) {
@@ -792,10 +904,14 @@
 
     // تحميل حالة الطباعة
     async function loadPrintStatus() {
-      const res = await fetch("/get-print");
-      const data = await res.json();
-      document.getElementById("printToggle").checked = data.print === 1;
-      updatePrintUI();
+      try {
+        const res = await fetch("/get-print");
+        const data = await res.json();
+        document.getElementById("printToggle").checked = data.print === 1;
+        updatePrintUI();
+      } catch (error) {
+        console.error("Error loading print status:", error);
+      }
     }
 
     function updatePrintUI() {
@@ -812,16 +928,24 @@
     }
 
     async function togglePrint(element) {
-      await fetch(`/set-print/${element.checked ? 1 : 0}`);
-      updatePrintUI();
+      try {
+        await fetch(`/set-print/${element.checked ? 1 : 0}`);
+        updatePrintUI();
+      } catch (error) {
+        console.error("Error toggling print:", error);
+      }
     }
 
     // تحميل حالة الصوت
     async function loadSoundStatus() {
-      const res = await fetch("/get-sound");
-      const data = await res.json();
-      document.getElementById("soundToggle").checked = data.sound === 1;
-      updateSoundUI();
+      try {
+        const res = await fetch("/get-sound");
+        const data = await res.json();
+        document.getElementById("soundToggle").checked = data.sound === 1;
+        updateSoundUI();
+      } catch (error) {
+        console.error("Error loading sound status:", error);
+      }
     }
 
     function updateSoundUI() {
@@ -837,16 +961,24 @@
     }
 
     async function toggleSound(element) {
-      await fetch(`/set-sound/${element.checked ? 1 : 0}`);
-      updateSoundUI();
+      try {
+        await fetch(`/set-sound/${element.checked ? 1 : 0}`);
+        updateSoundUI();
+      } catch (error) {
+        console.error("Error toggling sound:", error);
+      }
     }
 
     // تحميل حالة الإشعارات
     async function loadNotifyStatus() {
-      const res = await fetch("/get-notify");
-      const data = await res.json();
-      document.getElementById("notifyToggle").checked = data.notify === 1;
-      updateNotifyUI();
+      try {
+        const res = await fetch("/get-notify");
+        const data = await res.json();
+        document.getElementById("notifyToggle").checked = data.notify === 1;
+        updateNotifyUI();
+      } catch (error) {
+        console.error("Error loading notify status:", error);
+      }
     }
 
     function updateNotifyUI() {
@@ -863,8 +995,12 @@
     }
 
     async function toggleNotify(element) {
-      await fetch(`/set-notify/${element.checked ? 1 : 0}`);
-      updateNotifyUI();
+      try {
+        await fetch(`/set-notify/${element.checked ? 1 : 0}`);
+        updateNotifyUI();
+      } catch (error) {
+        console.error("Error toggling notify:", error);
+      }
     }
 
     // إرسال أمر
@@ -872,64 +1008,60 @@
       const type = document.getElementById('type').value;
       const customer = document.getElementById('customer').value;
 
-      fetch(`/send-command?command=${command}&type=${type}&customer=${customer}`)
+      fetch(`/send-command?command=${command}&type=${encodeURIComponent(type)}&customer=${encodeURIComponent(customer)}`)
         .then(() => {
           if (command == 'Kid' || command == 'KPRINT') {
             document.getElementById('type').value = '';
             document.getElementById('customer').value = '';
           }
-        });
+        })
+        .catch(error => console.error("Error sending command:", error));
     }
 
     function sendTextCommand() {
       const inputValue = document.getElementById("edpInput").value;
       if (inputValue) {
-        fetch(`/send-command?command=${inputValue}`);
+        fetch(`/send-command?command=${encodeURIComponent(inputValue)}`)
+          .catch(error => console.error("Error sending text command:", error));
+        document.getElementById("edpInput").value = '';
       }
     }
 
     // استقبال الردود
     socket.on('response', (data) => {
-      if (data.length == 11 || data.length == 12) {
+      if (data && data.length >= 11 && data.length <= 12) {
         const weightDisplay = document.getElementById('response');
         weightDisplay.innerHTML = `${data} <span class="weight-unit">كجم</span>`;
-        // weightDisplay.classList.add('weight-pulse');
-        // setTimeout(() => weightDisplay.classList.remove('weight-pulse'), 500);
       } else {
-        // document.getElementById('response1').innerText += " " + data + "\n";
         const box = document.getElementById('response1');
-        box.innerText += `→ ${data} ` + '\n';
+        const timestamp = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        box.innerText += `[${timestamp}] → ${data}\n`;
         box.scrollTop = box.scrollHeight;
-
-        if (data.slice(-2).toUpperCase() === "NE") {
-          document.getElementById('response11').innerHTML = `<span class="badge bg-primary">${data}</span>`;
-        } else {
-          if (data.toUpperCase() === "OK") {
-            sendCommand('p')
-          } else {
-            document.getElementById('response11').innerText = '---';
-          }
+        if (data && data.toUpperCase() === "OK") {
+          sendCommand('p');
         }
-        if (data.slice(0, 5).toUpperCase() === "GROSS") {
-          // document.getElementById('response12').innerText = data;
+        if (data && data.toUpperCase() === "??") {
+          sendCommand('p');
+        }
+        if (data && data.slice(-2).toUpperCase() === "NE") {
+          document.getElementById('response11').innerHTML = `<span class="badge bg-primary fs-6">${data}</span>`;
+        } else {
+          // if (data && data.toUpperCase() === "OK") {
+          //   sendCommand('p');
+          // }
+          // if (data && data.toUpperCase() === "??") {
+          //   sendCommand('p');
+          // }
+          // if (data && data.toUpperCase() === "DUP ID NE") {
+          //   document.getElementById('response11').innerHTML = `<span class="badge bg-primary fs-6">الرقم مسجل من قبل</span>`;
+
+          // }
+          //  else {
+          //   document.getElementById('response11').innerText = '---';
+          // }
         }
       }
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // استقبال التذاكر الجديدة
     socket.on('printer:new', (row) => {
@@ -942,7 +1074,7 @@
                    style="max-width:100%; border-radius:10px; cursor:pointer;"
                    onclick="openImg(this.src, 'رقم: ${row.number} - الوزن: ${row.net} كجم')">
             </div>
-            <div class="d-flex justify-content-around mb-2">
+            <div class="d-flex justify-content-around mb-2 flex-wrap gap-2">
               <span class="badge bg-primary">رقم: ${row.number}</span>
               <span class="badge bg-success">صافي: ${row.net}</span>
             </div>
@@ -957,26 +1089,126 @@
     socket.on('id:new', (row) => {
       setTimeout(() => {
         const tableBody = document.getElementById('data-table2');
-        tableBody.innerHTML = `
+
+        const tableBody_innerHTML = `
           <div class="text-center">
             <div class="mb-2">
               <img src="images/sensor/${row.images}_cam1.jpg" 
                    style="max-width:100%; border-radius:10px; cursor:pointer;"
                    onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
             </div>
-            <div class="d-flex justify-content-around">
+            <div class="d-flex justify-content-around flex-wrap gap-2">
               <span class="badge bg-info">رقم: ${row.NE}</span>
               <span class="badge bg-warning">وزن: ${row.gross}</span>
             </div>
           </div>
         `;
+        tableBody.innerHTML = tableBody_innerHTML;
+
+
+
+        // ✅ عرض إشعار مع البيانات
+        showIdNotification(row);
+
       }, 500);
     });
+
+// ✅ دالة عرض الإشعار
+function showIdNotification(row) {
+    // التحقق من وجود عنصر toast في الصفحة
+    let toastEl = document.getElementById('idToast');
+    
+    // إذا لم يكن موجوداً، قم بإنشائه
+    if (!toastEl) {
+        toastEl = document.createElement('div');
+        toastEl.id = 'idToast';
+        toastEl.className = 'toast-container position-fixed top-0 start-50 translate-middle-x p-3';
+        toastEl.style.zIndex = '9999';
+        document.body.appendChild(toastEl);
+    }
+    
+    // إنشاء محتوى الإشعار
+    const toastId = 'liveToast_' + Date.now();
+    const toastHtml = `
+        <div id="${toastId}" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 350px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-right: 5px solid #17a2b8;">
+            <div class="toast-header" style="background: linear-gradient(45deg, #17a2b8, #0d6efd); color: white; border-radius: 15px 15px 0 0; padding: 12px;">
+                <i class="fas fa-truck me-2"></i>
+                <strong class="me-auto">🚛 سيارة جديدة على الميزان</strong>
+                <small>الآن</small>
+                <button type="button" class="btn-close btn-close-white" onclick="this.closest('.toast').remove()" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" style="padding: 15px;">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <img src="images/sensor/${row.images}_cam1.jpg" 
+                             style="width: 100%; height: 130px; border-radius: 10px; object-fit: cover; border: 3px solid #17a2b8; cursor: pointer;"
+                             onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
+                    </div>
+                    <div class="col-6">
+                        <div class="mb-2">
+                            <span class="badge bg-info fs-6 p-2 w-100">رقم: ${row.NE}</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge bg-warning fs-6 p-2 w-100">الوزن: ${row.gross} كجم</span>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <img src="images/sensor/${row.images}_cam2.jpg" 
+                                 style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 2px solid #17a2b8; cursor: pointer;"
+                                 onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
+                            <img src="images/sensor/${row.images}_cam3.jpg" 
+                                 style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 2px solid #17a2b8; cursor: pointer;"
+                                 onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 d-flex gap-2">
+                    <button class="btn btn-sm btn-primary flex-grow-1" onclick="openImg('images/sensor/${row.images}_cam1.jpg', 'رقم: ${row.NE} - الوزن: ${row.gross} كجم'); this.closest('.toast').remove()">
+                        <i class="fas fa-eye"></i> عرض
+                    </button>
+                    <button class="btn btn-sm btn-secondary flex-grow-1" onclick="this.closest('.toast').remove()">
+                        <i class="fas fa-times"></i> إغلاق
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    toastEl.innerHTML = toastHtml;
+    
+    // تشغيل صوت الإشعار إذا كان مفعلاً
+
+    
+    // إخفاء الإشعار بعد 10 ثواني
+//     setTimeout(() => {
+//         const toast = document.getElementById(toastId);
+//         if (toast) {
+//             toast.style.animation = 'fadeOut 0.3s ease';
+//             setTimeout(() => {
+//                 if (toast.parentNode) toast.remove();
+//             }, 300);
+//         }
+//     }, 10000);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     socket.on('play-audio', (fileName) => {
       const audioPlayer = document.getElementById('audioPlayer');
       audioPlayer.src = `/audio/${fileName}`;
-      audioPlayer.play();
+      audioPlayer.play().catch(e => console.log("Audio play failed:", e));
     });
 
     // وظائف الصور
@@ -988,7 +1220,7 @@
     }
 
     function closeImg(event) {
-      if (!event || event.target === document.getElementById('imgModal')) {
+      if (!event || event.target === document.getElementById('imgModal') || event.target.classList.contains('gallery-close')) {
         document.getElementById("imgModal").style.display = "none";
         document.body.style.overflow = 'auto';
       }
@@ -1000,12 +1232,12 @@
     }
 
     function takeScreenshot() {
-      html2canvas(document.body, { scale: 2 }).then(canvas => {
+      html2canvas(document.body, { scale: 1.5 }).then(canvas => {
         const link = document.createElement('a');
-        link.download = 'screenshot.png';
+        link.download = `screenshot_${new Date().getTime()}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
-      });
+      }).catch(error => console.error("Screenshot failed:", error));
     }
 
     // تحميل جميع الحالات عند بدء التشغيل
@@ -1015,7 +1247,20 @@
       loadPrintStatus();
       loadSoundStatus();
       loadNotifyStatus();
-      // setInterval(() => sendCommand('p'), 1000);
+
+      // منع التكبير التلقائي في iOS عند النقر على الحقول
+      document.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('touchstart', function () {
+          this.style.fontSize = '16px';
+        });
+      });
+    };
+
+    // تنظيف عند إغلاق الصفحة
+    window.onunload = function () {
+      if (socket) {
+        socket.disconnect();
+      }
     };
   </script>
 

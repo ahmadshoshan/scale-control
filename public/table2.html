@@ -3,14 +3,24 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>نظام إدارة التذاكر المتقدم</title>
-  <!-- Bootstrap CSS محلي -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" />
+  <title>نظام إدارة التذاكر المتقدم - نسخة الموبايل</title>
+
+    <!-- Bootstrap CSS محلي -->
   <link href="css/bootstrap.min.css" rel="stylesheet">
-  <!-- Font Awesome للأيقونات -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- PWA -->
-  <!-- <link rel="manifest" href="manifest.json"> -->
+  
+  <!-- Font Awesome محلي -->
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+  <link href="css/all.min.css" rel="stylesheet">
+
+  
+  <!-- ملفات إضافية للتأكد من عمل الأيقونات بشكل صحيح -->
+  <!-- <link href="css/webfonts/fa-solid-900.woff2" rel="preload" as="font" crossorigin>
+  <link href="css/webfonts/fa-regular-400.woff2" rel="preload" as="font" crossorigin>
+  <link href="css/webfonts/fa-brands-400.woff2" rel="preload" as="font" crossorigin>
+   -->
+
+  
   <style>
     :root {
       --primary-color: #4361ee;
@@ -19,164 +29,220 @@
       --warning-color: #ffd166;
       --dark-color: #2b2d42;
       --light-color: #f8f9fa;
+      --mobile-spacing: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
+      padding: 10px;
+      margin: 0;
+      overflow-x: hidden;
     }
 
-    /* تحسين المظهر العام */
+    /* تحسين المظهر العام للجوال */
     .main-container {
       background: rgba(255, 255, 255, 0.95);
       border-radius: 20px;
-      padding: 10px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 12px 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       backdrop-filter: blur(10px);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      width: 100%;
     }
 
-    /* ترويسة الصفحة */
+    /* ترويسة الصفحة للجوال */
     .page-header {
       background: linear-gradient(45deg, var(--primary-color), var(--dark-color));
       color: white;
-      padding: 10px;
+      padding: 12px;
       border-radius: 15px;
-      margin-bottom: 10px;
-      box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
+      margin-bottom: 12px;
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    @media (min-width: 576px) {
+      .page-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
     }
 
     .page-header h2 {
       margin: 0;
       font-weight: 600;
+      font-size: clamp(1.2rem, 5vw, 1.8rem);
       display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .page-header h2 i {
-      font-size: 2rem;
-    }
-
-    /* أزرار التنقل */
-    .nav-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .nav-btn {
-      padding: 10px 20px;
-      border-radius: 50px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      display: inline-flex;
       align-items: center;
       gap: 8px;
     }
 
-    .nav-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    .page-header h2 i {
+      font-size: clamp(1.3rem, 6vw, 2rem);
     }
 
-    /* مربع البحث المتقدم */
+    /* أزرار التنقل المحسنة للجوال */
+    .nav-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      padding: 8px 15px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: clamp(0.8rem, 3.5vw, 1rem);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      flex: 1 1 auto;
+      min-width: 120px;
+    }
+
+    @media (max-width: 576px) {
+      .nav-btn {
+        padding: 10px 12px;
+        min-width: 100px;
+      }
+    }
+
+    /* بطاقات الإحصائيات المحسنة للجوال */
+    .stats-card {
+      background: linear-gradient(45deg, #4361ee, #3a0ca3);
+      /* background: linear-gradient(45deg, var(--success-color), #0cb8b8); */
+      color: white;
+      border-radius: 12px;
+      padding: 15px 10px;
+      margin-bottom: 8px;
+      box-shadow: 0 5px 15px rgba(6, 214, 160, 0.3);
+      text-align: center;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stats-number {
+      font-size: clamp(1.5rem, 6vw, 2.5rem);
+      font-weight: 700;
+      margin: 5px 0 0;
+      line-height: 1.2;
+    }
+
+    .stats-label {
+      font-size: clamp(0.75rem, 3vw, 1rem);
+      opacity: 0.9;
+      margin: 5px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .stats-label i {
+      font-size: clamp(1rem, 4vw, 1.5rem);
+    }
+
+    /* مربع البحث المتقدم للجوال */
     .search-container {
-    
-     
-      border-radius: 5px;
-      margin-bottom: 5px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      padding: 12px;
+      background: white;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
     }
 
     .search-label {
       font-weight: 600;
       color: var(--dark-color);
       margin-bottom: 10px;
+      font-size: clamp(0.9rem, 4vw, 1.1rem);
     }
 
     .search-input-group {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
     .search-input-group select,
     .search-input-group input {
-      flex: 1;
-      min-width: 200px;
+      flex: 1 1 45px;
       border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 8px;
+      padding: 12px 10px;
+      font-size: clamp(0.85rem, 3.5vw, 1rem);
       transition: all 0.3s;
-    }
-
-    .search-input-group select:focus,
-    .search-input-group input:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-      outline: none;
+      min-height: 45px;
     }
 
     .search-btn {
-      padding: 12px 25px;
+      padding: 12px 15px;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       font-weight: 600;
+      font-size: clamp(0.85rem, 3.5vw, 1rem);
       transition: all 0.3s;
+      min-height: 45px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      flex: 1 1 auto;
     }
 
-    .search-btn i {
-      margin-left: 8px;
+    @media (max-width: 480px) {
+      .search-input-group {
+        flex-direction: column;
+      }
+
+      .search-btn {
+        width: 100%;
+      }
     }
 
-    /* بطاقات الإحصائيات */
-    .stats-card {
-      background: linear-gradient(45deg, var(--success-color), #0cb8b8);
-      color: white;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 5px;
-      box-shadow: 0 10px 30px rgba(6, 214, 160, 0.3);
-    }
-
-    .stats-number {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin: 0;
-    }
-
-    .stats-label {
-      font-size: 1rem;
-      opacity: 0.9;
-      margin: 0;
-    }
-
-    /* الجدول المحسن */
+    /* الجدول المحسن للجوال مع تمرير أفقي */
     .table-container {
       background: white;
       border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 10px;
     }
 
     .modern-table {
       width: 100%;
       border-collapse: separate;
-      border-spacing: 0 8px;
+      border-spacing: 0 6px;
+      min-width: 800px;
+      /* للتمرير الأفقي على الجوال */
     }
 
     .modern-table thead th {
       background: linear-gradient(45deg, var(--dark-color), #1a1b2f);
       color: white;
-      padding: 15px;
+      padding: 12px 8px;
       font-weight: 600;
-      border: none;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
       white-space: nowrap;
+      border: none;
     }
 
     .modern-table thead th:first-child {
@@ -189,31 +255,35 @@
 
     .modern-table tbody tr {
       background: white;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       transition: all 0.3s;
-      border-radius: 10px;
-    }
-
-    .modern-table tbody tr:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
     }
 
     .modern-table tbody td {
-      padding: 15px;
+      padding: 12px 8px;
       vertical-align: middle;
       border: none;
+      font-size: clamp(0.75rem, 2.8vw, 0.9rem);
     }
 
-    /* بطاقة الصورة المحسنة */
+    /* بطاقة الصورة المحسنة للجوال */
     .image-card {
       position: relative;
-      width: 80px;
-      height: 80px;
-      border-radius: 10px;
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
       overflow: hidden;
       cursor: pointer;
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      margin: 0 auto;
+    }
+
+    @media (min-width: 768px) {
+      .image-card {
+        width: 80px;
+        height: 80px;
+      }
     }
 
     .image-card img {
@@ -221,10 +291,6 @@
       height: 100%;
       object-fit: cover;
       transition: all 0.3s;
-    }
-
-    .image-card:hover img {
-      transform: scale(1.1);
     }
 
     .image-card::after {
@@ -235,8 +301,13 @@
       transform: translate(-50%, -50%);
       background: rgba(0, 0, 0, 0.5);
       color: white;
-      padding: 5px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
       opacity: 0;
       transition: all 0.3s;
     }
@@ -245,61 +316,74 @@
       opacity: 1;
     }
 
-    /* معرض الصور المصغر */
+    /* معرض الصور المصغر للجوال */
     .thumbnail-gallery {
       display: flex;
-      gap: 5px;
-      margin-top: 8px;
+      gap: 3px;
+      margin-top: 5px;
+      justify-content: center;
     }
 
     .thumbnail {
-      width: 35px;
-      height: 35px;
-      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      border-radius: 5px;
       object-fit: cover;
       cursor: pointer;
       transition: all 0.3s;
       border: 2px solid transparent;
     }
 
-    .thumbnail:hover {
-      transform: scale(1.2);
-      border-color: var(--primary-color);
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    @media (min-width: 768px) {
+      .thumbnail {
+        width: 35px;
+        height: 35px;
+      }
     }
 
-    /* شارة الوزن */
+    .thumbnail:hover {
+      transform: scale(1.1);
+      border-color: var(--primary-color);
+    }
+
+    /* شارة الوزن المحسنة */
     .weight-badge {
       background: linear-gradient(45deg, var(--primary-color), #7209b7);
       color: white;
-      padding: 8px 12px;
+      padding: 5px 8px;
       border-radius: 50px;
       font-weight: 700;
-      font-size: 1.2rem;
+      font-size: clamp(0.8rem, 3vw, 1.2rem);
       display: inline-block;
+      white-space: nowrap;
     }
 
-    /* أزرار الإجراءات */
+    /* أزرار الإجراءات المحسنة للجوال */
     .action-buttons {
       display: flex;
-      gap: 5px;
+      gap: 4px;
       flex-wrap: wrap;
+      justify-content: center;
     }
 
     .action-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+      width: 35px;
+      height: 35px;
+      border-radius: 8px;
       border: none;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.3s;
       cursor: pointer;
+      font-size: 16px;
     }
 
-    .action-btn:hover {
-      transform: translateY(-3px);
+    @media (min-width: 768px) {
+      .action-btn {
+        width: 40px;
+        height: 40px;
+      }
     }
 
     .btn-print {
@@ -312,7 +396,7 @@
       color: white;
     }
 
-    /* زر تحميل المزيد */
+    /* زر تحميل المزيد المحسن */
     .load-more-btn {
       background: linear-gradient(45deg, var(--dark-color), #1a1b2f);
       color: white;
@@ -320,124 +404,161 @@
       padding: 15px;
       border-radius: 10px;
       font-weight: 600;
-      margin-top: 20px;
+      font-size: clamp(0.9rem, 4vw, 1rem);
+      margin-top: 15px;
       transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
     }
 
-    .load-more-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    }
-
-    /* تحسين المودال */
+    /* تحسين المودال للجوال */
     .modal-modern .modal-content {
       border-radius: 20px;
       border: none;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
     }
 
     .modal-modern .modal-header {
       background: linear-gradient(45deg, var(--primary-color), var(--dark-color));
       color: white;
       border-radius: 20px 20px 0 0;
-      padding: 20px;
+      padding: 15px;
+    }
+
+    .modal-modern .modal-header h5 {
+      font-size: clamp(1rem, 4vw, 1.25rem);
     }
 
     .modal-modern .modal-body {
-      padding: 25px;
+      padding: 15px;
     }
 
-    .modal-modern .modal-footer {
-      border-top: 2px solid #e0e0e0;
-      padding: 20px;
+    @media (max-width: 576px) {
+      .modal-dialog {
+        margin: 10px;
+      }
+
+      .modal-modern .modal-body {
+        padding: 12px;
+      }
     }
 
-    /* تحسين حقول الإدخال */
+    /* تحسين حقول الإدخال للجوال */
     .modern-input {
       border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 8px;
+      padding: 12px 10px;
+      font-size: 16px;
+      /* منع التكبير التلقائي في iOS */
       transition: all 0.3s;
       width: 100%;
-    }
-
-    .modern-input:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-      outline: none;
     }
 
     .input-label {
       font-weight: 600;
       color: var(--dark-color);
       margin-bottom: 5px;
+      font-size: clamp(0.85rem, 3.5vw, 1rem);
     }
 
-    /* جدول الحسابات المحسن */
+    /* جدول الحسابات المحسن للجوال */
     .calculation-table {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 15px;
-      overflow: hidden;
-      margin-top: 20px;
+      border-radius: 12px;
+      overflow-x: auto;
+      margin-top: 15px;
     }
 
     .calculation-table table {
       margin: 0;
       background: white;
+      min-width: 500px;
     }
 
     .calculation-table th {
       background: var(--dark-color);
       color: white;
-      padding: 12px;
+      padding: 10px 8px;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
+      white-space: nowrap;
     }
 
-    /* إشعار toast محسن */
+    .calculation-table td {
+      padding: 8px;
+      font-size: clamp(0.75rem, 2.8vw, 0.9rem);
+    }
+
+    /* إشعار toast محسن للجوال */
     .custom-toast {
       background: white;
       border-radius: 15px;
       border-right: 5px solid var(--success-color);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      max-width: 100%;
+      width: 350px;
+    }
+
+    @media (max-width: 576px) {
+      .custom-toast {
+        width: 300px;
+      }
     }
 
     .toast-image-gallery {
       display: flex;
       gap: 5px;
       padding: 10px;
+      overflow-x: auto;
     }
 
     .toast-image {
-      width: 70px;
-      height: 70px;
-      border-radius: 10px;
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
       object-fit: cover;
+      flex-shrink: 0;
     }
 
-    /* مشغل الصوت */
+    /* مشغل الصوت المحسن للجوال */
     .audio-player {
       position: fixed;
-      bottom: 20px;
-      left: 20px;
+      bottom: 15px;
+      left: 15px;
       z-index: 1000;
       background: white;
       border-radius: 50px;
       padding: 5px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
 
-    /* معرض الصور المنبثق */
+    .audio-player audio {
+      width: 200px;
+      height: 40px;
+    }
+
+    @media (max-width: 576px) {
+      .audio-player audio {
+        width: 150px;
+      }
+    }
+
+    /* معرض الصور المنبثق المحسن للجوال */
     .img-gallery-modal {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.95);
       z-index: 9999;
-      padding: 20px;
+      padding: 10px;
     }
 
     .gallery-container {
-      max-width: 90%;
+      max-width: 100%;
       margin: auto;
+      padding: 10px;
     }
 
     .gallery-nav {
@@ -446,8 +567,8 @@
       transform: translateY(-50%);
       background: rgba(255, 255, 255, 0.2);
       color: white;
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -455,117 +576,173 @@
       cursor: pointer;
       transition: all 0.3s;
       border: none;
+      font-size: 20px;
+      z-index: 10001;
     }
 
-    .gallery-nav:hover {
-      background: rgba(255, 255, 255, 0.3);
+    @media (max-width: 576px) {
+      .gallery-nav {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+      }
     }
 
     .gallery-close {
       position: absolute;
-      top: 20px;
-      right: 30px;
-      font-size: 40px;
+      top: 15px;
+      right: 20px;
+      font-size: 35px;
       color: white;
       cursor: pointer;
-      z-index: 10000;
+      z-index: 10002;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+    }
+
+    /* تحسينات إضافية للجوال */
+    @media (max-width: 480px) {
+      .row {
+        margin-left: -5px;
+        margin-right: -5px;
+      }
+
+      [class*="col-"] {
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+
+      .badge {
+        font-size: 0.7rem;
+        padding: 0.4em 0.6em;
+      }
+
+      /* تكبير منطقة اللمس للأزرار */
+      button,
+      .action-btn,
+      .nav-btn,
+      .search-btn,
+      .load-more-btn {
+        min-height: 44px;
+        touch-action: manipulation;
+      }
+    }
+
+    /* تحسين شريط التمرير */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(45deg, var(--primary-color), var(--dark-color));
+      border-radius: 10px;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- مشغل الصوت -->
+  <!-- مشغل الصوت المحسن -->
   <div class="audio-player">
-    <audio id="audioPlayer" controls style="width: 250px;"></audio>
+    <audio id="audioPlayer" controls>
+      <source src="" type="audio/mpeg">
+    </audio>
   </div>
 
-  <div class="container-fluid">
+  <div class="container-fluid px-1 px-sm-2 px-md-3">
     <div class="main-container">
 
-      <!-- ترويسة الصفحة -->
-      <div class="page-header d-flex justify-content-between align-items-center">
+      <!-- ترويسة الصفحة المحسنة للجوال -->
+      <div class="page-header">
         <h2>
           <i class="fas fa-ticket-alt"></i>
-          نظام إدارة التذاكر المتقدم
+          <span>نظام إدارة التذاكر</span>
         </h2>
         <div class="nav-buttons">
           <a href="index.html" class="nav-btn btn btn-light">
             <i class="fas fa-arrow-right"></i>
-            لوحة التحكم
+            <span>الرئيسية</span>
           </a>
           <a href="table1.html" class="nav-btn btn btn-primary">
             <i class="fas fa-table"></i>
-            جدول البيانات
+            <span>البيانات</span>
           </a>
         </div>
       </div>
 
-      <!-- بطاقات الإحصائيات -->
-      <div class="row">
-        <div class="col-md-3">
+      <!-- بطاقات الإحصائيات المحسنة للجوال -->
+      <div class="row g-2 g-sm-3 mb-2">
+        <div class="col-6 col-md-3">
           <div class="stats-card">
-            <i class="fas fa-truck fa-2x mb-2"></i> <b class="stats-label">إجمالي التذاكر</b>
+            <div class="stats-label">
+              <i class="fas fa-truck"></i>
+              <span>إجمالي التذاكر</span>
+            </div>
             <p class="stats-number" id="totalTickets">0</p>
-           
           </div>
         </div>
-        <div class="col-md-3">
-          <div class="stats-card" style="background: linear-gradient(45deg, #ef476f, #b5179e);">
-            <i class="fas fa-weight-scale fa-2x mb-2"></i>
-            <b class="stats-label">إجمالي الوزن</b>
+        <div class="col-6 col-md-3">
+          <div class="stats-card" ">
+            <div class="stats-label">
+              <i class="fas fa-weight-scale"></i>
+              <span>الوزن الحالي</span>
+            </div>
             <p class="stats-number" id="response">0</p>
-            <!-- <p class="stats-number" id="totalWeight">0</p> -->
           </div>
         </div>
-        <div class="col-md-3">
-          <div class="stats-card" style="background: linear-gradient(45deg, #ffd166, #f59e0b);">
-            <i class="fas fa-users fa-2x mb-2"></i>
-            <b class="stats-label">NE </b>
+        <div class="col-6 col-md-3">
+          <div class="stats-card" >
+            <div class="stats-label">
+              <i class="fas fa-id-card"></i>
+              <span>رقم NE</span>
+            </div>
             <p class="stats-number" id="response11">0</p>
-            <!-- <p class="stats-number" id="totalCustomers">0</p> -->
           </div>
         </div>
-        <div class="col-md-3">
-          <div class="stats-card" style="background: linear-gradient(45deg, #4361ee, #3a0ca3);">
-            <i class="fas fa-clock fa-2x mb-2"></i>
-            <b class="stats-label">تذاكر اليوم</b>
+        <div class="col-6 col-md-3">
+          <div class="stats-card" ">
+            <div class="stats-label">
+              <i class="fas fa-clock"></i>
+              <span>تذاكر اليوم</span>
+            </div>
             <p class="stats-number" id="todayTickets">0</p>
           </div>
         </div>
       </div>
 
-      <!-- مربع البحث المتقدم -->
+      <!-- مربع البحث المتقدم المحسن للجوال -->
       <div class="search-container">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="search-label">
-              <i class="fas fa-search"></i>
-              بحث متقدم
-            </div>
-            <div class="search-input-group">
-              <select id="searchType" class="form-select">
-                <option value="number">🚛 رقم السيارة</option>
-                <option value="date">📅 التاريخ</option>
-                <option value="sn">🔢 المسلسل</option>
-                <option value="customer">👤 العميل</option>
-                <option value="type">📦 النوع</option>
-              </select>
-              <input id="searchValue" type="text" placeholder="اكتب كلمة البحث..." class="form-control">
-              <button type="button" class="search-btn btn btn-primary" onclick="fetchData3()">
-                <i class="fas fa-search"></i>
-                بحث
-              </button>
-              <button type="button" class="search-btn btn btn-outline-danger" onclick="clearSearch()">
-                <i class="fas fa-times"></i>
-                مسح
-              </button>
-            </div>
-          </div>
+        <div class="search-label">
+          <i class="fas fa-search"></i>
+          بحث متقدم
+        </div>
+        <div class="search-input-group">
+          <select id="searchType" class="form-select">
+            <option value="number">🚛 رقم السيارة</option>
+            <option value="date">📅 التاريخ</option>
+            <option value="sn">🔢 المسلسل</option>
+            <option value="customer">👤 العميل</option>
+            <option value="type">📦 النوع</option>
+          </select>
+          <input id="searchValue" type="text" placeholder="اكتب كلمة البحث..." class="form-control">
+          <button type="button" class="search-btn btn btn-primary" onclick="fetchData3()">
+            <i class="fas fa-search"></i>
+            <span>بحث</span>
+          </button>
+          <button type="button" class="search-btn btn btn-outline-danger" onclick="clearSearch()">
+            <i class="fas fa-times"></i>
+            <span>مسح</span>
+          </button>
         </div>
       </div>
 
-      <!-- الجدول المحسن -->
+      <!-- الجدول المحسن للجوال مع تمرير أفقي -->
       <div class="table-container">
         <table id="data-table2" class="modern-table">
           <thead>
@@ -584,7 +761,7 @@
           </thead>
           <tbody></tbody>
         </table>
-        <button id="load-more-btn2" class="load-more-btn w-100">
+        <button id="load-more-btn2" class="load-more-btn">
           <i class="fas fa-arrow-down"></i>
           تحميل المزيد من التذاكر
         </button>
@@ -592,9 +769,9 @@
     </div>
   </div>
 
-  <!-- نافذة التعديل المحسنة -->
+  <!-- نافذة التعديل المحسنة للجوال -->
   <div class="modal fade modal-modern" id="editModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">
@@ -604,7 +781,7 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
         </div>
         <div class="modal-body">
-          <div class="row">
+          <div class="row g-3">
             <!-- نموذج التعديل -->
             <div class="col-md-6">
               <form id="editForm">
@@ -613,12 +790,12 @@
                 <input type="hidden" id="editTime">
                 <input type="hidden" id="editSn">
 
-                <div class="row mb-3">
-                  <div class="col-md-6">
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
                     <div class="input-label">رقم السيارة</div>
                     <input type="text" id="editNumber" class="modern-input">
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-6">
                     <div class="input-label">العميل</div>
                     <input list="customers" type="text" id="editCustomer" class="modern-input">
                     <datalist id="customers">
@@ -636,8 +813,8 @@
                   </div>
                 </div>
 
-                <div class="row mb-3">
-                  <div class="col-md-6">
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
                     <div class="input-label">النوع</div>
                     <input list="types" type="text" id="editType" class="modern-input">
                     <datalist id="types">
@@ -649,34 +826,34 @@
                       <option value="فول" data-unit="155">
                     </datalist>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-6">
                     <div class="input-label">السعر / وحدة</div>
                     <input type="number" id="editPrice" class="modern-input">
                   </div>
                 </div>
 
-                <div class="row mb-3">
-                  <div class="col-md-4">
+                <div class="row g-2 mb-2">
+                  <div class="col-4">
                     <div class="input-label">الوزن الأول</div>
                     <input type="text" id="editGross" class="modern-input">
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-4">
                     <div class="input-label">الوزن الثاني</div>
                     <input type="text" id="editTare" class="modern-input">
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-4">
                     <div class="input-label">الصافي</div>
                     <input type="text" id="editNet" class="modern-input">
                   </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-2">
                   <div class="input-label">ملحوظة</div>
-                  <textarea id="editNote" class="modern-input" rows="3"></textarea>
+                  <textarea id="editNote" class="modern-input" rows="2"></textarea>
                 </div>
               </form>
 
-              <!-- جدول الحسابات -->
+              <!-- جدول الحسابات المحسن للجوال -->
               <div class="calculation-table">
                 <table class="table table-bordered mb-0">
                   <thead>
@@ -697,15 +874,16 @@
               </div>
             </div>
 
-            <!-- عرض الصورة -->
+            <!-- عرض الصورة المحسن للجوال -->
             <div class="col-md-6">
               <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white py-2">
                   <i class="fas fa-camera"></i>
                   صورة التذكرة
                 </div>
-                <div class="card-body text-center">
-                  <img id="modalImg2" class="img-fluid rounded shadow" style="max-height: 400px;">
+                <div class="card-body text-center p-2">
+                  <img id="modalImg2" class="img-fluid rounded shadow"
+                    style="max-height: 300px; width: auto; max-width: 100%;">
                 </div>
               </div>
             </div>
@@ -730,32 +908,32 @@
     </div>
   </div>
 
-  <!-- معرض الصور المنبثق -->
+  <!-- معرض الصور المنبثق المحسن للجوال -->
   <div id="imgGallery" class="img-gallery-modal" onclick="closeGallery(event)">
     <span class="gallery-close" onclick="closeGallery()">&times;</span>
-    <div class="gallery-nav" style="left: 20px;" onclick="changeImage(-1)">
-      <i class="fas fa-chevron-right fa-2x"></i>
+    <div class="gallery-nav" style="left: 10px;" onclick="changeImage(-1)">
+      <i class="fas fa-chevron-right"></i>
     </div>
-    <div class="gallery-nav" style="right: 20px;" onclick="changeImage(1)">
-      <i class="fas fa-chevron-left fa-2x"></i>
+    <div class="gallery-nav" style="right: 10px;" onclick="changeImage(1)">
+      <i class="fas fa-chevron-left"></i>
     </div>
     <div class="gallery-container">
       <div class="row justify-content-center align-items-center h-100">
-        <div class="col-md-8 text-center">
-          <div id="galleryHead" class="text-white mb-3"></div>
-          <img id="galleryImg" class="img-fluid" style="max-height: 80vh;">
+        <div class="col-12 text-center">
+          <div id="galleryHead" class="text-white mb-2 px-3"></div>
+          <img id="galleryImg" class="img-fluid" style="max-height: 70vh; max-width: 100%;">
         </div>
       </div>
     </div>
   </div>
 
-  <!-- إشعار Toast محسن -->
-  <div class="toast-container position-fixed top-0 end-0 p-3">
+  <!-- إشعار Toast محسن للجوال -->
+  <div class="toast-container position-fixed top-0 end-0 p-2 p-sm-3">
     <div id="liveToast" class="toast custom-toast" role="alert">
       <div class="toast-header">
         <i class="fas fa-bell text-success me-2"></i>
         <strong class="me-auto">إشعار جديد</strong>
-        <small>الآن</small>
+        <small class="text-nowrap">الآن</small>
         <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
       </div>
       <div class="toast-image-gallery">
@@ -767,8 +945,9 @@
     </div>
   </div>
 
-  <!-- باقي السكربتات مع نفس الوظائف ولكن مع تحسينات -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- السكربتات -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script> -->
+  <script src="js/bootstrap.bundle.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 
   <script>
@@ -776,7 +955,7 @@
     let currentImages = [];
     let currentImageIndex = 0;
 
-    // تحسين دالة فتح الصور
+    // دالة فتح الصور المحسنة للجوال
     function openGallery(images, title) {
       currentImages = images;
       currentImageIndex = 0;
@@ -806,9 +985,7 @@
       }
     }
 
-
-
-    // استبدل دالة createTableRow بهذه النسخة المحسنة
+    // إنشاء صف الجدول المحسن
     function createTableRow(row) {
       const images = [
         `images/print/${row.images}_cam1.jpg`,
@@ -816,83 +993,52 @@
         `images/print/${row.images}_cam3.jpg`
       ];
 
-      // تحويل القيم إلى أرقام مع التأكد من عدم ظهور NaN
       const gross = row.gross && !isNaN(parseFloat(row.gross)) ? parseFloat(row.gross).toLocaleString() : '0';
       const tare = row.tare && !isNaN(parseFloat(row.tare)) ? parseFloat(row.tare).toLocaleString() : '0';
       const net = row.net && !isNaN(parseFloat(row.net)) ? parseFloat(row.net).toLocaleString() : '0';
 
-      // التأكد من وجود قيمة net رقمية للشاشة
-      const netValue = row.net && !isNaN(parseFloat(row.net)) ? parseFloat(row.net) : 0;
-
       return `
-    <tr>
-      <td>
-        <div class="image-card" onclick='openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")'>
-          <img src="${images[0]}" alt="صورة التذكرة" >
-        </div>
-        <div class="thumbnail-gallery">
-          <img src="${images[1]}" class="thumbnail" onclick='event.stopPropagation(); openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")' ">
-          <img src="${images[2]}" class="thumbnail" onclick='event.stopPropagation(); openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")' ">
-        </div>
-      </td>
-      <td>
-        <strong>${row.customer || 'غير محدد'}</strong>
-        <br>
-        <span class="badge bg-info">${row.type || 'غير محدد'}</span>
-      </td>
-      <td>
-        <i class="fas fa-calendar"></i> ${row.date || '----/--/--'}
-        <br>
-        <i class="fas fa-clock"></i> ${row.time || '--:--'}
-      </td>
-      <td hidden>${row.sn || ''}</td>
-      <td><span class="badge bg-dark">${row.number || 'غير محدد'}</span></td>
-      <td>${gross}</td>
-      <td>${tare}</td>
-      <td><span class="weight-badge">${net}</span></td>
-      <td>${row.note || '—'}</td>
-      <td>
-        <div class="action-buttons">
-          <button class="action-btn btn-print" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
-            <i class="fas fa-print"></i>
-          </button>
-          <button class="action-btn btn-edit" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
-            <i class="fas fa-edit"></i>
-          </button>
-        </div>
-      </td>
-    </tr>
-  `;
+        <tr>
+          <td>
+            <div class="image-card" onclick='openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")'>
+              <img src="${images[0]}" alt="صورة التذكرة" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22 viewBox=%220 0 70 70%22><rect width=%2270%22 height=%2270%22 fill=%22%23f0f0f0%22/><text x=%2235%22 y=%2235%22 font-size=%2210%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22>لا توجد</text></svg>'">
+            </div>
+            <div class="thumbnail-gallery">
+              <img src="${images[1]}" class="thumbnail" onclick='event.stopPropagation(); openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")' onerror="this.style.display='none'">
+              <img src="${images[2]}" class="thumbnail" onclick='event.stopPropagation(); openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")' onerror="this.style.display='none'">
+            </div>
+          </td>
+          <td>
+            <strong>${row.customer || 'غير محدد'}</strong>
+            <br>
+            <span class="badge bg-info mt-1">${row.type || 'غير محدد'}</span>
+          </td>
+          <td>
+            <i class="fas fa-calendar"></i> ${row.date || '----/--/--'}
+            <br>
+            <i class="fas fa-clock"></i> ${row.time || '--:--'}
+          </td>
+          <td hidden>${row.sn || ''}</td>
+          <td><span class="badge bg-dark">${row.number || 'غير محدد'}</span></td>
+          <td>${gross}</td>
+          <td>${tare}</td>
+          <td><span class="weight-badge">${net}</span></td>
+          <td>${row.note || '—'}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="action-btn btn-print" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+                <i class="fas fa-print"></i>
+              </button>
+              <button class="action-btn btn-edit" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+                <i class="fas fa-edit"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
     }
 
-    
-    // إضافة دالة للتحقق من الأرقام
-    function safeNumber(value, defaultValue = 0) {
-      if (value === undefined || value === null || value === '') return defaultValue;
-      const num = parseFloat(value);
-      return isNaN(num) ? defaultValue : num;
-    }
-
-
-
-    // إضافة صورة placeholder في حالة عدم وجود صور
-    function addPlaceholderImage() {
-      // يمكنك إضافة هذا الكود في الـ head أو في ملف CSS منفصل
-      const style = document.createElement('style');
-      style.textContent = `
-    img[src=""], 
-    img:not([src]), 
-    img[src="undefined"] {
-      content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50" y="50" font-size="12" text-anchor="middle" dy=".3em" fill="%23999">لا توجد صورة</text></svg>');
-    }
-  `;
-      document.head.appendChild(style);
-    }
-
-    // استدعاء الدالة عند تحميل الصفحة
-    addPlaceholderImage();
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // باقي الدوال مع تحسينات بسيطة
+    // متغيرات التحميل
     let offset2 = 0;
     const limit2 = 5;
 
@@ -919,33 +1065,16 @@
     }
 
     // تحديث الإحصائيات
-    // تحديث دالة updateStats لاستخدام الدالة الأبسط
     function updateStats(data) {
-      // let totalWeight = 0;
-      // const customers = new Set();
-
-      // data.forEach(row => {
-    
-
-      //   // totalWeight += Number(row.net) || 0;
-      //   // if (row.customer) customers.add(row.customer);
-      // });
-
       document.getElementById('totalTickets').textContent = offset2;
-      // document.getElementById('totalWeight').textContent = totalWeight.toLocaleString();
-      // document.getElementById('totalCustomers').textContent = customers.size;
 
-      // حساب تذاكر اليوم - الطريقة الأبسط
       const today = new Date();
       const todayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
-
       const todayTickets = data.filter(row => row.date === todayStr).length;
-
       document.getElementById('todayTickets').textContent = todayTickets;
-
     }
 
-    // تحسين دالة البحث
+    // دالة البحث المحسنة
     async function fetchData3() {
       const searchType = document.getElementById('searchType').value;
       const searchValue = document.getElementById('searchValue').value;
@@ -985,14 +1114,13 @@
       window.open("ticket.html", "_blank", "width=650,height=650,scrollbars=yes");
     }
 
-    // باقي الدوال (openEdit, updateData, updateAndPrint) كما هي مع تحسين الألert
+    // فتح التعديل
     function openEdit(row) {
       document.getElementById('editDate').value = row.date;
       document.getElementById('editTime').value = row.time;
       document.getElementById('editSn').value = row.sn;
       document.getElementById('editPrice').value = '';
-      document.getElementById("totalTableBody").innerHTML =
-        `<tr><td colspan="5" class="text-center text-muted">لا توجد بيانات</td></tr>`;
+      document.getElementById("totalTableBody").innerHTML = `<tr><td colspan="5" class="text-center text-muted">لا توجد بيانات</td></tr>`;
       document.getElementById('editId').value = row.id;
       document.getElementById('editNumber').value = row.number;
       document.getElementById('editCustomer').value = row.customer;
@@ -1001,13 +1129,13 @@
       document.getElementById('editTare').value = row.tare;
       document.getElementById('editNet').value = row.net;
       document.getElementById('editNote').value = row.note || '';
-
       document.getElementById("modalImg2").src = `images/print/${row.images}_cam1.jpg`;
 
       const modal = new bootstrap.Modal(document.getElementById('editModal'));
       modal.show();
     }
 
+    // تحديث البيانات
     async function updateData() {
       if (!confirm('هل أنت متأكد من حفظ التغييرات؟')) return;
 
@@ -1041,9 +1169,9 @@
       }
     }
 
+    // تحديث وطباعة
     async function updateAndPrint() {
       const id = document.getElementById('editId').value;
-
       const updatedData = {
         date: document.getElementById('editDate').value,
         time: document.getElementById('editTime').value,
@@ -1078,6 +1206,7 @@
       }
     }
 
+    // مسح البحث
     function clearSearch() {
       document.getElementById('searchValue').value = "";
       document.querySelector('#data-table2 tbody').innerHTML = "";
@@ -1085,7 +1214,48 @@
       fetchData2();
     }
 
-    // Socket.IO events
+    // دوال مساعدة
+    function getUnitWeight(typeName) {
+      const typesList = document.getElementById("types");
+      const option = Array.from(typesList.options).find(o => o.value === typeName);
+      return option ? parseFloat(option.dataset.unit) : 0;
+    }
+
+    // حساب الإجمالي
+    const typeInput = document.getElementById("editType");
+    const priceInput = document.getElementById("editPrice");
+    const netInput = document.getElementById("editNet");
+
+    function calculateTotal() {
+      const net = parseFloat(netInput?.value);
+      const price = parseFloat(priceInput?.value);
+      const unitWeight = getUnitWeight(typeInput?.value);
+
+      if (!net || !price || !unitWeight) {
+        document.getElementById("totalTableBody").innerHTML = `<tr><td colspan="5" class="text-center text-muted">لا توجد بيانات</td></tr>`;
+        return;
+      }
+
+      const units = Math.floor(net / unitWeight);
+      const remain = net % unitWeight;
+      const total = (net * price) / unitWeight;
+
+      document.getElementById("totalTableBody").innerHTML = `
+        <tr>
+          <td>${price}</td>
+          <td>${unitWeight}</td>
+          <td>${units}</td>
+          <td>${remain.toFixed(2)}</td>
+          <td class="fw-bold text-success">${total.toFixed(2)} جنيه</td>
+        </tr>
+      `;
+    }
+
+    typeInput?.addEventListener("input", calculateTotal);
+    priceInput?.addEventListener("input", calculateTotal);
+    netInput?.addEventListener("input", calculateTotal);
+
+    // أحداث Socket.IO
     const socket = io();
 
     socket.on('printer:new', (row) => {
@@ -1096,7 +1266,6 @@
         const newRowHtml = createTableRow(row);
         tableBody.insertAdjacentHTML('afterbegin', newRowHtml);
 
-        // فتح التعديل تلقائياً
         setTimeout(() => {
           openEdit(row);
         }, 300);
@@ -1106,8 +1275,7 @@
     socket.on('id:new', (row) => {
       if (row.NE) {
         setTimeout(() => {
-          document.getElementById("toastBody").innerHTML =
-            `تم إضافة سيارة جديدة ${row.NE} (الوزن: ${row.gross})`;
+          document.getElementById("toastBody").innerHTML = `تم إضافة سيارة جديدة ${row.NE} (الوزن: ${row.gross})`;
           document.getElementById("toastImg1").src = `images/sensor/${row.images}_cam1.jpg`;
           document.getElementById("toastImg2").src = `images/sensor/${row.images}_cam2.jpg`;
           document.getElementById("toastImg3").src = `images/sensor/${row.images}_cam3.jpg`;
@@ -1125,7 +1293,43 @@
       audioPlayer.play().catch(e => console.log('تشغيل الصوت:', e));
     });
 
-    // Keyboard shortcut للمودال
+    socket.on('response', (data) => {
+       if (data && data.toUpperCase() === "OK") {
+            sendCommand('p');
+          }
+          if (data && data.toUpperCase() === "??") {
+            sendCommand('p');
+          }
+      if (data && data.length >= 11 && data.length <= 12) {
+        document.getElementById('response').innerHTML = `${data}`;
+      } else {
+        if (data && data.slice(-2).toUpperCase() === "NE") {
+          document.getElementById('response11').innerHTML = `<span class="badge bg-primary">${data}</span>`;
+        } 
+        else {
+       
+          // else {
+          // document.getElementById('response11').innerHTML = `<span class="badge bg-primary">---</span>`;
+          // }
+        }
+        
+      }
+    });
+ // إرسال أمر
+    function sendCommand(command) {
+      const type = document.getElementById('type').value;
+      const customer = document.getElementById('customer').value;
+
+      fetch(`/send-command?command=${command}&type=${encodeURIComponent(type)}&customer=${encodeURIComponent(customer)}`)
+        .then(() => {
+          if (command == 'Kid' || command == 'KPRINT') {
+            document.getElementById('type').value = '';
+            document.getElementById('customer').value = '';
+          }
+        })
+        .catch(error => console.error("Error sending command:", error));
+    }
+    // اختصار لوحة المفاتيح للمودال
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
 
@@ -1137,71 +1341,19 @@
       updateAndPrint();
     });
 
-    // دوال مساعدة
-    function getUnitWeight(typeName) {
-      const typesList = document.getElementById("types");
-      const option = Array.from(typesList.options)
-        .find(o => o.value === typeName);
-      return option ? parseFloat(option.dataset.unit) : 0;
-    }
+    // تحميل البيانات عند بدء التشغيل
+    window.onload = function () {
+      fetchData2();
 
-    // حساب الإجمالي
-    const typeInput = document.getElementById("editType");
-    const priceInput = document.getElementById("editPrice");
-    const netInput = document.getElementById("editNet");
+      // منع التكبير التلقائي في iOS
+      document.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('touchstart', function () {
+          this.style.fontSize = '16px';
+        });
+      });
+    };
 
-    function calculateTotal() {
-      const net = parseFloat(netInput.value);
-      const price = parseFloat(priceInput.value);
-      const unitWeight = getUnitWeight(typeInput.value);
-
-      if (!net || !price || !unitWeight) {
-        document.getElementById("totalTableBody").innerHTML =
-          `<tr><td colspan="5" class="text-center text-muted">لا توجد بيانات</td></tr>`;
-        return;
-      }
-
-      const units = Math.floor(net / unitWeight);
-      const remain = net % unitWeight;
-      const total = (net * price) / unitWeight;
-
-      document.getElementById("totalTableBody").innerHTML = `
-        <tr>
-          <td>${price}</td>
-          <td>${unitWeight}</td>
-          <td>${units}</td>
-          <td>${remain}</td>
-          <td class="fw-bold text-success">${total.toFixed(2)} جنيه</td>
-        </tr>
-      `;
-    }
-
-    typeInput?.addEventListener("input", calculateTotal);
-    priceInput?.addEventListener("input", calculateTotal);
-    netInput?.addEventListener("input", calculateTotal);
-
-    // بدء التحميل
-    window.onload = fetchData2;
     document.getElementById('load-more-btn2')?.addEventListener('click', fetchData2);
-  
-  
-      // استقبال الردود
-    socket.on('response', (data) => {
-      if (data.length == 11 || data.length == 12) {
-        const weightDisplay = document.getElementById('response');
-        weightDisplay.innerHTML = `${data} <span class="weight-unit">كجم</span>`;
-        // weightDisplay.classList.add('weight-pulse');
-        setTimeout(() => weightDisplay.classList.remove('weight-pulse'), 500);
-      } else {
-        // const box = document.getElementById('response1');
-        // box.innerHTML += `→ ${data}\n`;
-        // box.scrollTop = box.scrollHeight;
-
-        if (data.slice(-2).toUpperCase() === "NE") {
-          document.getElementById('response11').innerHTML = `<span class="badge bg-primary">${data}</span>`;
-        }
-      }
-    });
   </script>
 
 </body>
