@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" />
+  <title>نظام إدارة التذاكر المتقدم - نسخة الموبايل</title>
+  <link href="../css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/all.min.css" rel="stylesheet">
+  <link href="../css/main.css" rel="stylesheet">
+  <link href="../css/ticket_table.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- مشغل الصوت المحسن -->
+  <div class="audio-player">
+    <audio id="audioPlayer" controls>
+      <source src="" type="audio/mpeg">
+    </audio>
+  </div>
+
+  <div class="container-fluid px-1 px-sm-2 px-md-3">
+    <div class="main-container">
+
+      <!-- ترويسة الصفحة المحسنة للجوال -->
+      <div class="page-header">
+        <h2>
+          <i class="fas fa-ticket-alt"></i>
+          <span>نظام إدارة التذاكر</span>
+        </h2>
+        <div class="nav-buttons">
+          <a href="../index.html" class="nav-btn btn btn-light">
+            <i class="fas fa-arrow-right"></i>
+            <span>الرئيسية</span>
+          </a>
+          <a href="../table1.html" class="nav-btn btn btn-primary">
+            <i class="fas fa-table"></i>
+            <span>البيانات</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- بطاقات الإحصائيات المحسنة للجوال -->
+      <div class="row g-2 g-sm-3 mb-2">
+        <div class="col-6 col-md-3">
+          <div class="stats-card">
+            <div class="stats-label">
+              <i class="fas fa-truck"></i>
+              <span>إجمالي التذاكر</span>
+            </div>
+            <p class="stats-number" id="totalTickets">0</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stats-card">
+            <div class="stats-label">
+              <i class="fas fa-weight-scale"></i>
+              <span>الوزن الحالي</span>
+            </div>
+            <p class="stats-number" id="response">0</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stats-card">
+            <div class="stats-label">
+              <i class="fas fa-id-card"></i>
+              <span>رقم NE</span>
+            </div>
+            <p class="stats-number" id="response11">0</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stats-card">
+            <div class="stats-label">
+              <i class="fas fa-clock"></i>
+              <span>تذاكر اليوم</span>
+            </div>
+            <p class="stats-number" id="todayTickets">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- مربع البحث المتقدم المحسن للجوال -->
+      <div class=" search-input-group">
+        <div class="row g-2 align-items-center">
+
+          <div class="col-md-3 col-4">
+            <select id="searchType" class="form-select">
+              <option value="number">🚛 رقم السيارة</option>
+              <option value="date">📅 التاريخ</option>
+              <option value="sn">🔢 المسلسل</option>
+              <option value="customer">👤 العميل</option>
+              <option value="type">📦 النوع</option>
+            </select>
+          </div>
+
+          <div class="col-md-5 col-4">
+            <input id="searchValue" type="text" placeholder="اكتب كلمة البحث..." class="form-control">
+          </div>
+
+          <div class="col-md-2 col-2">
+            <button type="button" class="btn btn-primary w-100" onclick="fetchData3()">
+              <i class="fas fa-search"></i>
+
+            </button>
+          </div>
+
+          <div class="col-md-2 col-2">
+            <button type="button" class="btn btn-outline-danger w-100" onclick="clearSearch()">
+              <i class="fas fa-times"></i>
+
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- الجدول المحسن للجوال مع تمرير أفقي -->
+      <div class="table-container">
+        <table id="data-table2" class="modern-table">
+          <thead>
+            <tr>
+              <th>الصور</th>
+              <th>العميل / النوع</th>
+              <th>التاريخ / الوقت</th>
+              <th hidden>المسلسل</th>
+              <th>رقم السيارة</th>
+              <th>الوزن الأول</th>
+              <th>الوزن الثاني</th>
+              <th>الصافي</th>
+              <th>ملحوظة</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <button id="load-more-btn2" class="load-more-btn">
+          <i class="fas fa-arrow-down"></i>
+          تحميل المزيد من التذاكر
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة التعديل المحسنة للجوال -->
+  <div class="modal fade modal-modern" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-edit"></i>
+            تعديل بيانات التذكرة
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <!-- نموذج التعديل -->
+            <div class="col-md-6">
+              <form id="editForm">
+                <input type="hidden" id="editId">
+                <input type="hidden" id="editDate">
+                <input type="hidden" id="editTime">
+                <input type="hidden" id="editSn">
+
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <div class="input-label">رقم السيارة</div>
+                    <input type="text" id="editNumber" class="modern-input">
+                  </div>
+                  <div class="col-6">
+                    <div class="input-label">العميل</div>
+                    <input list="customers" type="text" placeholder="العميل" id="editCustomer"
+                      class="modern-input clearable">
+                    <datalist id="customers">
+                      <option value="الحاج خالد عبد السلام">
+                      <option value="عماد نوح">
+                      <option value="محمد الصندفاوي">
+                      <option value="محمد منصور">
+                      <option value="محمود نصير">
+                      <option value="هاني عبد الباعث">
+                      <option value="الشحات عبد الباعث">
+                      <option value="احمد علي">
+                      <option value="علي محروس">
+                      <option value="محمود ابو منصور">
+                    </datalist>
+                  </div>
+                </div>
+
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <div class="input-label">النوع</div>
+                    <input list="types" type="text" id="editType" placeholder="النوع" class="modern-input clearable">
+
+
+                    <datalist id="types">
+                      <option value="أرز" data-unit="300">
+                      <option value="غلة" data-unit="155">
+                      <option value="تبن" data-unit="250">
+                        <option value="فول" data-unit="155">
+                      <option value="خشب" data-unit="1000">
+                      <option value="خشب صنعه" data-unit="1000">
+                      <option value="خشب حريق" data-unit="1000">
+                      <option value="خشب اطوال" data-unit="1000">
+                      <option value="فحم " data-unit="1000">
+                      <option value="حديد" data-unit="1000">
+                      <option value="مكرونه" data-unit="1000">
+                      <option value="قش ارز" data-unit="1000">
+                    </datalist>
+                  </div>
+                  <div class="col-6">
+                    <div class="input-label">السعر / وحدة</div>
+                    <input type="number" placeholder="السعر" id="editPrice" class="modern-input">
+                  </div>
+                </div>
+
+                <div class="row g-2 mb-2">
+                  <div class="col-4">
+                    <div class="input-label">الوزن الأول</div>
+                    <input type="text" id="editGross" class="modern-input">
+                  </div>
+                  <div class="col-4">
+                    <div class="input-label">الوزن الثاني</div>
+                    <input type="text" id="editTare" class="modern-input">
+                  </div>
+                  <div class="col-4">
+                    <div class="input-label">الصافي</div>
+                    <input type="text" id="editNet" class="modern-input">
+                  </div>
+                </div>
+
+                <div class="mb-2">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="input-label">الوزن الحالي</div>
+                    <b id="editTare2"></b>
+                  </div>
+
+                  <!-- Checkbox إضافة وزن آخر -->
+                  <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="addExtraWeight"
+                      onchange="toggleExtraWeightTable()" style="transform: scale(1.2);">
+                    <label class="form-check-label fw-bold" for="addExtraWeight">
+                      <i class="fas fa-plus-circle text-success"></i>
+                      إضافة وزن آخر
+                    </label>
+                  </div>
+
+                  <!-- جدول الأوزان الإضافية (يظهر عند اختيار checkbox) -->
+                  <div id="extraWeightsTable" style="display: none;" class="mb-3">
+                    <div class="card border-0 shadow-sm">
+                      <div class="card-header bg-primary text-white py-2">
+                        <i class="fas fa-weight-scale"></i>
+                        الأوزان الإضافية
+                      </div>
+                      <div class="col-6">
+                        <div class="input-wrapper">
+                          <input list="types" type="text" id="extraEditType" required placeholder="النوع"
+                            class="modern-input clearable">
+
+                          <datalist id="types">
+                            <option value="أرز">
+                            <option value="غلة">
+                            <option value="تبن">
+                            <option value="خشب">
+                            <option value="حديد">
+                            <option value="فول">
+                          </datalist>
+                        </div>
+                      </div>
+                      <div class="card-body p-2">
+                        <table class="table table-bordered table-sm mb-2">
+                          <thead class="table-light">
+                            <tr>
+                              <th>الوزن الأول</th>
+                              <th>الوزن الثاني</th>
+                              <th>الصافي الاول</th>
+                              <th>الوزن الثالث</th>
+                              <th>الصافي التاني</th>
+                              <th>جملةالصافي </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><span id="displayFirstWeight" class="fw-bold text-primary">---</span></td>
+                              <td><span id="displaySecondWeight" class="fw-bold text-success">---</span></td>
+                              <td><span id="displayNetWeight" class="fw-bold text-info">---</span></td>
+                              <td class="input-wrapper">
+                                <input type="number" class="modern-input" id="thirdWeight"
+                                  class="form-control form-control-sm" placeholder="الوزن الثالث"
+                                  onchange="calculateFinalNet()">
+                              </td>
+
+                              <td><span id="finalNetWeight" class="fw-bold text-success">---</span></td>
+                              <td><span id="totalNetWeight" class="fw-bold text-success">---</span></td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Textarea الملحوظة -->
+                  <textarea id="editNote" class="modern-input" rows="2" placeholder="أدخل ملاحظات إضافية..."></textarea>
+                </div>
+
+
+              </form>
+
+              <!-- جدول الحسابات المحسن للجوال -->
+              <div class="calculation-table">
+                <table class="table table-bordered mb-0">
+                  <thead>
+                    <tr>
+                      <th>سعر الوحدة</th>
+                      <th>وزن الوحدة</th>
+                      <th>عدد الوحدات</th>
+                      <th>الباقي</th>
+                      <th>الإجمالي</th>
+                    </tr>
+                  </thead>
+                  <tbody id="totalTableBody">
+                    <tr>
+                      <td colspan="5" class="text-center text-muted">لا توجد بيانات</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- عرض الصورة المحسن للجوال -->
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header bg-primary text-white py-2">
+                  <i class="fas fa-camera"></i>
+                  صورة التذكرة
+                </div>
+                <div class="card-body text-center p-2">
+                  <img id="modalImg2" class="img-fluid rounded shadow"
+                    style="max-height: 430px; width: auto; max-width: 100%;">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i>
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-primary" onclick="updateData()">
+            <i class="fas fa-save"></i>
+            حفظ
+          </button>
+          <button type="button" class="btn btn-success" onclick="updateAndPrint()">
+            <i class="fas fa-save"></i>
+            <i class="fas fa-print"></i>
+            حفظ وطباعة
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- معرض الصور المنبثق المحسن للجوال -->
+  <div id="imgGallery" class="img-gallery-modal" onclick="closeGallery(event)">
+    <span class="gallery-close" onclick="closeGallery()">&times;</span>
+    <div class="gallery-nav" style="left: 10px;" onclick="changeImage(-1)">
+      <i class="fas fa-chevron-right"></i>
+    </div>
+    <div class="gallery-nav" style="right: 10px;" onclick="changeImage(1)">
+      <i class="fas fa-chevron-left"></i>
+    </div>
+    <div class="gallery-container">
+      <div class="row justify-content-center align-items-center h-100">
+        <div class="col-12 text-center">
+          <div id="galleryHead" class="text-white mb-2 px-3"></div>
+          <img id="galleryImg" class="img-fluid" style="max-height: 70vh; max-width: 100%;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- إشعار Toast محسن للجوال -->
+  <div class="toast-container position-fixed top-0 end-0 p-2 p-sm-3">
+    <div id="liveToast" class="toast custom-toast" role="alert">
+      <div class="toast-header">
+        <i class="fas fa-bell text-success me-2"></i>
+        <strong class="me-auto">إشعار جديد</strong>
+        <small class="text-nowrap">الآن</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-image-gallery">
+        <img id="toastImg1" class="toast-image">
+        <img id="toastImg2" class="toast-image">
+        <img id="toastImg3" class="toast-image">
+      </div>
+      <div class="toast-body" id="toastBody"></div>
+    </div>
+  </div>
+
+  <!-- السكربتات -->
+  <script src="../js/bootstrap.bundle.min.js"></script>
+  <script src="../socket.io/socket.io.js"></script>
+  <script src="../js/ticket_table.js"></script>
+
+
+</body>
+
+</html>

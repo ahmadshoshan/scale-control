@@ -1,0 +1,215 @@
+/* public/css/main.css - الهوية البصرية الموحدة */
+
+:root {
+  /* الألوان الأساسية الموحدة */
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --secondary-gradient: linear-gradient(135deg, #303db4 0%, #504eda 100%);
+  --success-gradient: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+  --danger-gradient: linear-gradient(135deg, #f43b47 0%, #453a94 100%);
+  --dark-gradient: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+  
+  /* ألوان ثابتة */
+  --primary-color: #4361ee;
+  --success-color: #06d6a0;
+  --danger-color: #ef476f;
+  --warning-color: #ffd166;
+  --dark-color: #2b2d42;
+  --light-color: #f8f9fa;
+  
+  /* مسافات موحدة */
+  --mobile-spacing: 12px;
+  --border-radius-card: 20px;
+  --border-radius-btn: 50px;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* أنماط عامة */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--primary-gradient);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 10px;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* الحاوية الرئيسية */
+.main-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--border-radius-card);
+  padding: 12px 10px;
+  box-shadow: var(--box-shadow);
+  backdrop-filter: blur(10px);
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+/* ترويسة الصفحة الموحدة */
+.page-header {
+  background: linear-gradient(45deg, var(--dark-color), #1a1b2f);
+  color: white;
+  padding: 12px;
+  border-radius: 15px;
+  margin-bottom: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 576px) {
+  .page-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.page-header h2 {
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(1.2rem, 5vw, 1.8rem);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* أزرار التنقل الموحدة */
+.nav-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: 8px 15px;
+  border-radius: var(--border-radius-btn);
+  font-weight: 600;
+  font-size: clamp(0.8rem, 3.5vw, 1rem);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 120px;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+/* معرض الصور المنبثق الموحد */
+.img-gallery-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  padding: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.gallery-container {
+  max-width: 100%;
+  margin: auto;
+  padding: 10px;
+}
+
+.gallery-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+  font-size: 20px;
+  z-index: 10001;
+}
+
+.gallery-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 35px;
+  color: white;
+  cursor: pointer;
+  z-index: 10002;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+}
+
+/* إشعار Toast موحد */
+.toast-container {
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast-container .toast {
+  pointer-events: auto;
+  animation: slideDown 0.3s ease;
+}
+
+.custom-toast {
+  background: white;
+  border-radius: 15px;
+  border-right: 5px solid var(--success-color);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 100%;
+  width: 350px;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* تحسين شريط التمرير */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-gradient);
+  border-radius: 10px;
+}
+
+/* تحسينات الجوال العامة */
+@media (max-width: 576px) {
+  .main-container {
+    padding: 8px 6px;
+  }
+  
+  button, 
+  .nav-btn,
+  .search-btn,
+  .load-more-btn,
+  .action-btn,
+  .quick-action-btn {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  .toast-container {
+    width: 90%;
+    left: 5%;
+    transform: none;
+  }
+}
