@@ -6,21 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" />
   <title>نظام إدارة التذاكر المتقدم - نسخة الموبايل</title>
 
-    <!-- Bootstrap CSS محلي -->
+  <!-- Bootstrap CSS محلي -->
   <link href="css/bootstrap.min.css" rel="stylesheet">
-  
+
   <!-- Font Awesome محلي -->
   <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
   <link href="css/all.min.css" rel="stylesheet">
 
-  
+
   <!-- ملفات إضافية للتأكد من عمل الأيقونات بشكل صحيح -->
   <!-- <link href="css/webfonts/fa-solid-900.woff2" rel="preload" as="font" crossorigin>
   <link href="css/webfonts/fa-regular-400.woff2" rel="preload" as="font" crossorigin>
   <link href="css/webfonts/fa-brands-400.woff2" rel="preload" as="font" crossorigin>
    -->
 
-  
+
   <style>
     :root {
       --primary-color: #4361ee;
@@ -261,10 +261,10 @@
     }
 
     .modern-table tbody td {
-      padding: 12px 8px;
+      padding: 5px 8px;
       vertical-align: middle;
       border: none;
-      font-size: clamp(0.75rem, 2.8vw, 0.9rem);
+      font-size: clamp(0.95rem, 2.8vw, 1rem);
     }
 
     /* بطاقة الصورة المحسنة للجوال */
@@ -450,11 +450,15 @@
     .modern-input {
       border: 2px solid #e0e0e0;
       border-radius: 8px;
-      padding: 12px 10px;
+      padding: 5px 15px;
       font-size: 16px;
       /* منع التكبير التلقائي في iOS */
       transition: all 0.3s;
       width: 100%;
+
+      color: blueviolet;
+      font-weight: bold;
+
     }
 
     .input-label {
@@ -643,6 +647,79 @@
       background: linear-gradient(45deg, var(--primary-color), var(--dark-color));
       border-radius: 10px;
     }
+
+    /* /////////////////////////////// */
+    /* wrapper للحقل */
+    .input-wrapper {
+      position: relative;
+    }
+
+    /* input حديث */
+    .modern-input {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      padding: 8px 38px 8px 10px;
+      font-size: 14px;
+      transition: all .2s;
+    }
+
+    /* عند التركيز */
+    .modern-input:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 2px rgba(13, 110, 253, .15);
+      outline: none;
+    }
+
+    /* زر التفريغ */
+    .clear-btn {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: #f1f1f1;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 13px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+    }
+
+    .clear-btn:hover {
+      background: #ff4d4d;
+      color: white;
+    }
+
+    /* label */
+    .input-label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* تحسين المودال */
+    .modal-modern .modal-content {
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .modal-modern .modal-header {
+      background: #0d6efd;
+      color: white;
+    }
+
+    /* جدول الحسابات */
+    .calculation-table {
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    }
   </style>
 </head>
 
@@ -688,7 +765,7 @@
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div class="stats-card" ">
+          <div class="stats-card">
             <div class="stats-label">
               <i class="fas fa-weight-scale"></i>
               <span>الوزن الحالي</span>
@@ -697,7 +774,7 @@
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div class="stats-card" >
+          <div class="stats-card">
             <div class="stats-label">
               <i class="fas fa-id-card"></i>
               <span>رقم NE</span>
@@ -706,7 +783,7 @@
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div class="stats-card" ">
+          <div class="stats-card">
             <div class="stats-label">
               <i class="fas fa-clock"></i>
               <span>تذاكر اليوم</span>
@@ -717,28 +794,37 @@
       </div>
 
       <!-- مربع البحث المتقدم المحسن للجوال -->
-      <div class="search-container">
-        <div class="search-label">
-          <i class="fas fa-search"></i>
-          بحث متقدم
-        </div>
-        <div class="search-input-group">
-          <select id="searchType" class="form-select">
-            <option value="number">🚛 رقم السيارة</option>
-            <option value="date">📅 التاريخ</option>
-            <option value="sn">🔢 المسلسل</option>
-            <option value="customer">👤 العميل</option>
-            <option value="type">📦 النوع</option>
-          </select>
-          <input id="searchValue" type="text" placeholder="اكتب كلمة البحث..." class="form-control">
-          <button type="button" class="search-btn btn btn-primary" onclick="fetchData3()">
-            <i class="fas fa-search"></i>
-            <span>بحث</span>
-          </button>
-          <button type="button" class="search-btn btn btn-outline-danger" onclick="clearSearch()">
-            <i class="fas fa-times"></i>
-            <span>مسح</span>
-          </button>
+      <div class=" search-input-group">
+        <div class="row g-2 align-items-center">
+
+          <div class="col-md-3 col-4">
+            <select id="searchType" class="form-select">
+              <option value="number">🚛 رقم السيارة</option>
+              <option value="date">📅 التاريخ</option>
+              <option value="sn">🔢 المسلسل</option>
+              <option value="customer">👤 العميل</option>
+              <option value="type">📦 النوع</option>
+            </select>
+          </div>
+
+          <div class="col-md-5 col-4">
+            <input id="searchValue" type="text" placeholder="اكتب كلمة البحث..." class="form-control">
+          </div>
+
+          <div class="col-md-2 col-2">
+            <button type="button" class="btn btn-primary w-100" onclick="fetchData3()">
+              <i class="fas fa-search"></i>
+
+            </button>
+          </div>
+
+          <div class="col-md-2 col-2">
+            <button type="button" class="btn btn-outline-danger w-100" onclick="clearSearch()">
+              <i class="fas fa-times"></i>
+
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -797,7 +883,8 @@
                   </div>
                   <div class="col-6">
                     <div class="input-label">العميل</div>
-                    <input list="customers" type="text" id="editCustomer" class="modern-input">
+                    <input list="customers" type="text" placeholder="العميل" id="editCustomer"
+                      class="modern-input clearable">
                     <datalist id="customers">
                       <option value="الحاج خالد عبد السلام">
                       <option value="عماد نوح">
@@ -816,19 +903,27 @@
                 <div class="row g-2 mb-2">
                   <div class="col-6">
                     <div class="input-label">النوع</div>
-                    <input list="types" type="text" id="editType" class="modern-input">
+                    <input list="types" type="text" id="editType" placeholder="النوع" class="modern-input clearable">
+
+
                     <datalist id="types">
                       <option value="أرز" data-unit="300">
                       <option value="غلة" data-unit="155">
                       <option value="تبن" data-unit="250">
+                        <option value="فول" data-unit="155">
                       <option value="خشب" data-unit="1000">
+                      <option value="خشب صنعه" data-unit="1000">
+                      <option value="خشب حريق" data-unit="1000">
+                      <option value="خشب اطوال" data-unit="1000">
+                      <option value="فحم " data-unit="1000">
                       <option value="حديد" data-unit="1000">
-                      <option value="فول" data-unit="155">
+                      <option value="مكرونه" data-unit="1000">
+                      <option value="قش ارز" data-unit="1000">
                     </datalist>
                   </div>
                   <div class="col-6">
                     <div class="input-label">السعر / وحدة</div>
-                    <input type="number" id="editPrice" class="modern-input">
+                    <input type="number" placeholder="السعر" id="editPrice" class="modern-input">
                   </div>
                 </div>
 
@@ -848,9 +943,82 @@
                 </div>
 
                 <div class="mb-2">
-                  <div class="input-label">ملحوظة</div>
-                  <textarea id="editNote" class="modern-input" rows="2"></textarea>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="input-label">الوزن الحالي</div>
+                    <b id="editTare2"></b>
+                  </div>
+
+                  <!-- Checkbox إضافة وزن آخر -->
+                  <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="addExtraWeight"
+                      onchange="toggleExtraWeightTable()" style="transform: scale(1.2);">
+                    <label class="form-check-label fw-bold" for="addExtraWeight">
+                      <i class="fas fa-plus-circle text-success"></i>
+                      إضافة وزن آخر
+                    </label>
+                  </div>
+
+                  <!-- جدول الأوزان الإضافية (يظهر عند اختيار checkbox) -->
+                  <div id="extraWeightsTable" style="display: none;" class="mb-3">
+                    <div class="card border-0 shadow-sm">
+                      <div class="card-header bg-primary text-white py-2">
+                        <i class="fas fa-weight-scale"></i>
+                        الأوزان الإضافية
+                      </div>
+                      <div class="col-6">
+                        <div class="input-wrapper">
+                          <input list="types" type="text" id="extraEditType" required placeholder="النوع"
+                            class="modern-input clearable">
+
+                          <datalist id="types">
+                            <option value="أرز">
+                            <option value="غلة">
+                            <option value="تبن">
+                            <option value="خشب">
+                            <option value="حديد">
+                            <option value="فول">
+                          </datalist>
+                        </div>
+                      </div>
+                      <div class="card-body p-2">
+                        <table class="table table-bordered table-sm mb-2">
+                          <thead class="table-light">
+                            <tr>
+                              <th>الوزن الأول</th>
+                              <th>الوزن الثاني</th>
+                              <th>الصافي الاول</th>
+                              <th>الوزن الثالث</th>
+                              <th>الصافي التاني</th>
+                              <th>جملةالصافي </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><span id="displayFirstWeight" class="fw-bold text-primary">---</span></td>
+                              <td><span id="displaySecondWeight" class="fw-bold text-success">---</span></td>
+                              <td><span id="displayNetWeight" class="fw-bold text-info">---</span></td>
+                              <td class="input-wrapper">
+                                <input type="number" class="modern-input" id="thirdWeight"
+                                  class="form-control form-control-sm" placeholder="الوزن الثالث"
+                                  onchange="calculateFinalNet()">
+                              </td>
+
+                              <td><span id="finalNetWeight" class="fw-bold text-success">---</span></td>
+                              <td><span id="totalNetWeight" class="fw-bold text-success">---</span></td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Textarea الملحوظة -->
+                  <textarea id="editNote" class="modern-input" rows="2" placeholder="أدخل ملاحظات إضافية..."></textarea>
                 </div>
+
+
               </form>
 
               <!-- جدول الحسابات المحسن للجوال -->
@@ -883,7 +1051,7 @@
                 </div>
                 <div class="card-body text-center p-2">
                   <img id="modalImg2" class="img-fluid rounded shadow"
-                    style="max-height: 300px; width: auto; max-width: 100%;">
+                    style="max-height: 430px; width: auto; max-width: 100%;">
                 </div>
               </div>
             </div>
@@ -1003,10 +1171,7 @@
             <div class="image-card" onclick='openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")'>
               <img src="${images[0]}" alt="صورة التذكرة" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22 viewBox=%220 0 70 70%22><rect width=%2270%22 height=%2270%22 fill=%22%23f0f0f0%22/><text x=%2235%22 y=%2235%22 font-size=%2210%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22>لا توجد</text></svg>'">
             </div>
-            <div class="thumbnail-gallery">
-              <img src="${images[1]}" class="thumbnail" onclick='event.stopPropagation(); openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")' onerror="this.style.display='none'">
-              <img src="${images[2]}" class="thumbnail" onclick='event.stopPropagation(); openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")' onerror="this.style.display='none'">
-            </div>
+       
           </td>
           <td>
             <strong>${row.customer || 'غير محدد'}</strong>
@@ -1019,10 +1184,10 @@
             <i class="fas fa-clock"></i> ${row.time || '--:--'}
           </td>
           <td hidden>${row.sn || ''}</td>
-          <td><span class="badge bg-dark">${row.number || 'غير محدد'}</span></td>
-          <td>${gross}</td>
-          <td>${tare}</td>
-          <td><span class="weight-badge">${net}</span></td>
+          <td style="font-size: x-large;"><span class="badge bg-dark">${row.number || 'غير محدد'}</span></td>
+          <td style="font-size: x-large;">${gross}</td>
+           <td style="font-size: x-large;">${tare}</td>
+           <td style="font-size: x-large;"><span class="">${net}</span></td>
           <td>${row.note || '—'}</td>
           <td>
             <div class="action-buttons">
@@ -1116,6 +1281,9 @@
 
     // فتح التعديل
     function openEdit(row) {
+      //  extraWeightsTable = document.getElementById('extraWeightsTable');
+      toggleExtraWeightTable(false);
+
       document.getElementById('editDate').value = row.date;
       document.getElementById('editTime').value = row.time;
       document.getElementById('editSn').value = row.sn;
@@ -1130,6 +1298,8 @@
       document.getElementById('editNet').value = row.net;
       document.getElementById('editNote').value = row.note || '';
       document.getElementById("modalImg2").src = `images/print/${row.images}_cam1.jpg`;
+
+      document.getElementById('editTare2').innerText = document.getElementById('response').innerText;
 
       const modal = new bootstrap.Modal(document.getElementById('editModal'));
       modal.show();
@@ -1169,6 +1339,7 @@
       }
     }
 
+
     // تحديث وطباعة
     async function updateAndPrint() {
       const id = document.getElementById('editId').value;
@@ -1186,7 +1357,18 @@
         price: document.getElementById('editPrice').value,
         unitWeight: getUnitWeight(document.getElementById('editType').value)
       };
+      if (checkbox.checked) {
+        updatedData.extraWeightsTable = {
+          secondWeight: secondWeight,
+          extraEditType: document.getElementById('extraEditType').value,
+          thirdWeight: document.getElementById('thirdWeight').value,
+          finalNetWeight: document.getElementById('finalNetWeight').innerText,
+          totalNetWeight: document.getElementById('totalNetWeight').innerText
+        };
+        // console.log(updatedData);
 
+
+      }
       try {
         const response = await fetch(`/update-ticket/${id}`, {
           method: 'PUT',
@@ -1294,28 +1476,34 @@
     });
 
     socket.on('response', (data) => {
-       if (data && data.toUpperCase() === "OK") {
-            sendCommand('p');
-          }
-          if (data && data.toUpperCase() === "??") {
-            sendCommand('p');
-          }
+      if (data && data.toUpperCase() === "OK") {
+        sendCommand('p');
+      }
+      if (data && data.toUpperCase() === "??") {
+        sendCommand('p');
+      }
       if (data && data.length >= 11 && data.length <= 12) {
-        document.getElementById('response').innerHTML = `${data}`;
+        let cleanData = data
+          .replace(/\x02/g, '')   // حذف رمز البداية
+          // .replace(/KG/g, '')     // حذف KG
+          .trim();                // حذف المسافات
+
+        document.getElementById('response').innerHTML = cleanData;
+        // document.getElementById('response').innerHTML = `${data}`;
       } else {
         if (data && data.slice(-2).toUpperCase() === "NE") {
           document.getElementById('response11').innerHTML = `<span class="badge bg-primary">${data}</span>`;
-        } 
+        }
         else {
-       
+
           // else {
           // document.getElementById('response11').innerHTML = `<span class="badge bg-primary">---</span>`;
           // }
         }
-        
+
       }
     });
- // إرسال أمر
+    // إرسال أمر
     function sendCommand(command) {
       const type = document.getElementById('type').value;
       const customer = document.getElementById('customer').value;
@@ -1354,6 +1542,167 @@
     };
 
     document.getElementById('load-more-btn2')?.addEventListener('click', fetchData2);
+
+    //////////////////////////////////////////////////////
+
+
+    // متغيرات لتخزين الأوزان
+    let firstWeight = 0;
+    let secondWeight = 0;
+    let netWeight = 0;
+    const checkbox = document.getElementById('addExtraWeight');
+    const extraWeightsTable = document.getElementById('extraWeightsTable');
+    // دالة لإظهار/إخفاء جدول الأوزان الإضافية
+    function toggleExtraWeightTable(command = true) {
+
+      if (checkbox.checked) {
+        // تحديث الأوزان المعروضة
+        if (!command) { checkbox.click() } else {
+          updateDisplayWeights();
+          extraWeightsTable.style.display = 'block';
+
+          // إضافة تأثير حركي
+          extraWeightsTable.style.animation = 'slideDown 0.3s ease';
+        }
+
+
+      } else {
+
+        extraWeightsTable.style.display = 'none';
+
+      }
+
+    }
+
+    // دالة تحديث عرض الأوزان
+    function updateDisplayWeights() {
+      // الحصول على الأوزان من حقول التعديل
+      firstWeight = parseFloat(document.getElementById('editGross')?.value) || 0;
+      secondWeight = parseFloat(document.getElementById('editTare')?.value) || 0;
+      netWeight = parseFloat(document.getElementById('editNet')?.value) || 0;
+
+      // عرض الأوزان في الجدول
+      document.getElementById('displayFirstWeight').textContent = firstWeight ? firstWeight.toLocaleString() + ' كجم' : '---';
+      document.getElementById('displaySecondWeight').textContent = secondWeight ? secondWeight.toLocaleString() + ' كجم' : '---';
+      document.getElementById('displayNetWeight').textContent = netWeight ? netWeight.toLocaleString() + ' كجم' : '---';
+
+      let text = document.getElementById('editTare2')?.innerText || "";
+
+      // إزالة أي شيء ليس رقم أو نقطة
+      let cleanText = text.replace(/[^\d.]/g, '');
+
+      let editTare2Value = parseFloat(cleanText) || 0;
+
+      document.getElementById('thirdWeight').value = editTare2Value;
+
+      document.getElementById('finalNetWeight').textContent = '---';
+      document.getElementById('totalNetWeight').textContent = '---';
+
+      calculateFinalNet()
+    }
+
+    // دالة حساب الصافي النهائي
+    function calculateFinalNet() {
+      const third = parseFloat(document.getElementById('thirdWeight').value) || 0;
+
+      // حساب الصافي النهائي (يمكن تعديل المعادلة حسب احتياجك)
+      // هنا نفترض أن الوزن الثالث والرابع هما أوزان إضافية تطرح من الصافي الأصلي
+      const finalNet = third > 0 ? secondWeight - third : 0;
+      const finalTotal = netWeight + finalNet;
+
+      document.getElementById('finalNetWeight').textContent = finalNet ? finalNet.toLocaleString() + ' كجم' : '---';
+      document.getElementById('totalNetWeight').textContent = finalTotal ? finalTotal.toLocaleString() + ' كجم' : '---';
+    }
+
+
+    // دالة مساعدة لإظهار الإشعارات
+    function showToast(message, type = 'info') {
+      // يمكنك استخدام دالة toast الموجودة في مشروعك
+      alert(message); // استبدلها بدالة toast الخاصة بك
+    }
+
+    // إضافة CSS للحركة
+    const style = document.createElement('style');
+    style.textContent = `
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .table-sm td, .table-sm th {
+    padding: 0.5rem;
+    vertical-align: middle;
+  }
+  
+  .form-control-sm {
+    height: 35px;
+    font-size: 0.9rem;
+  }
+`;
+    document.head.appendChild(style);
+
+    //////////////////////////////////////////////////////
+    function initClearButtons() {
+
+      document.querySelectorAll("input.modern-input").forEach(input => {
+
+        let wrapper = input.parentElement;
+
+        if (!wrapper.classList.contains("input-wrapper")) {
+
+          wrapper = document.createElement("div");
+          wrapper.className = "input-wrapper";
+
+          input.parentNode.insertBefore(wrapper, input);
+          wrapper.appendChild(input);
+        }
+
+        let btn = wrapper.querySelector(".clear-btn");
+
+        if (!btn) {
+
+          btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "clear-btn";
+          btn.innerHTML = "✖";
+
+          btn.onclick = () => {
+            input.value = "";
+            btn.style.display = "none";
+            input.focus();
+          };
+
+          wrapper.appendChild(btn);
+        }
+
+        function toggleBtn() {
+          btn.style.display = input.value ? "flex" : "none";
+        }
+
+        input.addEventListener("input", toggleBtn);
+
+        /* مهم: يظهر الزر إذا كان الحقل يحتوي نص مسبقاً */
+        toggleBtn();
+
+      });
+
+    }
+
+    /* عند تحميل الصفحة */
+    document.addEventListener("DOMContentLoaded", initClearButtons);
+
+    /* عند فتح المودال */
+    document.getElementById("editModal")
+      .addEventListener("shown.bs.modal", initClearButtons);
+    //////////////////////////////////////////////////////
+
+
   </script>
 
 </body>

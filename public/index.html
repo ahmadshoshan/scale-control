@@ -103,12 +103,17 @@
       transition: all 0.3s ease;
     }
 
+    /* 
     .settings-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    } */
+    .quick-action-btn:hover {
       transform: translateY(-5px);
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     }
 
-    .settings-icon {
+    */ .settings-icon {
       width: 45px;
       height: 45px;
       border-radius: 15px;
@@ -639,6 +644,13 @@
             <span>جدول التذاكر</span>
           </a>
         </div>
+        <div class="col-6">
+          <a href="iq710-scale.html"
+            class="btn btn-outline-success w-100 py-3 rounded-4 d-flex align-items-center justify-content-center gap-2">
+            <i class="fas fa-ticket"></i>
+            <span>مستقل </span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -771,73 +783,85 @@
             </div>
           </div>
 
-          <!-- حقول الإدخال -->
+
+
+
+
+          <!-- حقول الإدخال مع العملاء والأنواع -->
           <div class="col-12">
             <div class="settings-card">
-              <h5 class="mb-3 fs-6">
-                <i class="fas fa-pen ms-2"></i>
-                بيانات التذكرة
-              </h5>
-
-              <div class="mb-3">
-                <label class="form-label small">النوع</label>
-                <div class="input-group input-group-sm">
-                  <input list="types" id="type" class="form-control" placeholder="اختر النوع">
-                  <button class="btn btn-outline-danger" type="button" onclick="clearType()">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-                <datalist id="types">
-                  <option value="أرز">
-                  <option value="غلة">
-                  <option value="تبن">
-                  <option value="خشب">
-                  <option value="خشب صنعه">
-                  <option value="خشب حريق">
-                  <option value="خشب ناشف">
-                  <option value="لب">
-                  <option value="فول">
-                </datalist>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0 fs-6">
+                  <i class="fas fa-pen ms-2"></i>
+                  بيانات العملاء
+                </h5>
+                <button class="btn btn-sm btn-outline-primary" onclick="openCustomersPage()">
+                  <i class="fas fa-cog"></i> إدارة
+                </button>
               </div>
 
-              <div class="mb-2">
-                <label class="form-label small">العميل</label>
-                <div class="input-group input-group-sm">
-                  <input list="customers" id="customer" type="text" class="form-control" placeholder="اختر العميل">
-                  <button class="btn btn-outline-danger" type="button" onclick="clearCustomer()">
-                    <i class="fas fa-times"></i>
-                  </button>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label small">النوع</label>
+                  <div class="input-group">
+                    <input list="typesList" id="type" class="form-control" placeholder="اختر النوع">
+                
+                    <button class="btn btn-outline-danger" type="button" onclick="clearType()">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <datalist id="typesList"></datalist>
                 </div>
-                <datalist id="customers">
-                  <option value="الحاج خالد عبد السلام">
-                  <option value="عماد نوح">
-                  <option value="محمد الصندفاوي">
-                  <option value="محمد منصور">
-                  <option value="محمود نصير">
-                  <option value="هاني عبد الباعث">
-                  <option value="الشحات عبد الباعث">
-                  <option value="احمدعلي">
-                  <option value="علي محروس">
-                  <option value="محمود ابو منصور">
-                </datalist>
+
+                <div class="col-md-6">
+                  <label class="form-label small">العميل</label>
+                  <div class="input-group">
+                    <input list="customersList" id="customer" class="form-control" placeholder="اختر العميل">
+                
+                    <button class="btn btn-outline-danger" type="button" onclick="clearCustomer()">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <datalist id="customersList"></datalist>
+                </div>
+              </div>
+
+              <!-- عرض إحصائيات سريعة -->
+              <div class="row g-2 mt-2" id="statsPreview" style="display: none;">
+                <div class="col-6">
+                  <small class="text-muted">
+                    <i class="fas fa-users"></i>
+                    <span id="customersCount">0</span> عميل
+                  </small>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted">
+                    <i class="fas fa-tags"></i>
+                    <span id="typesCount">0</span> نوع
+                  </small>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- روابط سريعة -->
-    <div class="footer-links">
-      <a href="table1.html">
-        <i class="fas fa-table ms-1"></i>
-        جدول البيانات
-      </a>
-      <a href="table2.html">
-        <i class="fas fa-ticket ms-1"></i>
-        جدول التذاكر
-      </a>
-    </div>
+
+        </div>
+
+
+
+      </div>
+
+      <!-- روابط سريعة -->
+      <div class="footer-links">
+        <a href="table1.html">
+          <i class="fas fa-table ms-1"></i>
+          جدول البيانات
+        </a>
+        <a href="table2.html">
+          <i class="fas fa-ticket ms-1"></i>
+          جدول التذاكر
+        </a>
+      </div>
 
   </main>
 
@@ -864,11 +888,109 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <script>
-    // تهيئة Socket.IO
+    // ==================== تهيئة Socket.IO ====================
     const socket = io();
-    let streamEnabled = false;
+    let streamEnabled = true;
 
-    // وظائف مساعدة
+    // ==================== تحميل العملاء والأنواع ====================
+
+    // تحميل قائمة العملاء
+    async function loadCustomerList() {
+      try {
+        const response = await fetch('/api/customers');
+        if (!response.ok) throw new Error('فشل في تحميل العملاء');
+
+        const data = await response.json();
+        console.log('✅ تم تحميل العملاء:', data.length);
+
+        const datalist = document.getElementById('customersList');
+        if (datalist) {
+          if (data.length > 0) {
+            datalist.innerHTML = data.map(c => `<option value="${c.name}">`).join('');
+          } else {
+            // بيانات افتراضية
+            datalist.innerHTML = `
+                        <option value="الحاج خالد عبد السلام">
+                        <option value="عماد نوح">
+                        <option value="محمد الصندفاوي">
+                        <option value="محمد منصور">
+                        <option value="محمود نصير">
+                    `;
+          }
+        }
+      } catch (error) {
+        console.error('❌ خطأ في تحميل العملاء:', error);
+        // بيانات افتراضية في حالة الخطأ
+        const datalist = document.getElementById('customersList');
+        if (datalist) {
+          datalist.innerHTML = `
+                    <option value="الحاج خالد عبد السلام">
+                    <option value="عماد نوح">
+                    <option value="محمد الصندفاوي">
+                    <option value="محمد منصور">
+                    <option value="محمود نصير">
+                `;
+        }
+      }
+    }
+
+    // تحميل قائمة الأنواع
+    async function loadTypeList() {
+      try {
+        const response = await fetch('/api/types');
+        if (!response.ok) throw new Error('فشل في تحميل الأنواع');
+
+        const data = await response.json();
+        console.log('✅ تم تحميل الأنواع:', data.length);
+
+        const datalist = document.getElementById('typesList');
+        if (datalist) {
+          if (data.length > 0) {
+            datalist.innerHTML = data.map(t => `<option value="${t.name}">`).join('');
+          } else {
+            // بيانات افتراضية
+            datalist.innerHTML = `
+                        <option value="أرز">
+                        <option value="غلة">
+                        <option value="تبن">
+                        <option value="خشب">
+                        <option value="فول">
+                    `;
+          }
+        }
+      } catch (error) {
+        console.error('❌ خطأ في تحميل الأنواع:', error);
+        // بيانات افتراضية في حالة الخطأ
+        const datalist = document.getElementById('typesList');
+        if (datalist) {
+          datalist.innerHTML = `
+                    <option value="أرز">
+                    <option value="غلة">
+                    <option value="تبن">
+                    <option value="خشب">
+                    <option value="فول">
+                `;
+        }
+      }
+    }
+
+    // فتح صفحات الإدارة
+    function openCustomersPage() {
+      window.open('customers_types.html', '_blank', 'width=1200,height=700,scrollbars=yes');
+    }
+
+    // function openTypesPage() {
+    //     window.open('customers_types.html', '_blank', 'width=1200,height=700,scrollbars=yes');
+    // }
+
+    // تحديث القوائم كل دقيقة
+    setInterval(() => {
+      console.log('🔄 تحديث تلقائي للقوائم...');
+      loadCustomerList();
+      loadTypeList();
+    }, 60000);
+
+    // ==================== وظائف مساعدة ====================
     function clearInput(id) {
       document.getElementById(id).value = '';
     }
@@ -881,7 +1003,7 @@
       document.getElementById('customer').value = '';
     }
 
-    // تحديث واجهة البث
+    // ==================== وظائف التحكم ====================
     function updateStreamUI() {
       const status = document.getElementById("streamStatusText");
       if (streamEnabled) {
@@ -895,7 +1017,6 @@
       }
     }
 
-    // تشغيل/إيقاف البث
     function toggleStreamMonter(element) {
       streamEnabled = element.checked;
       sendCommand(streamEnabled ? 'SX' : 'EX');
@@ -907,8 +1028,11 @@
       try {
         const res = await fetch("/get-print");
         const data = await res.json();
-        document.getElementById("printToggle").checked = data.print === 1;
-        updatePrintUI();
+        const toggle = document.getElementById("printToggle");
+        if (toggle) {
+          toggle.checked = data.print === 1;
+          updatePrintUI();
+        }
       } catch (error) {
         console.error("Error loading print status:", error);
       }
@@ -916,14 +1040,17 @@
 
     function updatePrintUI() {
       const status = document.getElementById("printStatusText");
-      if (document.getElementById("printToggle").checked) {
-        status.innerHTML = "🟢 تعمل";
-        status.classList.remove("text-danger");
-        status.classList.add("text-success");
-      } else {
-        status.innerHTML = "🔴 متوقفة";
-        status.classList.remove("text-success");
-        status.classList.add("text-danger");
+      const toggle = document.getElementById("printToggle");
+      if (status && toggle) {
+        if (toggle.checked) {
+          status.innerHTML = "🟢 تعمل";
+          status.classList.remove("text-danger");
+          status.classList.add("text-success");
+        } else {
+          status.innerHTML = "🔴 متوقفة";
+          status.classList.remove("text-success");
+          status.classList.add("text-danger");
+        }
       }
     }
 
@@ -941,8 +1068,11 @@
       try {
         const res = await fetch("/get-sound");
         const data = await res.json();
-        document.getElementById("soundToggle").checked = data.sound === 1;
-        updateSoundUI();
+        const toggle = document.getElementById("soundToggle");
+        if (toggle) {
+          toggle.checked = data.sound === 1;
+          updateSoundUI();
+        }
       } catch (error) {
         console.error("Error loading sound status:", error);
       }
@@ -951,12 +1081,16 @@
     function updateSoundUI() {
       const status = document.getElementById("soundStatus");
       const status1 = document.getElementById("soundStatus1");
-      if (document.getElementById("soundToggle").checked) {
-        status.innerHTML = "🔊 نشط";
-        status1.innerHTML = '<i class="fas fa-volume-up"></i>';
-      } else {
-        status.innerHTML = "🔇 متوقف";
-        status1.innerHTML = '<i class="fas fa-volume-mute"></i>';
+      const toggle = document.getElementById("soundToggle");
+
+      if (toggle) {
+        if (toggle.checked) {
+          if (status) status.innerHTML = "🔊 نشط";
+          if (status1) status1.innerHTML = '<i class="fas fa-volume-up"></i>';
+        } else {
+          if (status) status.innerHTML = "🔇 متوقف";
+          if (status1) status1.innerHTML = '<i class="fas fa-volume-mute"></i>';
+        }
       }
     }
 
@@ -974,8 +1108,11 @@
       try {
         const res = await fetch("/get-notify");
         const data = await res.json();
-        document.getElementById("notifyToggle").checked = data.notify === 1;
-        updateNotifyUI();
+        const toggle = document.getElementById("notifyToggle");
+        if (toggle) {
+          toggle.checked = data.notify === 1;
+          updateNotifyUI();
+        }
       } catch (error) {
         console.error("Error loading notify status:", error);
       }
@@ -983,14 +1120,17 @@
 
     function updateNotifyUI() {
       const status = document.getElementById("notifyStatusText");
-      if (document.getElementById("notifyToggle").checked) {
-        status.innerHTML = "🟢 تعمل";
-        status.classList.remove("text-danger");
-        status.classList.add("text-success");
-      } else {
-        status.innerHTML = "🔴 متوقفة";
-        status.classList.remove("text-success");
-        status.classList.add("text-danger");
+      const toggle = document.getElementById("notifyToggle");
+      if (status && toggle) {
+        if (toggle.checked) {
+          status.innerHTML = "🟢 تعمل";
+          status.classList.remove("text-danger");
+          status.classList.add("text-success");
+        } else {
+          status.innerHTML = "🔴 متوقفة";
+          status.classList.remove("text-success");
+          status.classList.add("text-danger");
+        }
       }
     }
 
@@ -1005,38 +1145,43 @@
 
     // إرسال أمر
     function sendCommand(command) {
-      const type = document.getElementById('type').value;
-      const customer = document.getElementById('customer').value;
+      const type = document.getElementById('type')?.value || '';
+      const customer = document.getElementById('customer')?.value || '';
 
       fetch(`/send-command?command=${command}&type=${encodeURIComponent(type)}&customer=${encodeURIComponent(customer)}`)
         .then(() => {
           if (command == 'Kid' || command == 'KPRINT') {
-            document.getElementById('type').value = '';
-            document.getElementById('customer').value = '';
+            if (document.getElementById('type')) document.getElementById('type').value = '';
+            if (document.getElementById('customer')) document.getElementById('customer').value = '';
           }
         })
         .catch(error => console.error("Error sending command:", error));
     }
 
     function sendTextCommand() {
-      const inputValue = document.getElementById("edpInput").value;
+      const inputValue = document.getElementById("edpInput")?.value;
       if (inputValue) {
         fetch(`/send-command?command=${encodeURIComponent(inputValue)}`)
           .catch(error => console.error("Error sending text command:", error));
-        document.getElementById("edpInput").value = '';
+        if (document.getElementById("edpInput")) document.getElementById("edpInput").value = '';
       }
     }
 
-    // استقبال الردود
+    // ==================== استقبال الردود ====================
     socket.on('response', (data) => {
       if (data && data.length >= 11 && data.length <= 12) {
         const weightDisplay = document.getElementById('response');
-        weightDisplay.innerHTML = `${data} <span class="weight-unit">كجم</span>`;
+        if (weightDisplay) {
+          weightDisplay.innerHTML = `${data} <span class="weight-unit">كجم</span>`;
+        }
       } else {
         const box = document.getElementById('response1');
-        const timestamp = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        box.innerText += `[${timestamp}] → ${data}\n`;
-        box.scrollTop = box.scrollHeight;
+        if (box) {
+          const timestamp = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          box.innerText += `[${timestamp}] → ${data}\n`;
+          box.scrollTop = box.scrollHeight;
+        }
+
         if (data && data.toUpperCase() === "OK") {
           sendCommand('p');
         }
@@ -1044,21 +1189,10 @@
           sendCommand('p');
         }
         if (data && data.slice(-2).toUpperCase() === "NE") {
-          document.getElementById('response11').innerHTML = `<span class="badge bg-primary fs-6">${data}</span>`;
-        } else {
-          // if (data && data.toUpperCase() === "OK") {
-          //   sendCommand('p');
-          // }
-          // if (data && data.toUpperCase() === "??") {
-          //   sendCommand('p');
-          // }
-          // if (data && data.toUpperCase() === "DUP ID NE") {
-          //   document.getElementById('response11').innerHTML = `<span class="badge bg-primary fs-6">الرقم مسجل من قبل</span>`;
-
-          // }
-          //  else {
-          //   document.getElementById('response11').innerText = '---';
-          // }
+          const resp11 = document.getElementById('response11');
+          if (resp11) {
+            resp11.innerHTML = `<span class="badge bg-primary fs-6">${data}</span>`;
+          }
         }
       }
     });
@@ -1067,161 +1201,154 @@
     socket.on('printer:new', (row) => {
       setTimeout(() => {
         const tableBody = document.getElementById('data-table2');
-        tableBody.innerHTML = `
-          <div class="text-center">
-            <div class="mb-2">
-              <img src="images/print/${row.images}_cam1.jpg" 
-                   style="max-width:100%; border-radius:10px; cursor:pointer;"
-                   onclick="openImg(this.src, 'رقم: ${row.number} - الوزن: ${row.net} كجم')">
-            </div>
-            <div class="d-flex justify-content-around mb-2 flex-wrap gap-2">
-              <span class="badge bg-primary">رقم: ${row.number}</span>
-              <span class="badge bg-success">صافي: ${row.net}</span>
-            </div>
-            <button class="btn btn-primary btn-sm w-100" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
-              <i class="fas fa-print"></i> طباعة
-            </button>
-          </div>
-        `;
+        if (tableBody) {
+          tableBody.innerHTML = `
+                    <div class="text-center">
+                        <div class="mb-2">
+                            <img src="images/print/${row.images}_cam1.jpg" 
+                                 style="max-width:100%; border-radius:10px; cursor:pointer;"
+                                 onclick="openImg(this.src, 'رقم: ${row.number} - الوزن: ${row.net} كجم')">
+                        </div>
+                        <div class="d-flex justify-content-around mb-2 flex-wrap gap-2">
+                            <span class="badge bg-primary">رقم: ${row.number}</span>
+                            <span class="badge bg-success">صافي: ${row.net}</span>
+                        </div>
+                        <button class="btn btn-primary btn-sm w-100" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                    </div>
+                `;
+        }
       }, 500);
     });
 
     socket.on('id:new', (row) => {
       setTimeout(() => {
         const tableBody = document.getElementById('data-table2');
+        if (tableBody) {
+          tableBody.innerHTML = `
+                    <div class="text-center">
+                        <div class="mb-2">
+                            <img src="images/sensor/${row.images}_cam1.jpg" 
+                                 style="max-width:100%; border-radius:10px; cursor:pointer;"
+                                 onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
+                        </div>
+                        <div class="d-flex justify-content-around flex-wrap gap-2">
+                            <span class="badge bg-info">رقم: ${row.NE}</span>
+                            <span class="badge bg-warning">وزن: ${row.gross}</span>
+                        </div>
+                    </div>
+                `;
+        }
 
-        const tableBody_innerHTML = `
-          <div class="text-center">
-            <div class="mb-2">
-              <img src="images/sensor/${row.images}_cam1.jpg" 
-                   style="max-width:100%; border-radius:10px; cursor:pointer;"
-                   onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
-            </div>
-            <div class="d-flex justify-content-around flex-wrap gap-2">
-              <span class="badge bg-info">رقم: ${row.NE}</span>
-              <span class="badge bg-warning">وزن: ${row.gross}</span>
-            </div>
-          </div>
-        `;
-        tableBody.innerHTML = tableBody_innerHTML;
-
-
-
-        // ✅ عرض إشعار مع البيانات
+        // عرض إشعار مع البيانات
         showIdNotification(row);
 
       }, 500);
     });
 
-// ✅ دالة عرض الإشعار
-function showIdNotification(row) {
-    // التحقق من وجود عنصر toast في الصفحة
-    let toastEl = document.getElementById('idToast');
-    
-    // إذا لم يكن موجوداً، قم بإنشائه
-    if (!toastEl) {
+    // دالة عرض الإشعار
+    function showIdNotification(row) {
+      // التحقق من وجود عنصر toast في الصفحة
+      let toastEl = document.getElementById('idToast');
+
+      // إذا لم يكن موجوداً، قم بإنشائه
+      if (!toastEl) {
         toastEl = document.createElement('div');
         toastEl.id = 'idToast';
         toastEl.className = 'toast-container position-fixed top-0 start-50 translate-middle-x p-3';
         toastEl.style.zIndex = '9999';
         document.body.appendChild(toastEl);
+      }
+
+      // إنشاء محتوى الإشعار
+      const toastId = 'liveToast_' + Date.now();
+      const toastHtml = `
+            <div id="${toastId}" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 350px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-right: 5px solid #17a2b8;">
+                <div class="toast-header" style="background: linear-gradient(45deg, #17a2b8, #0d6efd); color: white; border-radius: 15px 15px 0 0; padding: 12px;">
+                    <i class="fas fa-truck me-2"></i>
+                    <strong class="me-auto">🚛 سيارة جديدة على الميزان</strong>
+                    <small>الآن</small>
+                    <button type="button" class="btn-close btn-close-white" onclick="this.closest('.toast').remove()" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" style="padding: 15px;">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <img src="images/sensor/${row.images}_cam1.jpg" 
+                                 style="width: 100%; height: 130px; border-radius: 10px; object-fit: cover; border: 3px solid #17a2b8; cursor: pointer;"
+                                 onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="badge bg-info fs-6 p-2 w-100">رقم: ${row.NE}</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="badge bg-warning fs-6 p-2 w-100">الوزن: ${row.gross} كجم</span>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <img src="images/sensor/${row.images}_cam2.jpg" 
+                                     style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 2px solid #17a2b8; cursor: pointer;"
+                                     onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
+                                <img src="images/sensor/${row.images}_cam3.jpg" 
+                                     style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 2px solid #17a2b8; cursor: pointer;"
+                                     onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex gap-2">
+                        <button class="btn btn-sm btn-primary flex-grow-1" onclick="openImg('images/sensor/${row.images}_cam1.jpg', 'رقم: ${row.NE} - الوزن: ${row.gross} كجم'); this.closest('.toast').remove()">
+                            <i class="fas fa-eye"></i> عرض
+                        </button>
+                        <button class="btn btn-sm btn-secondary flex-grow-1" onclick="this.closest('.toast').remove()">
+                            <i class="fas fa-times"></i> إغلاق
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+      toastEl.innerHTML = toastHtml;
+
+      // إخفاء الإشعار بعد 10 ثواني
+      setTimeout(() => {
+        const toast = document.getElementById(toastId);
+        if (toast) {
+          toast.style.animation = 'fadeOut 0.3s ease';
+          setTimeout(() => {
+            if (toast.parentNode) toast.remove();
+          }, 300);
+        }
+      }, 10000);
     }
-    
-    // إنشاء محتوى الإشعار
-    const toastId = 'liveToast_' + Date.now();
-    const toastHtml = `
-        <div id="${toastId}" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 350px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-right: 5px solid #17a2b8;">
-            <div class="toast-header" style="background: linear-gradient(45deg, #17a2b8, #0d6efd); color: white; border-radius: 15px 15px 0 0; padding: 12px;">
-                <i class="fas fa-truck me-2"></i>
-                <strong class="me-auto">🚛 سيارة جديدة على الميزان</strong>
-                <small>الآن</small>
-                <button type="button" class="btn-close btn-close-white" onclick="this.closest('.toast').remove()" aria-label="Close"></button>
-            </div>
-            <div class="toast-body" style="padding: 15px;">
-                <div class="row g-2">
-                    <div class="col-6">
-                        <img src="images/sensor/${row.images}_cam1.jpg" 
-                             style="width: 100%; height: 130px; border-radius: 10px; object-fit: cover; border: 3px solid #17a2b8; cursor: pointer;"
-                             onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
-                    </div>
-                    <div class="col-6">
-                        <div class="mb-2">
-                            <span class="badge bg-info fs-6 p-2 w-100">رقم: ${row.NE}</span>
-                        </div>
-                        <div class="mb-2">
-                            <span class="badge bg-warning fs-6 p-2 w-100">الوزن: ${row.gross} كجم</span>
-                        </div>
-                        <div class="d-flex gap-1">
-                            <img src="images/sensor/${row.images}_cam2.jpg" 
-                                 style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 2px solid #17a2b8; cursor: pointer;"
-                                 onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
-                            <img src="images/sensor/${row.images}_cam3.jpg" 
-                                 style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 2px solid #17a2b8; cursor: pointer;"
-                                 onclick="openImg(this.src, 'رقم: ${row.NE} - الوزن: ${row.gross} كجم')">
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-3 d-flex gap-2">
-                    <button class="btn btn-sm btn-primary flex-grow-1" onclick="openImg('images/sensor/${row.images}_cam1.jpg', 'رقم: ${row.NE} - الوزن: ${row.gross} كجم'); this.closest('.toast').remove()">
-                        <i class="fas fa-eye"></i> عرض
-                    </button>
-                    <button class="btn btn-sm btn-secondary flex-grow-1" onclick="this.closest('.toast').remove()">
-                        <i class="fas fa-times"></i> إغلاق
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    toastEl.innerHTML = toastHtml;
-    
-    // تشغيل صوت الإشعار إذا كان مفعلاً
-
-    
-    // إخفاء الإشعار بعد 10 ثواني
-//     setTimeout(() => {
-//         const toast = document.getElementById(toastId);
-//         if (toast) {
-//             toast.style.animation = 'fadeOut 0.3s ease';
-//             setTimeout(() => {
-//                 if (toast.parentNode) toast.remove();
-//             }, 300);
-//         }
-//     }, 10000);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     socket.on('play-audio', (fileName) => {
       const audioPlayer = document.getElementById('audioPlayer');
-      audioPlayer.src = `/audio/${fileName}`;
-      audioPlayer.play().catch(e => console.log("Audio play failed:", e));
+      if (audioPlayer) {
+        audioPlayer.src = `/audio/${fileName}`;
+        audioPlayer.play().catch(e => console.log("Audio play failed:", e));
+      }
     });
 
     // وظائف الصور
     function openImg(src, head) {
-      if (head) document.getElementById("head").innerHTML = head;
-      document.getElementById("modalImg").src = src;
-      document.getElementById("imgModal").style.display = "flex";
-      document.body.style.overflow = 'hidden';
+      if (head) {
+        const headEl = document.getElementById("head");
+        if (headEl) headEl.innerHTML = head;
+      }
+      const modalImg = document.getElementById("modalImg");
+      if (modalImg) modalImg.src = src;
+
+      const imgModal = document.getElementById("imgModal");
+      if (imgModal) {
+        imgModal.style.display = "flex";
+        document.body.style.overflow = 'hidden';
+      }
     }
 
     function closeImg(event) {
       if (!event || event.target === document.getElementById('imgModal') || event.target.classList.contains('gallery-close')) {
-        document.getElementById("imgModal").style.display = "none";
+        const imgModal = document.getElementById("imgModal");
+        if (imgModal) imgModal.style.display = "none";
         document.body.style.overflow = 'auto';
       }
     }
@@ -1240,13 +1367,22 @@ function showIdNotification(row) {
       }).catch(error => console.error("Screenshot failed:", error));
     }
 
-    // تحميل جميع الحالات عند بدء التشغيل
+    // ==================== تحميل البيانات عند بدء التشغيل ====================
     window.onload = function () {
-      streamEnabled = true;
-      updateStreamUI();
+      console.log('🚀 بدء تحميل الصفحة...');
+
+      // تحميل العملاء والأنواع
+      loadCustomerList();
+      loadTypeList();
+
+      // تحميل الحالات الأخرى
       loadPrintStatus();
       loadSoundStatus();
       loadNotifyStatus();
+
+      // تحديث حالة البث
+      streamEnabled = true;
+      updateStreamUI();
 
       // منع التكبير التلقائي في iOS عند النقر على الحقول
       document.querySelectorAll('input, select, textarea').forEach(el => {
@@ -1254,6 +1390,8 @@ function showIdNotification(row) {
           this.style.fontSize = '16px';
         });
       });
+
+      console.log('✅ تم تحميل الصفحة بنجاح');
     };
 
     // تنظيف عند إغلاق الصفحة

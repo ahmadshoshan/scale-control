@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>نظام وزن السيارات - ميزان شوشان</title>
+  
+  <!-- Bootstrap 5.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    :root {
+      --primary-color: #4361ee;
+      --success-color: #06d6a0;
+      --danger-color: #ef476f;
+      --warning-color: #ffd166;
+      --dark-color: #2b2d42;
+      --light-color: #f8f9fa;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 15px;
+    }
+
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* بطاقة الوزن الرئيسية */
+    .weight-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .weight-display {
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary-color), #7209b7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+    }
+
+    .weight-unit {
+      font-size: 2rem;
+      color: #666;
+    }
+
+    /* بطاقات السيارات */
+    .truck-card {
+      background: white;
+      border-radius: 20px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+      border-right: 5px solid var(--primary-color);
+    }
+
+    .truck-card.first-weight {
+      border-right-color: var(--warning-color);
+      background: linear-gradient(to left, #fff, #fff9e6);
+    }
+
+    .truck-card.second-weight {
+      border-right-color: var(--success-color);
+      background: linear-gradient(to left, #fff, #e6fff9);
+    }
+
+    .truck-card.completed {
+      border-right-color: var(--success-color);
+      opacity: 0.8;
+    }
+
+    .truck-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark-color);
+    }
+
+    .weight-badge {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .net-weight {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--success-color);
+    }
+
+    .action-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 15px;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .action-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .btn-weight {
+      background: linear-gradient(135deg, var(--primary-color), #7209b7);
+      color: white;
+    }
+
+    .btn-print {
+      background: linear-gradient(135deg, var(--success-color), #0cb8b8);
+      color: white;
+    }
+
+    .btn-clear {
+      background: linear-gradient(135deg, var(--danger-color), #b5179e);
+      color: white;
+    }
+
+    .btn-images {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+    }
+
+    /* معرض الصور المصغر */
+    .thumbnail-gallery {
+      display: flex;
+      gap: 5px;
+      margin-top: 8px;
+      justify-content: flex-start;
+    }
+
+    .thumbnail {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .thumbnail:hover {
+      transform: scale(1.2);
+      border-color: var(--primary-color);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+
+    .thumbnail-placeholder {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 1.2rem;
+    }
+
+    /* حقل إدخال رقم السيارة */
+    .input-group-custom {
+      background: white;
+      border-radius: 50px;
+      padding: 5px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .input-group-custom input {
+      border: none;
+      padding: 15px 20px;
+      font-size: 1.2rem;
+      border-radius: 50px 0 0 50px;
+    }
+
+    .input-group-custom button {
+      border-radius: 0 50px 50px 0;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), #7209b7);
+      color: white;
+      border: none;
+    }
+
+    /* التبويبات */
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 12px;
+      border: none;
+      border-radius: 15px;
+      font-weight: 700;
+      font-size: 1rem;
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(5px);
+      transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+      background: white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* معرض الصور المنبثق */
+    .img-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .modal-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 40px;
+      color: white;
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-img {
+      max-width: 90%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .modal-caption {
+      color: white;
+      margin-top: 15px;
+      font-size: 1.2rem;
+    }
+
+    /* إشعار toast */
+    .toast-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 15px 30px;
+      border-radius: 50px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 9999;
+      font-weight: 600;
+    }
+
+    .toast-notification.show {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { transform: translate(-50%, -100%); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    /* شاشة التحميل */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .truck-number { font-size: 1.2rem; }
+      .weight-badge { font-size: 1.3rem; }
+      .net-weight { font-size: 1.5rem; }
+      .action-btn { width: 40px; height: 40px; }
+      .thumbnail { width: 40px; height: 40px; }
+      .thumbnail-placeholder { width: 40px; height: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- شاشة التحميل -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- إشعار toast -->
+  <div class="toast-notification" id="toastMessage"></div>
+
+  <!-- معرض الصور المنبثق -->
+  <div id="imgModal" class="img-modal" onclick="closeModal(event)">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <img id="modalImg" class="modal-img">
+      <div id="modalCaption" class="modal-caption"></div>
+    </div>
+  </div>
+
+  <div class="main-container">
+    
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="text-white">
+        <i class="fas fa-truck me-2"></i>
+        نظام وزن السيارات
+      </h1>
+      <div>
+        <a href="index.html" class="btn btn-light">
+          <i class="fas fa-arrow-right"></i>
+          لوحة التحكم
+        </a>
+      </div>
+    </div>
+
+    <!-- بطاقة الوزن المباشر -->
+    <div class="weight-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="badge bg-primary p-3">
+          <i class="fas fa-weight-scale"></i> الوزن الحالي
+        </span>
+        <span class="badge bg-success p-3" id="connectionStatus">
+          <i class="fas fa-circle"></i> متصل
+        </span>
+      </div>
+      <div class="weight-display" id="currentWeight">
+        -- <span class="weight-unit">كجم</span>
+      </div>
+      <div class="row g-2 mt-3">
+        <div class="col-6">
+          <button class="btn btn-primary w-100 py-3" onclick="manualReadWeight()">
+            <i class="fas fa-sync-alt"></i> قراءة الوزن
+          </button>
+        </div>
+        <div class="col-6">
+          <button class="btn btn-warning w-100 py-3" onclick="zeroScale()">
+            <i class="fas fa-broom"></i> تصفير
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- إضافة سيارة جديدة -->
+    <div class="weight-card">
+      <h5 class="mb-3">
+        <i class="fas fa-plus-circle text-primary"></i>
+        إضافة سيارة جديدة
+      </h5>
+      <div class="input-group-custom d-flex">
+        <input type="text" id="newTruckNumber" class="form-control" placeholder="أدخل رقم السيارة" 
+               onkeypress="handleEnterPress(event)">
+        <button onclick="addFirstWeight()">
+          <i class="fas fa-weight-scale"></i>
+          وزن أول
+        </button>
+      </div>
+      <small class="text-muted">اضغط Enter للإضافة السريعة</small>
+    </div>
+
+    <!-- تبويبات عرض السيارات -->
+    <div class="tab-buttons">
+      <button class="tab-btn active" id="tabAll" onclick="switchTab('all')">
+        <i class="fas fa-list"></i> الكل
+      </button>
+      <button class="tab-btn" id="tabFirst" onclick="switchTab('first')">
+        <i class="fas fa-clock"></i> وزن أول
+      </button>
+      <button class="tab-btn" id="tabSecond" onclick="switchTab('second')">
+        <i class="fas fa-truck"></i> وزن ثاني
+      </button>
+      <button class="tab-btn" id="tabCompleted" onclick="switchTab('completed')">
+        <i class="fas fa-check-circle"></i> مكتملة
+      </button>
+    </div>
+
+    <!-- قائمة السيارات -->
+    <div id="trucksList">
+      <!-- السيارات ستضاف هنا ديناميكياً -->
+    </div>
+
+    <!-- زر تحميل المزيد -->
+    <button class="btn btn-light w-100 py-3 mt-3" onclick="loadMore()" id="loadMoreBtn">
+      <i class="fas fa-arrow-down"></i>
+      تحميل المزيد
+    </button>
+
+  </div>
+
+  <!-- السكربتات -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  
+  <script>
+    // تهيئة Socket.IO
+    const socket = io();
+    let currentWeight = 0;
+    let trucks = [];
+    let currentTab = 'all';
+    let displayLimit = 10;
+    let allTrucks = [];
+
+    // تحميل السيارات المحفوظة عند بدء التشغيل
+    window.onload = function() {
+      loadSavedTrucks();
+      setupSocketListeners();
+    };
+
+    // إعداد مستمعي Socket.IO
+    function setupSocketListeners() {
+      // استقبال الوزن من الميزان
+      socket.on('response', (data) => {
+        if (data && data.length >= 11 && data.length <= 12) {
+          const weightDisplay = document.getElementById('currentWeight');
+          if (weightDisplay) {
+            // تنظيف البيانات واستخراج الرقم
+            const cleanWeight = data.replace(/[^0-9.-]/g, '');
+            const weight = parseFloat(cleanWeight);
+            if (!isNaN(weight)) {
+              currentWeight = weight;
+              weightDisplay.innerHTML = `${weight.toLocaleString()} <span class="weight-unit">كجم</span>`;
+              
+              // إضافة تأثير نبض للوزن
+              weightDisplay.classList.add('weight-pulse');
+              setTimeout(() => weightDisplay.classList.remove('weight-pulse'), 500);
+            }
+          }
+        }
+      });
+
+      socket.on('connect', () => {
+        document.getElementById('connectionStatus').innerHTML = '<i class="fas fa-circle text-success"></i> متصل';
+      });
+
+      socket.on('disconnect', () => {
+        document.getElementById('connectionStatus').innerHTML = '<i class="fas fa-circle text-danger"></i> منفصل';
+      });
+
+      // استقبال تذاكر جديدة من السيرفر
+      socket.on('printer:new', (row) => {
+        if (row.number && !allTrucks.find(t => t.number === row.number && !t.secondWeight)) {
+          const newTruck = {
+            id: Date.now().toString(),
+            number: row.number,
+            firstWeight: parseFloat(row.gross) || 0,
+            firstImage: row.images ? `images/print/${row.images}_cam1.jpg` : null,
+            time: row.time,
+            date: row.date,
+            secondWeight: parseFloat(row.tare) || null,
+            secondImage: row.images ? `images/print/${row.images}_cam2.jpg` : null,
+            netWeight: parseFloat(row.net) || null,
+            netCalculated: true,
+            images: row.images
+          };
+          allTrucks.unshift(newTruck);
+          saveTrucks();
+          filterAndDisplayTrucks();
+          showToast(`تم استقبال سيارة جديدة: ${row.number}`, 'success');
+        }
+      });
+
+      // استقبال بيانات الحساسات
+      socket.on('id:new', (row) => {
+        if (row.NE && !allTrucks.find(t => t.number === row.NE && !t.secondWeight)) {
+          const newTruck = {
+            id: Date.now().toString(),
+            number: row.NE,
+            firstWeight: parseFloat(row.gross) || 0,
+            firstImage: row.images ? `images/sensor/${row.images}_cam1.jpg` : null,
+            time: new Date().toLocaleTimeString('ar-EG'),
+            date: new Date().toLocaleDateString('ar-EG'),
+            secondWeight: null,
+            secondImage: null,
+            netWeight: null,
+            netCalculated: false,
+            images: row.images
+          };
+          allTrucks.unshift(newTruck);
+          saveTrucks();
+          filterAndDisplayTrucks();
+        }
+      });
+    }
+
+    // تحميل السيارات المحفوظة من localStorage
+    function loadSavedTrucks() {
+      const saved = localStorage.getItem('weighingTrucks');
+      if (saved) {
+        allTrucks = JSON.parse(saved);
+        filterAndDisplayTrucks();
+      }
+    }
+
+    // حفظ السيارات في localStorage
+    function saveTrucks() {
+      localStorage.setItem('weighingTrucks', JSON.stringify(allTrucks));
+    }
+
+    // تصفية وعرض السيارات حسب التبويب المحدد
+    function filterAndDisplayTrucks() {
+      let filtered = [];
+      switch(currentTab) {
+        case 'first':
+          filtered = allTrucks.filter(t => t.firstWeight && !t.secondWeight);
+          break;
+        case 'second':
+          filtered = allTrucks.filter(t => t.firstWeight && t.secondWeight && !t.netCalculated);
+          break;
+        case 'completed':
+          filtered = allTrucks.filter(t => t.netCalculated);
+          break;
+        default:
+          filtered = [...allTrucks];
+      }
+      
+      trucks = filtered.slice(0, displayLimit);
+      displayTrucks();
+      
+      // إخفاء زر تحميل المزيد إذا انتهت البيانات
+      const loadMoreBtn = document.getElementById('loadMoreBtn');
+      if (filtered.length <= displayLimit) {
+        loadMoreBtn.style.display = 'none';
+      } else {
+        loadMoreBtn.style.display = 'block';
+      }
+    }
+
+    // عرض السيارات في الصفحة
+    function displayTrucks() {
+      const listElement = document.getElementById('trucksList');
+      listElement.innerHTML = '';
+      
+      if (trucks.length === 0) {
+        listElement.innerHTML = `
+          <div class="text-center text-white py-5">
+            <i class="fas fa-truck fa-4x mb-3"></i>
+            <h4>لا توجد سيارات</h4>
+            <p>أضف سيارة جديدة باستخدام الحقل أعلاه</p>
+          </div>
+        `;
+        return;
+      }
+
+      trucks.forEach(truck => {
+        listElement.appendChild(createTruckCard(truck));
+      });
+    }
+
+    // إنشاء بطاقة سيارة
+    function createTruckCard(truck) {
+      const card = document.createElement('div');
+      card.className = `truck-card ${!truck.secondWeight ? 'first-weight' : truck.netCalculated ? 'completed' : 'second-weight'}`;
+      card.id = `truck-${truck.id}`;
+
+      const firstWeight = truck.firstWeight ? truck.firstWeight.toLocaleString() : '---';
+      const secondWeight = truck.secondWeight ? truck.secondWeight.toLocaleString() : '---';
+      const netWeight = truck.netWeight ? truck.netWeight.toLocaleString() : '---';
+
+      // إنشاء معرض الصور
+      const imagesHtml = `
+        <div class="thumbnail-gallery">
+          ${truck.firstImage ? 
+            `<img src="${truck.firstImage}" class="thumbnail" onclick="openImage('${truck.firstImage}', 'الوزن الأول - سيارة ${truck.number}')" title="الوزن الأول">` : 
+            `<div class="thumbnail-placeholder" title="لا توجد صورة للوزن الأول"><i class="fas fa-camera"></i></div>`
+          }
+          ${truck.secondImage ? 
+            `<img src="${truck.secondImage}" class="thumbnail" onclick="openImage('${truck.secondImage}', 'الوزن الثاني - سيارة ${truck.number}')" title="الوزن الثاني">` : 
+            `<div class="thumbnail-placeholder" title="لا توجد صورة للوزن الثاني"><i class="fas fa-camera"></i></div>`
+          }
+        </div>
+      `;
+
+      card.innerHTML = `
+        <div class="row align-items-center">
+          <div class="col-12 col-md-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fas fa-truck fa-2x text-primary"></i>
+              <div>
+                <div class="truck-number">${truck.number}</div>
+                <small class="text-muted">${truck.time || ''}</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="row text-center">
+              <div class="col-4">
+                <small>الأول</small>
+                <div class="weight-badge">${firstWeight}</div>
+              </div>
+              <div class="col-4">
+                <small>الثاني</small>
+                <div class="weight-badge">${secondWeight}</div>
+              </div>
+              <div class="col-4">
+                <small>الصافي</small>
+                <div class="net-weight">${netWeight}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-3">
+            ${imagesHtml}
+          </div>
+          <div class="col-12 col-md-2">
+            <div class="d-flex justify-content-end gap-2">
+              ${!truck.secondWeight ? 
+                `<button class="action-btn btn-weight" onclick="captureSecondWeight('${truck.id}')" title="وزن ثاني">
+                  <i class="fas fa-weight-scale"></i>
+                </button>` : ''
+              }
+              ${truck.netWeight ? 
+                `<button class="action-btn btn-print" onclick="printTicket('${truck.id}')" title="طباعة">
+                  <i class="fas fa-print"></i>
+                </button>` : ''
+              }
+              <button class="action-btn btn-clear" onclick="clearTruck('${truck.id}')" title="حذف">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      return card;
+    }
+
+    // إضافة وزن أول لسيارة جديدة
+    async function addFirstWeight() {
+      const number = document.getElementById('newTruckNumber').value.trim();
+      if (!number) {
+        showToast('الرجاء إدخال رقم السيارة', 'error');
+        return;
+      }
+
+      if (currentWeight === 0) {
+        showToast('الرجاء التأكد من وجود وزن على الميزان', 'warning');
+        return;
+      }
+
+      // التحقق من عدم وجود سيارة بنفس الرقم في وزن أول
+      const existing = allTrucks.find(t => t.number === number && !t.secondWeight);
+      if (existing) {
+        showToast('هذه السيارة موجودة بالفعل في قائمة الوزن الأول', 'warning');
+        return;
+      }
+
+      showLoading(true);
+      
+      try {
+        // إنشاء معرف فريد للصور
+        const imageId = `${Date.now()}_${number}_${currentWeight}`;
+        
+        // إرسال أمر لالتقاط الصور
+        await fetch(`/capture-images/${imageId}/first`);
+
+        const newTruck = {
+          id: Date.now().toString(),
+          number: number,
+          firstWeight: currentWeight,
+          firstImage: `images/print/${imageId}_cam1.jpg`,
+          time: new Date().toLocaleTimeString('ar-EG'),
+          date: new Date().toLocaleDateString('ar-EG'),
+          secondWeight: null,
+          secondImage: null,
+          netWeight: null,
+          netCalculated: false,
+          images: imageId
+        };
+
+        allTrucks.unshift(newTruck);
+        saveTrucks();
+        filterAndDisplayTrucks();
+        
+        document.getElementById('newTruckNumber').value = '';
+        showToast(`تم إضافة السيارة رقم ${number} بوزن ${currentWeight} كجم مع الصور`, 'success');
+      } catch (error) {
+        console.error('خطأ في التقاط الصور:', error);
+        showToast('تم إضافة الوزن ولكن فشل التقاط الصور', 'warning');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // التقاط الوزن الثاني لسيارة
+    async function captureSecondWeight(id) {
+      const truck = allTrucks.find(t => t.id === id);
+      if (!truck) return;
+
+      if (currentWeight === 0) {
+        showToast('الرجاء التأكد من وجود وزن على الميزان', 'warning');
+        return;
+      }
+
+      if (truck.secondWeight) {
+        showToast('تم أخذ الوزن الثاني مسبقاً', 'warning');
+        return;
+      }
+
+      showLoading(true);
+      
+      try {
+        // إنشاء معرف جديد للصور أو استخدام المعرف القديم مع إضافة _second
+        const imageId = truck.images || `${Date.now()}_${truck.number}_second`;
+        
+        // إرسال أمر لالتقاط الصور للوزن الثاني
+        await fetch(`/capture-images/${imageId}/second`);
+
+        setTimeout(() => {
+          truck.secondWeight = currentWeight;
+          truck.secondImage = `images/print/${imageId}_cam1.jpg`; // أو استخدام كاميرا مختلفة
+          truck.netWeight = Math.abs(truck.firstWeight - truck.secondWeight);
+          truck.netCalculated = true;
+          truck.images = imageId;
+          
+          saveTrucks();
+          filterAndDisplayTrucks();
+          showLoading(false);
+          
+          showToast(`تم حساب الصافي: ${truck.netWeight} كجم`, 'success');
+          
+          // فتح نافذة الطباعة تلقائياً
+          setTimeout(() => printTicket(id), 1000);
+        }, 500);
+      } catch (error) {
+        console.error('خطأ في التقاط الصور:', error);
+        showToast('تم حساب الوزن ولكن فشل التقاط الصور', 'warning');
+        showLoading(false);
+      }
+    }
+
+    // فتح صورة في المعرض
+    function openImage(src, caption) {
+      document.getElementById('modalImg').src = src;
+      document.getElementById('modalCaption').textContent = caption || '';
+      document.getElementById('imgModal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    // إغلاق المعرض
+    function closeModal(event) {
+      if (!event || event.target === document.getElementById('imgModal') || event.target.classList.contains('modal-close')) {
+        document.getElementById('imgModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // إغلاق بالضغط على ESC
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // طباعة تذكرة لسيارة
+    function printTicket(id) {
+      const truck = allTrucks.find(t => t.id === id);
+      if (!truck || !truck.netWeight) return;
+
+      const ticketData = {
+        number: truck.number,
+        gross: truck.firstWeight,
+        tare: truck.secondWeight,
+        net: truck.netWeight,
+        date: truck.date || new Date().toLocaleDateString('ar-EG'),
+        time: truck.time,
+        customer: '',
+        type: '',
+        images: truck.images
+      };
+
+      localStorage.setItem('ticketData', JSON.stringify(ticketData));
+      window.open('ticket.html', '_blank', 'width=650,height=650');
+    }
+
+    // حذف سيارة
+    function clearTruck(id) {
+      if (!confirm('هل أنت متأكد من حذف هذه السيارة؟')) return;
+      
+      allTrucks = allTrucks.filter(t => t.id !== id);
+      saveTrucks();
+      filterAndDisplayTrucks();
+      showToast('تم حذف السيارة', 'success');
+    }
+
+    // التبديل بين التبويبات
+    function switchTab(tab) {
+      currentTab = tab;
+      displayLimit = 10;
+      
+      // تحديث الأزرار النشطة
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+      
+      filterAndDisplayTrucks();
+    }
+
+    // تحميل المزيد من السيارات
+    function loadMore() {
+      displayLimit += 10;
+      filterAndDisplayTrucks();
+    }
+
+    // قراءة الوزن يدوياً
+    function manualReadWeight() {
+      fetch('/send-command?command=XN2')
+        .then(() => showToast('جاري قراءة الوزن...', 'info'));
+    }
+
+    // تصفير الميزان
+    function zeroScale() {
+      if (!confirm('هل أنت متأكد من تصفير الميزان؟')) return;
+      fetch('/send-command?command=KZERO')
+        .then(() => showToast('تم تصفير الميزان', 'success'));
+    }
+
+    // معالجة الضغط على Enter في حقل الإدخال
+    function handleEnterPress(event) {
+      if (event.key === 'Enter') {
+        addFirstWeight();
+      }
+    }
+
+    // إظهار رسالة toast
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toastMessage');
+      toast.textContent = message;
+      toast.className = `toast-notification show bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'primary'} text-white`;
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // إظهار/إخفاء شاشة التحميل
+    function showLoading(show) {
+      document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none';
+    }
+  </script>
+</body>
+</html>

@@ -125,16 +125,16 @@ get_printer.on('data', (data) => {
                     // setTimeout(() => {
                     captureImage(images, 'print');
                     // }, 800); // تأخير .5 ثانية
-////////////////////////////////////////////////////////////
- // 🔹 هنا نضيف إشعار Telegram
-        sendMessageIfEnabled(`✅ تم إضافة تذكرة جديدة:
+                    ////////////////////////////////////////////////////////////
+                    // 🔹 هنا نضيف إشعار Telegram
+                    sendMessageIfEnabled(`✅ تم إضافة تذكرة جديدة:
 📅 التاريخ: ${date}
 🕒 الوقت: ${time}
 📌 المسلسل: ${sn}
 🚛 رقم السيارة: ${number}
 ⚖️ الوزن الصافي: ${net} كيلو
 `);
-////////////////////////////////////////////////////////////
+                    ////////////////////////////////////////////////////////////
                 }
 
                 // // ⬇️ إنشاء ملف التذكرة
@@ -468,8 +468,8 @@ parser.on('data', (data) => {
                 customer_id = '';
 
                 ////////////////////////////////////////////
-                        // 🔹 إشعار Telegram
-        sendMessageIfEnabled(`📡 تم إضافة بيانات من الجهاز:
+                // 🔹 إشعار Telegram
+                sendMessageIfEnabled(`📡 تم إضافة بيانات من الجهاز:
 ⚖️ الوزن: ${match[1]}
 📅 التاريخ: ${match1[1]}
 🆔 الرقم: ${NE}
@@ -617,11 +617,26 @@ app.get('/get-data', (req, res) => {
 
 app.put('/update-ticket/:id', (req, res) => {
     const { id } = req.params;
-    const { number, customer, type, gross, tare, net, note } = req.body;
+    const { number, customer, type, gross, tare, net, note, extraWeightsTable } = req.body;
+    // const extraData = extraWeightsTable ? JSON.stringify(extraWeightsTable) : '';
+    if (extraWeightsTable) {
 
+        let extra = extraWeightsTable;
+
+        if (typeof extra === "string") {
+            extra = JSON.parse(extra);
+        }
+
+        extraData = `
+          ${extra.extraEditType} :
+          ${toArabicNumbers(extra.finalNetWeight)} 
+    `;
+    }else{
+        extraData ='';
+    }
     const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, net=?, note=? WHERE id=?';
 
-    pool.query(sql, [number, customer, type, gross, tare, net, note, id], (err, result) => {
+    pool.query(sql, [number, customer, type, gross, tare, net, note + " " + extraData, id], (err, result) => {
         if (err) {
             console.error('❌ خطأ أثناء التحديث:', err);
             return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
@@ -779,32 +794,32 @@ async function captureImage(car_No_Date_weight, path) {
 
 
 const pm2 = require('pm2');
-const { sendMessageIfEnabled ,sendMessage} = require('./public/pm2-telegram');
+const { sendMessageIfEnabled, sendMessage } = require('./public/pm2-telegram');
 
-pm2.connect(function(err) {
-  if (err) {
-    console.error(err);
-    process.exit(2);
-  }
+pm2.connect(function (err) {
+    if (err) {
+        console.error(err);
+        process.exit(2);
+    }
 
-  pm2.launchBus(function(err, bus) {
-    console.log('PM2 Bus launched');
-  sendMessage(`🔄 open `);
-    bus.on('process:event', function(data) {
-      if (data.event === 'exit') {
-        sendMessage(`⚠️ Process ${data.process.name} stopped with code ${data.process.exit_code}`);
-      }
-      if (data.event === 'restart') {
-        sendMessage(`🔄 Process ${data.process.name} restarted`);
-      }
-      if (data.event === 'online') {
-        sendMessage(`✅ Process ${data.process.name} is online`);
-      }
-      if (data.event === 'stop') {
-        sendMessage(`🛑 Process ${data.process.name} stopped`);
-      }
+    pm2.launchBus(function (err, bus) {
+        console.log('PM2 Bus launched');
+        sendMessage(`🔄 open `);
+        bus.on('process:event', function (data) {
+            if (data.event === 'exit') {
+                sendMessage(`⚠️ Process ${data.process.name} stopped with code ${data.process.exit_code}`);
+            }
+            if (data.event === 'restart') {
+                sendMessage(`🔄 Process ${data.process.name} restarted`);
+            }
+            if (data.event === 'online') {
+                sendMessage(`✅ Process ${data.process.name} is online`);
+            }
+            if (data.event === 'stop') {
+                sendMessage(`🛑 Process ${data.process.name} stopped`);
+            }
+        });
     });
-  });
 });
 
 // const https = require('https');
@@ -839,3 +854,183 @@ app.get("/get-notify", (req, res) => {
 });
 
 
+// ظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظ
+// ==================== إدارة العملاء ====================
+
+// جلب جميع العملاء
+app.get('/api/customers', (req, res) => {
+    pool.query('SELECT * FROM customers ORDER BY name', (err, results) => {
+        if (err) {
+            console.error('خطأ في جلب العملاء:', err);
+            return res.status(500).json({ error: 'فشل في جلب العملاء' });
+        }
+        res.json(results);
+    });
+});
+
+// إضافة عميل جديد
+app.post('/api/customers', express.json(), (req, res) => {
+    const { name, phone, address, notes } = req.body;
+
+    if (!name) {
+        return res.status(400).json({ error: 'اسم العميل مطلوب' });
+    }
+
+    pool.query(
+        'INSERT INTO customers (name, phone, address, notes) VALUES (?, ?, ?, ?)',
+        [name, phone, address, notes],
+        (err, result) => {
+            if (err) {
+                console.error('خطأ في إضافة العميل:', err);
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({ error: 'العميل موجود مسبقاً' });
+                }
+                return res.status(500).json({ error: 'فشل في إضافة العميل' });
+            }
+            res.json({
+                success: true,
+                id: result.insertId,
+                message: 'تم إضافة العميل بنجاح'
+            });
+        }
+    );
+});
+
+// تعديل عميل
+app.put('/api/customers/:id', express.json(), (req, res) => {
+    const { id } = req.params;
+    const { name, phone, address, notes } = req.body;
+
+    pool.query(
+        'UPDATE customers SET name = ?, phone = ?, address = ?, notes = ? WHERE id = ?',
+        [name, phone, address, notes, id],
+        (err, result) => {
+            if (err) {
+                console.error('خطأ في تعديل العميل:', err);
+                return res.status(500).json({ error: 'فشل في تعديل العميل' });
+            }
+            res.json({ success: true, message: 'تم تعديل العميل بنجاح' });
+        }
+    );
+});
+
+// حذف عميل
+app.delete('/api/customers/:id', (req, res) => {
+    const { id } = req.params;
+
+    pool.query('DELETE FROM customers WHERE id = ?', [id], (err, result) => {
+        if (err) {
+            console.error('خطأ في حذف العميل:', err);
+            return res.status(500).json({ error: 'فشل في حذف العميل' });
+        }
+        res.json({ success: true, message: 'تم حذف العميل بنجاح' });
+    });
+});
+
+// ==================== إدارة الأنواع ====================
+
+// جلب جميع الأنواع
+app.get('/api/types', (req, res) => {
+    pool.query('SELECT * FROM types ORDER BY name', (err, results) => {
+        if (err) {
+            console.error('خطأ في جلب الأنواع:', err);
+            return res.status(500).json({ error: 'فشل في جلب الأنواع' });
+        }
+        res.json(results);
+    });
+});
+
+// إضافة نوع جديد
+app.post('/api/types', express.json(), (req, res) => {
+    const { name, unit_weight, notes } = req.body;
+
+    if (!name) {
+        return res.status(400).json({ error: 'اسم النوع مطلوب' });
+    }
+
+    pool.query(
+        'INSERT INTO types (name, unit_weight, notes) VALUES (?, ?, ?)',
+        [name, unit_weight, notes],
+        (err, result) => {
+            if (err) {
+                console.error('خطأ في إضافة النوع:', err);
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({ error: 'النوع موجود مسبقاً' });
+                }
+                return res.status(500).json({ error: 'فشل في إضافة النوع' });
+            }
+            res.json({
+                success: true,
+                id: result.insertId,
+                message: 'تم إضافة النوع بنجاح'
+            });
+        }
+    );
+});
+
+// تعديل نوع
+app.put('/api/types/:id', express.json(), (req, res) => {
+    const { id } = req.params;
+    const { name, unit_weight, notes } = req.body;
+
+    pool.query(
+        'UPDATE types SET name = ?, unit_weight = ?, notes = ? WHERE id = ?',
+        [name, unit_weight, notes, id],
+        (err, result) => {
+            if (err) {
+                console.error('خطأ في تعديل النوع:', err);
+                return res.status(500).json({ error: 'فشل في تعديل النوع' });
+            }
+            res.json({ success: true, message: 'تم تعديل النوع بنجاح' });
+        }
+    );
+});
+
+// حذف نوع
+app.delete('/api/types/:id', (req, res) => {
+    const { id } = req.params;
+
+    pool.query('DELETE FROM types WHERE id = ?', [id], (err, result) => {
+        if (err) {
+            console.error('خطأ في حذف النوع:', err);
+            return res.status(500).json({ error: 'فشل في حذف النوع' });
+        }
+        res.json({ success: true, message: 'تم حذف النوع بنجاح' });
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// ==================== طباعة Xprinter مباشرة ====================
+// ==================== طباعة Xprinter مباشرة ====================
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+// إضافة مسار لالتقاط الصور
+app.get('/capture-images/:imageId/:type', async (req, res) => {
+    const { imageId, type } = req.params;
+
+    try {
+        // استدعاء دالة التقاط الصور من الكاميرات
+        await captureImage(imageId, 'print');
+        res.json({ success: true, message: `تم التقاط صور ${type}` });
+    } catch (error) {
+        console.error('خطأ في التقاط الصور:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});

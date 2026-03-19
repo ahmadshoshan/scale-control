@@ -62,12 +62,12 @@
     }
 
     .label {
-      width: 40%;
+      width: 30%;
       font-weight: bold;
     }
 
     .value {
-      width: 60%;
+      width: 35%;
     }
 
     @media print {
@@ -99,44 +99,49 @@
     <tr>
       <td class="label">التاريخ :</td>
       <td class="value center" id="date"></td>
-    </tr>
-    <tr>
-      <td class="label">الوقت :</td>
+
       <td class="value center" id="time"></td>
     </tr>
-    <tr>
+    <!-- <tr>
       <td class="label">المسلسل :</td>
       <td class="value center" id="sn"></td>
-    </tr>
+    </tr> -->
     <tr>
       <td class="label">رقم السيارة :</td>
-      <td class="value large center" id="number"></td>
+      <td class="value large bold center" id="number" colspan="3"></td>
     </tr>
-  </table>
-  <table>
-    <tr>
-      <td class="label">النوع :</td>
-      <td class="value large bold center" id="type"></td>
-    </tr>
+
     <tr>
       <td class="label">اسم العميل :</td>
-      <td class="value large bold center" id="customer"></td>
+      <td class="value large bold center" id="customer" colspan="3"></td>
     </tr>
+
   </table>
   <hr>
   <table>
     <tr>
-      <td class="label large bold">الوزن الأول :</td>
-      <td class="value large bold center" id="gross"></td>
+      <td class="label large">النوع :</td>
+      <td class="value large bold center" id="type"></td>
+      <td class="value  bold large center" id="extra_type"></td>
+
     </tr>
     <tr>
-      <td class="label large bold">الوزن الثاني :</td>
+      <td class="label large bold">القائم :</td>
+      <td class="value large bold center" id="gross"></td>
+      <td class="value large bold center" id="extra_gross">كجم</td>
+    </tr>
+    <tr>
+      <td class="label large bold">الفارغ :</td>
       <td class="value large bold center" id="tare"></td>
+      <td class="value large bold center" id="extra_tare">كجم</td>
     </tr>
     <tr>
       <td class="label large bold">الصافي :</td>
       <td class="value large bold center">
         <div class="large2" id="net"></div>
+      </td>
+      <td class="value large bold center">
+        <div class="large2" id="extra_net">كجم</div>
       </td>
     </tr>
   </table>
@@ -144,9 +149,11 @@
 
   <!-- <div class="center small" id="total"></div> -->
   <div class="center small" id="note"></div>
+  <div class="center small" id="extraWeightsTable"></div>
   <div id="tableBody"></div>
 
   <div class="line"></div>
+
   <div class="center small">الميزان غير مسئول عن فقدان الكارت</div>
 
   <script>
@@ -165,31 +172,47 @@
     if (row) {
       document.getElementById("date").textContent = toArabicNumbers(row.date || '');
       document.getElementById("time").textContent = toArabicNumbers(row.time || '');
-      document.getElementById("sn").textContent = toArabicNumbers(row.sn || '');
+      // document.getElementById("sn").textContent = toArabicNumbers(row.sn || '');
       document.getElementById("number").textContent = toArabicNumbers(row.number || '');
-      document.getElementById("gross").textContent = toArabicNumbers(row.gross || '') + " كجم";
-      document.getElementById("tare").textContent = toArabicNumbers(row.tare || '') + " كجم";
-      document.getElementById("net").textContent = toArabicNumbers(row.net || '') + " كجم";
+      document.getElementById("gross").textContent = toArabicNumbers(row.gross || '') ;
+      document.getElementById("tare").textContent = toArabicNumbers(row.tare || '') ;
+      document.getElementById("net").textContent = toArabicNumbers(row.net || '') ;
       document.getElementById("type").textContent = row.type || '';
       document.getElementById("customer").textContent = row.customer || '';
       // document.getElementById("total").textContent = row.total || '';
-      document.getElementById("note").textContent = row.note|| '';
+      document.getElementById("note").textContent = row.note || '';
+      if (row.extraWeightsTable) {
 
+        let extra = row.extraWeightsTable;
+
+        if (typeof extra === "string") {
+          extra = JSON.parse(extra);
+        }
+        document.getElementById("extra_gross").textContent = toArabicNumbers(extra.secondWeight) +"كجم";
+        document.getElementById("extra_tare").textContent = toArabicNumbers(extra.thirdWeight) +"كجم";
+        document.getElementById("extra_net").textContent = toArabicNumbers(extra.finalNetWeight)+"كجم" ;
+        document.getElementById("extra_type").textContent = extra.extraEditType;
+
+        document.getElementById("extraWeightsTable").innerHTML = `
+
+   <div class="line">
+    <table>
+
+    <tr>
+      <td class="label large bold">الاجمالي </td>
+      <td class="value large bold center">${toArabicNumbers(extra.totalNetWeight)} كجم</td>
+    </tr>
+  </table>
+  `;
+      }
 
       if (row.price > 0) {
-
-
-
-
-
-
-
 
         ///////////////////////////////////////////////////////////////////
 
         const net = parseFloat(row.net);
         const price = parseFloat(row.price);
-        const unitWeight =parseFloat(row.unitWeight);
+        const unitWeight = parseFloat(row.unitWeight);
 
         const total = (net * price) / unitWeight;
 
@@ -197,7 +220,6 @@
         const remain = net % unitWeight;
 
         document.getElementById("tableBody").innerHTML = `
-
 
 <div class="row mb-2">
   <label class="col-12 col-form-label fw-bold text-center">تفاصيل الحساب</label>
