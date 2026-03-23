@@ -29,7 +29,8 @@
     "serialport": "^13.0.0",
     "socket.io": "^4.8.1",
     "sound-play": "^1.1.0",
-    "usb": "^2.17.0"
+    "usb": "^2.17.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "electron": "^37.2.4",

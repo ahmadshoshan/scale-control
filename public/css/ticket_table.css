@@ -288,3 +288,7 @@
         width: 150px;
       }
     }
+.multi-line {
+    white-space: pre-line;
+    line-height: 1.6;
+}

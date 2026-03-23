@@ -805,7 +805,7 @@
                   <label class="form-label small">النوع</label>
                   <div class="input-group">
                     <input list="typesList" id="type" class="form-control" placeholder="اختر النوع">
-                
+
                     <button class="btn btn-outline-danger" type="button" onclick="clearType()">
                       <i class="fas fa-times"></i>
                     </button>
@@ -817,7 +817,7 @@
                   <label class="form-label small">العميل</label>
                   <div class="input-group">
                     <input list="customersList" id="customer" class="form-control" placeholder="اختر العميل">
-                
+
                     <button class="btn btn-outline-danger" type="button" onclick="clearCustomer()">
                       <i class="fas fa-times"></i>
                     </button>
@@ -983,12 +983,12 @@
     //     window.open('customers_types.html', '_blank', 'width=1200,height=700,scrollbars=yes');
     // }
 
-    // تحديث القوائم كل دقيقة
-    setInterval(() => {
-      console.log('🔄 تحديث تلقائي للقوائم...');
-      loadCustomerList();
-      loadTypeList();
-    }, 60000);
+    // // تحديث القوائم كل دقيقة
+    // setInterval(() => {
+    //   console.log('🔄 تحديث تلقائي للقوائم...');
+    //   loadCustomerList();
+    //   loadTypeList();
+    // }, 60000);
 
     // ==================== وظائف مساعدة ====================
     function clearInput(id) {
@@ -1401,6 +1401,12 @@
       }
     };
   </script>
+
+  <script src="../js/push.js"></script>
+  <script>
+    initPush();
+  </script>
+
 
 </body>
 

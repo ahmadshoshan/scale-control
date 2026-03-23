@@ -103,7 +103,7 @@ get_printer.on('data', (data) => {
                 if (err) {
                     console.error('printer err db:', err.message);
                 } else {
-                    console.log('printer: save     ');
+                    // console.log('printer: save     ');
 
                     // 🔥 أرسل إشعار للواجهة
                     io.emit('printer:new', {
@@ -127,13 +127,13 @@ get_printer.on('data', (data) => {
                     // }, 800); // تأخير .5 ثانية
                     ////////////////////////////////////////////////////////////
                     // 🔹 هنا نضيف إشعار Telegram
-                    sendMessageIfEnabled(`✅ تم إضافة تذكرة جديدة:
-📅 التاريخ: ${date}
-🕒 الوقت: ${time}
-📌 المسلسل: ${sn}
-🚛 رقم السيارة: ${number}
-⚖️ الوزن الصافي: ${net} كيلو
-`);
+                    //                     sendMessageIfEnabled(`✅ تم إضافة تذكرة جديدة:
+                    // 📅 التاريخ: ${date}
+                    // 🕒 الوقت: ${time}
+                    // 📌 المسلسل: ${sn}
+                    // 🚛 رقم السيارة: ${number}
+                    // ⚖️ الوزن الصافي: ${net} كيلو
+                    // `);
                     ////////////////////////////////////////////////////////////
                 }
 
@@ -150,21 +150,21 @@ get_printer.on('data', (data) => {
                         return;
                     }
 
-                    if (rows.length > 0 && rows[0].print === 1) {
-                        // ⬇️ إنشاء ملف التذكرة
-                        const filePath = "d:\\dd.pdf";
-                        await createTicket({ date, time, sn, number, gross, tare, net, type_p, customer_p }, filePath);
+                    // if (rows.length > 0 && rows[0].print === 1) {
+                    //     // ⬇️ إنشاء ملف التذكرة
+                    //     const filePath = "d:\\dd.pdf";
+                    //     await createTicket({ date, time, sn, number, gross, tare, net, type_p, customer_p }, filePath);
 
-                        // ⬇️ استدعاء أمر الطباعة
-                        printWithSumatra(filePath, "XP-80");
+                    //     // ⬇️ استدعاء أمر الطباعة
+                    //     printWithSumatra(filePath, "XP-80");
 
-                        console.log("✅ تم تنفيذ الطباعة");
+                    //     console.log("✅ تم تنفيذ الطباعة");
 
-                        // ⬇️ إعادة القيمة إلى 0 بعد الطباعة (علشان متطبعش كل مرة تلقائي)
-                        // pool.query("UPDATE control SET print = 0 WHERE id = 1");
-                    } else {
-                        console.log("🚫 الطباعة متوقفة (print=0)");
-                    }
+                    //     // ⬇️ إعادة القيمة إلى 0 بعد الطباعة (علشان متطبعش كل مرة تلقائي)
+                    //     // pool.query("UPDATE control SET print = 0 WHERE id = 1");
+                    // } else {
+                    //     console.log("🚫 الطباعة متوقفة (print=0)");
+                    // }
                 });
                 type_p = '';
                 customer_p = '';
@@ -202,15 +202,15 @@ app.get("/get-print", (req, res) => {
 });
 ///////////////////////////////////////////////////////////////
 
-// مثال استدعاء SumatraPDF (بعد تثبيت SumatraPDF في C:\Program Files\SumatraPDF\SumatraPDF.exe)
-const { exec } = require('child_process');
-function printWithSumatra(pdfPath, printerName) {
-    const sumatra = `"C:\\Users\\sss\\AppData\\Local\\SumatraPDF\\SumatraPDF.exe" -print-to "${printerName}" -silent "${pdfPath}"`;
-    exec(sumatra, (err, stdout, stderr) => {
-        if (err) return console.error('Sumatra print error', err);
-        console.log('Printed by Sumatra');
-    });
-}
+// // مثال استدعاء SumatraPDF (بعد تثبيت SumatraPDF في C:\Program Files\SumatraPDF\SumatraPDF.exe)
+// const { exec } = require('child_process');
+// function printWithSumatra(pdfPath, printerName) {
+//     const sumatra = `"C:\\Users\\sss\\AppData\\Local\\SumatraPDF\\SumatraPDF.exe" -print-to "${printerName}" -silent "${pdfPath}"`;
+//     exec(sumatra, (err, stdout, stderr) => {
+//         if (err) return console.error('Sumatra print error', err);
+//         console.log('Printed by Sumatra');
+//     });
+// }
 
 /////////////////////////////////////////////////////////////////////
 const puppeteer = require('puppeteer');
@@ -234,103 +234,103 @@ function toArabicNumbers(input) {
 }
 
 // اقرأ اللوجو وحوله Base64
-const logoBase64 = fs.readFileSync("D:/XAMPP/htdocs/710/logo/logo.png").toString("base64");
+// const logoBase64 = fs.readFileSync("D:/XAMPP/htdocs/710/logo/logo.png").toString("base64");
 
-async function createTicket(row, outputPath) {
-    const html = `
-    <!doctype html>
-    <html dir="rtl" lang="ar">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body {
-          font-family: "Amiri", "Arial", sans-serif;
-          width: 80mm;
-          margin: 0;
-          padding: 6px;
-          box-sizing: border-box;
-          color: #000;
-        }
-        .center { text-align: center; }
-        .bold { font-weight: 700; }
-        .line { border-top: 2px dashed #000; margin: 6px 0; }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          direction: rtl;
-          font-size: 18px; /* 🔥 خط كبير */
-        }
-        td {
-          padding: 6px 4px;
-          vertical-align: middle;
-          border: 2px solid #000;
-        }
-        .label { width: 40%; font-weight: bold; }
-        .value { width: 60%; text-align: center; font-weight: bold; }
-        .large { font-size: 20px; }   /* 🔥 أكبر */
-        .medium { font-size: 18px; }
-        .small { font-size: 16px; }
-      </style>
-    </head>
-    <body class="print-ticket">
+// async function createTicket(row, outputPath) {
+//     const html = `
+//     <!doctype html>
+//     <html dir="rtl" lang="ar">
+//     <head>
+//       <meta charset="UTF-8">
+//       <style>
+//         body {
+//           font-family: "Amiri", "Arial", sans-serif;
+//           width: 80mm;
+//           margin: 0;
+//           padding: 6px;
+//           box-sizing: border-box;
+//           color: #000;
+//         }
+//         .center { text-align: center; }
+//         .bold { font-weight: 700; }
+//         .line { border-top: 2px dashed #000; margin: 6px 0; }
+//         table {
+//           width: 100%;
+//           border-collapse: collapse;
+//           direction: rtl;
+//           font-size: 18px; /* 🔥 خط كبير */
+//         }
+//         td {
+//           padding: 6px 4px;
+//           vertical-align: middle;
+//           border: 2px solid #000;
+//         }
+//         .label { width: 40%; font-weight: bold; }
+//         .value { width: 60%; text-align: center; font-weight: bold; }
+//         .large { font-size: 20px; }   /* 🔥 أكبر */
+//         .medium { font-size: 18px; }
+//         .small { font-size: 16px; }
+//       </style>
+//     </head>
+//     <body class="print-ticket">
 
-      <!-- اللوجو -->
-      <div class="center">
-    <img src="data:image/png;base64,${logoBase64}" 
-     alt="شعار الميزان" 
-     style="max-width:120px; height:auto; margin-bottom:6px;">
+//       <!-- اللوجو -->
+//       <div class="center">
+//     <img src="data:image/png;base64,${logoBase64}" 
+//      alt="شعار الميزان" 
+//      style="max-width:120px; height:auto; margin-bottom:6px;">
 
 
-      </div>
+//       </div>
 
-      <!-- العنوان -->
-      <h2 class="center bold ">ميزان بسكول شوشان</h2>
-      <h3 class="center medium">العنوان / مدخل أبوغنيمة  ت: 01099760031</h3>
-      <div class="line"></div>
+//       <!-- العنوان -->
+//       <h2 class="center bold ">ميزان بسكول شوشان</h2>
+//       <h3 class="center medium">العنوان / مدخل أبوغنيمة  ت: 01099760031</h3>
+//       <div class="line"></div>
 
-      <!-- البيانات -->
-      <table>
-        <tr><td class="label">التاريخ :</td><td class="value">${toArabicNumbers(row.date || '')}</td></tr>
-        <tr><td class="label">الوقت :</td><td class="value">${toArabicNumbers(row.time || '')}</td></tr>
-        <tr><td class="label">المسلسل :</td><td class="value">${toArabicNumbers(row.sn || '')}</td></tr>
-        <tr><td class="label">رقم السيارة :</td><td class="value">${toArabicNumbers(row.number || '')}</td></tr>
-      </table>
-      
-      <div class="line"></div>
+//       <!-- البيانات -->
+//       <table>
+//         <tr><td class="label">التاريخ :</td><td class="value">${toArabicNumbers(row.date || '')}</td></tr>
+//         <tr><td class="label">الوقت :</td><td class="value">${toArabicNumbers(row.time || '')}</td></tr>
+//         <tr><td class="label">المسلسل :</td><td class="value">${toArabicNumbers(row.sn || '')}</td></tr>
+//         <tr><td class="label">رقم السيارة :</td><td class="value">${toArabicNumbers(row.number || '')}</td></tr>
+//       </table>
 
-      <table>
-        <tr><td class="label large bold center">الوزن الأول :</td><td class="value large bold center">${toArabicNumbers(row.gross || '')} كيلو</td></tr>
-        <tr><td class="label large bold center">الوزن الثاني :</td><td class="value large bold center">${toArabicNumbers(row.tare || '')} كيلو</td></tr>
-        <tr><td class="label large bold center">الصافي :</td><td class="value large bold center">${toArabicNumbers(row.net || '')} كيلو</td></tr>
-      </table>
+//       <div class="line"></div>
 
-      <div class="line"></div>
+//       <table>
+//         <tr><td class="label large bold center">الوزن الأول :</td><td class="value large bold center">${toArabicNumbers(row.gross || '')} كيلو</td></tr>
+//         <tr><td class="label large bold center">الوزن الثاني :</td><td class="value large bold center">${toArabicNumbers(row.tare || '')} كيلو</td></tr>
+//         <tr><td class="label large bold center">الصافي :</td><td class="value large bold center">${toArabicNumbers(row.net || '')} كيلو</td></tr>
+//       </table>
 
-      <table>
-        <tr><td class="label">النوع :</td><td class="value">${row.type || ''}</td></tr>
-        <tr><td class="label">اسم العميل :</td><td class="value">${row.customer || ''}</td></tr>
-      </table>
+//       <div class="line"></div>
 
-      <div class="line"></div>
-      <div class="center small">شكرًا لاستخدامكم خدمتنا</div>
+//       <table>
+//         <tr><td class="label">النوع :</td><td class="value">${row.type || ''}</td></tr>
+//         <tr><td class="label">اسم العميل :</td><td class="value">${row.customer || ''}</td></tr>
+//       </table>
 
-    </body>
-    </html>
-    `;
+//       <div class="line"></div>
+//       <div class="center small">شكرًا لاستخدامكم خدمتنا</div>
 
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
+//     </body>
+//     </html>
+//     `;
 
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+//     const browser = await puppeteer.launch({ headless: true });
+//     const page = await browser.newPage();
 
-    await page.pdf({
-        path: outputPath,
-        width: '80mm',
-        printBackground: true
-    });
+//     await page.setContent(html, { waitUntil: 'networkidle0' });
 
-    await browser.close();
-}
+//     await page.pdf({
+//         path: outputPath,
+//         width: '80mm',
+//         printBackground: true
+//     });
+
+//     await browser.close();
+// }
 
 
 
@@ -372,6 +372,8 @@ let lastMessage = ''; // متغير لتخزين آخر رسالة مستلمة
 let NE = '00';
 
 let sendInterval = null;
+let sendInterval2 = null;
+let sendInterval3 = null;
 // let alertPlayed = false; // لمنع تكرار الصوت
 
 // استقبال البيانات من الجهاز وإرسالها إلى الواجهة الأمامية
@@ -387,10 +389,10 @@ parser.on('data', (data) => {
     // تنظيف الرسالة الحالية
     // التحقق مما إذا كانت الرسالة الحالية مكررة
     if (currentMessage !== lastMessage) {
-        console.log(`rec :: ${currentMessage}`); // عرض الرسالة إذا لم تكن مكررة
+        // console.log(`rec :: ${currentMessage}`); // عرض الرسالة إذا لم تكن مكررة
         if (currentMessage.slice(-2).toUpperCase() === "NE") {
             NE = currentMessage;
-            console.log(`ne :: ${NE}`);
+            // console.log(`ne :: ${NE}`);
         }
         // تحديث قيمة آخر رسالة
         lastMessage = currentMessage;
@@ -404,6 +406,18 @@ parser.on('data', (data) => {
         // playSoundAlert("yagib_tasfier_almezan.mp3", io);
         playSoundIfEnabled("yagib_tasfier_almezan.mp3");
 
+        // شغّل الإرسال مرة واحدة فقط
+        if (!sendInterval2) {
+            sendInterval2 = setInterval(() => {
+                sendMessageIfEnabled(`يجب تصفير الميزان  ${weight}`);
+            }, 5000);
+        }
+    } else {
+        if (sendInterval2) {
+            clearInterval(sendInterval2);
+            sendInterval2 = null;
+
+        }
     }
 
     if (!isNaN(weight) && weight > 300) {
@@ -420,13 +434,24 @@ parser.on('data', (data) => {
                     }
                 });
             }, 1000);
+            // شغّل الإرسال مرة واحدة فقط
+            if (!sendInterval3) {
+                sendInterval3= setInterval(() => {
+                    sendMessageIfEnabled(` يوجد سياره علي الميزان  ${weight}`);
+                }, 5000);
+            }
         }
+
     } else {
         if (sendInterval) {
             clearInterval(sendInterval);
             sendInterval = null;
-            console.log('stop send p  ');
         }
+        if (sendInterval3) {
+            clearInterval(sendInterval3);
+            sendInterval3 = null;
+        }
+
     }
     // دالة للتحقق مما إذا كانت الرسالة تبدأ بـ "GROSS{"
     function startsWithGross(message) {
@@ -452,7 +477,7 @@ parser.on('data', (data) => {
                 console.error('err db:', err.message);
             } else {
                 captureImage(images, 'sensor');
-                console.log('  save  in db.');
+                // console.log('  save  in db.');
 
                 io.emit('responseID', '');
                 gross = match[1];
@@ -468,12 +493,12 @@ parser.on('data', (data) => {
                 customer_id = '';
 
                 ////////////////////////////////////////////
-                // 🔹 إشعار Telegram
-                sendMessageIfEnabled(`📡 تم إضافة بيانات من الجهاز:
-⚖️ الوزن: ${match[1]}
-📅 التاريخ: ${match1[1]}
-🆔 الرقم: ${NE}
-`);
+                //                 // 🔹 إشعار Telegram
+                //                 sendMessageIfEnabled(`📡 تم إضافة بيانات من الجهاز:
+                // ⚖️ الوزن: ${match[1]}
+                // 📅 التاريخ: ${match1[1]}
+                // 🆔 الرقم: ${NE}
+                // `);
                 ////////////////////////////////////////////
 
             }
@@ -563,20 +588,22 @@ app.get('/get-data3', (req, res) => {
         const type = req.query.type;   // النوع (number, sn, date)
         const value = req.query.value; // القيمة اللي هيكتبها المستخدم
 
+       const limit = parseInt(req.query.limit) || 10;
+        const offset = parseInt(req.query.offset) || 0;
 
         let query = "";
         if (type === "number") {
-            query = "SELECT * FROM `printer` WHERE `number` = ?";
-        } else if (type === "sn") {
-            query = "SELECT * FROM `printer` WHERE `sn` = ?";
-        } else if (type === "date") {
-            query = "SELECT * FROM `printer` WHERE `date` = ?";
-        } else {
-            connection.release();
-            return res.status(400).json({ error: "نوع البحث غير صحيح" });
-        }
+        query = "SELECT * FROM printer WHERE number = ? ORDER BY id DESC LIMIT ?, ?";
+    } else if (type === "sn") {
+        query = "SELECT * FROM printer WHERE sn = ? ORDER BY id DESC LIMIT ?, ?";
+    } else if (type === "date") {
+        query = "SELECT * FROM printer WHERE date = ? ORDER BY id DESC LIMIT ?, ?";
+    } else {
+        connection.release();
+        return res.status(400).json({ error: "نوع البحث غير صحيح" });
+    }
 
-        connection.query(query, [value], (error, results) => {
+    connection.query(query, [value, offset, limit], (error, results) => {
             connection.release(); // لازم نحرر الاتصال بعد الاستعلام
             if (error) {
                 console.error('خطأ في جلب البيانات:', error.message);
@@ -627,12 +654,9 @@ app.put('/update-ticket/:id', (req, res) => {
             extra = JSON.parse(extra);
         }
 
-        extraData = `
-          ${extra.extraEditType} :
-          ${toArabicNumbers(extra.finalNetWeight)} 
-    `;
-    }else{
-        extraData ='';
+        extraData = `الفارغ :${toArabicNumbers(extra.thirdWeight)}\n ${extra.extraEditType} :${toArabicNumbers(extra.finalNetWeight)}\nالاجمالي :${toArabicNumbers(extra.totalNetWeight)}`;
+    } else {
+        extraData = '';
     }
     const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, net=?, note=? WHERE id=?';
 
@@ -642,72 +666,57 @@ app.put('/update-ticket/:id', (req, res) => {
             return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
         }
 
-        console.log('UPDATE printer:', result.affectedRows);
+        // console.log('UPDATE printer:', result.affectedRows);
         res.json({ success: true, message: 'تم تحديث البيانات بنجاح' });
     });
 });
 
 
-// WebSocket listeners
-io.on('connection', (socket) => {
-    const ip = socket.handshake.address;
-    console.log('===========================');
-    console.log(' New Socket Connection');
-    console.log(' IP Address:', ip);
-    console.log(' Time:', new Date());
-    console.log(' Socket ID:', socket.id);
-    console.log('===========================');
-
-    socket.on('disconnect', () => {
-        console.log(`❌ Disconnected:  (${ip})`);
-    });
+// // WebSocket listeners
+// io.on('connection', (socket) => {
+//     const ip = socket.handshake.address;
+//       console.log(' New Socket Connection IP Address:', ip);
+//      socket.on('disconnect', () => {
+//         console.log(`❌ Disconnected:  (${ip})`);
+//     });
+// });
 
 
-});
+// // ✅ طباعة تذكرة مباشرة من السيرفر باستخدام ID
+// app.post('/print-ticket-direct/:id', async (req, res) => {
+//     const { id } = req.params;
 
+//     try {
+//         // جلب بيانات التذكرة من قاعدة البيانات
+//         const [rows] = await pool.promise().query(
+//             'SELECT * FROM printer WHERE id = ?', [id]
+//         );
 
-// ✅ طباعة تذكرة مباشرة من السيرفر باستخدام ID
-app.post('/print-ticket-direct/:id', async (req, res) => {
-    const { id } = req.params;
+//         if (rows.length === 0) {
+//             return res.status(404).json({ success: false, message: 'التذكرة غير موجودة' });
+//         }
 
-    try {
-        // جلب بيانات التذكرة من قاعدة البيانات
-        const [rows] = await pool.promise().query(
-            'SELECT * FROM printer WHERE id = ?', [id]
-        );
+//         const row = rows[0];
 
-        if (rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'التذكرة غير موجودة' });
-        }
+//         // إنشاء ملف PDF مؤقت
+//         const filePath = `d:\\ticket_${id}.pdf`;
+//         await createTicket(row, filePath);
 
-        const row = rows[0];
+//         // تنفيذ الطباعة
+//         printWithSumatra(filePath, "XP-80");
 
-        // إنشاء ملف PDF مؤقت
-        const filePath = `d:\\ticket_${id}.pdf`;
-        await createTicket(row, filePath);
+//         // (اختياري) حذف الملف بعد فترة قصيرة
+//         setTimeout(() => {
+//             try { fs.unlinkSync(filePath); } catch (e) { /* تجاهل */ }
+//         }, 5000);
 
-        // تنفيذ الطباعة
-        printWithSumatra(filePath, "XP-80");
+//         res.json({ success: true, message: 'تم إرسال أمر الطباعة.' });
 
-        // (اختياري) حذف الملف بعد فترة قصيرة
-        setTimeout(() => {
-            try { fs.unlinkSync(filePath); } catch (e) { /* تجاهل */ }
-        }, 5000);
-
-        res.json({ success: true, message: 'تم إرسال أمر الطباعة.' });
-
-    } catch (error) {
-        console.error('خطأ في الطباعة المباشرة:', error);
-        res.status(500).json({ success: false, message: 'فشل في الطباعة' });
-    }
-});
-
-
-
-
-
-
-
+//     } catch (error) {
+//         console.error('خطأ في الطباعة المباشرة:', error);
+//         res.status(500).json({ success: false, message: 'فشل في الطباعة' });
+//     }
+// });
 
 
 
@@ -778,7 +787,7 @@ async function captureImage(car_No_Date_weight, path) {
 
         // عرض النتائج
         const successful = savedFiles.filter(file => file !== null).length;
-        console.log(` save  ${successful} from ${urls.length}  `);
+        // console.log(` save  ${successful} from ${urls.length}  `);
 
         return savedFiles;
 
@@ -1034,3 +1043,54 @@ app.get('/capture-images/:imageId/:type', async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+
+
+
+
+//////////////////////////////////////////////////////////////
+// setInterval(() => {
+//     const used = process.memoryUsage();
+//     console.log("Heap:", Math.round(used.heapUsed / 1024 / 1024), "MB");
+// }, 10000);
+//////////////////////////////////////////////////////////////
+// توليد المفاتيح (مرة واحدة فقط)
+// const webpush = require('web-push');
+// const keys = webpush.generateVAPIDKeys();
+// console.log(keys);
+//////////////////////////////////////////////////////////////
+
+// const webpush = require('web-push');
+
+// const PUBLIC_KEY = process.env.publicKey;
+// const PRIVATE_KEY = process.env.privateKey;
+
+// webpush.setVapidDetails(
+//     'mailto:you@example.com',
+//     PUBLIC_KEY,
+//     PRIVATE_KEY
+// );
+
+// let subscriptions = [];
+
+
+
+
+
+
+// app.post('/subscribe', express.json(), (req, res) => {
+//     const subscription = req.body;
+//     subscriptions.push(subscription);
+
+//     res.status(201).json({});
+// });
+
+// function sendPushNotification(message) {
+//     subscriptions.forEach(sub => {
+//         webpush.sendNotification(sub, JSON.stringify({
+//             title: '🚛 نظام الميزان',
+//             body: message
+//         }));
+//     });
+// }
+
+//////////////////////////////////////////////////
