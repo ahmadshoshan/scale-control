@@ -68,7 +68,7 @@ function createTableRow(row) {
           <td style="font-size: x-large;">${gross}</td>
            <td style="font-size: x-large;">${tare}</td>
            <td style="font-size: x-large;"><span class="">${net}</span></td>
-          <td class="multi-line">${row.note || '—'}</td>
+          <td class="multi-line">${row.note || '-'} ${row.tare2 || '-'}</td>
           <td>
             <div class="action-buttons">
               <button class="action-btn btn-print" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
@@ -207,6 +207,7 @@ function openEdit(row) {
   document.getElementById('editType').value = row.type;
   document.getElementById('editGross').value = row.gross;
   document.getElementById('editTare').value = row.tare;
+  document.getElementById('thirdWeight').value = row.tare2 || '';
   document.getElementById('editNet').value = row.net;
   document.getElementById('editNote').value = row.note || '';
   document.getElementById("modalImg2").src = `../images/print/${row.images}_cam1.jpg`;
@@ -217,9 +218,15 @@ function openEdit(row) {
   modal.show();
 
   const noteInput = document.getElementById('editNote');
+  const thirdWeight = document.getElementById('thirdWeight').value;
   const value = noteInput.value.trim();
   if (value === 'معلق') {
     checkbox.click();
+  }
+  if (thirdWeight > 0) {
+    checkbox.click();
+    document.getElementById('thirdWeight').value = thirdWeight;
+    calculateFinalNet()
   }
 
 }
@@ -291,6 +298,7 @@ async function updateAndPrint(toPrint = false) {
     type: document.getElementById('editType').value,
     gross: document.getElementById('editGross').value,
     tare: document.getElementById('editTare').value,
+    tare2: document.getElementById('thirdWeight').value || '',
     net: document.getElementById('editNet').value,
     note: toPrint ? (value === 'معلق' ? '' : value) : 'معلق',    // note: (toPrint) ? (document.getElementById('editNote').value == 'معلق') ? '' : document.getElementById('editNote').value : 'معلق',
     price: document.getElementById('editPrice').value,
@@ -481,7 +489,7 @@ document.addEventListener('keydown', function (e) {
   if (e.target.tagName === 'TEXTAREA') return;
 
   e.preventDefault();
-  updateAndPrint();
+  updateAndPrint(true);
 });
 
 // تحميل البيانات عند بدء التشغيل

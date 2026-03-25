@@ -10,7 +10,7 @@ async function sendMessageIfEnabled(text) {
     if (!err && rows.length > 0 && rows[0].notify === 1) {
       sendMessage(text); // دالة الإرسال الحالية
     } else {
-      console.log("🚫 الإشعارات متوقفة، لم يتم الإرسال");
+      // console.log("🚫 الإشعارات متوقفة، لم يتم الإرسال");
     }
   });
 }

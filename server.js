@@ -72,7 +72,7 @@ get_printer.on('data', (data) => {
         .replace(/�/g, '')                 // 🔥 حذف الرمز
         .replace(/[^\x20-\x7E\u0600-\u06FF]/g, '')
         .trim();
-    console.log(`print    : ${line}`);
+    console.log(`print: ${line}`);
     const isValidLine = (line) => {
         return (
             /^\d{2}\/\d{2}\/\d{4}$/.test(line) ||     // تاريخ
@@ -103,7 +103,7 @@ get_printer.on('data', (data) => {
                 if (err) {
                     console.error('printer err db:', err.message);
                 } else {
-                    // console.log('printer: save     ');
+                    console.log('printer: save');
 
                     // 🔥 أرسل إشعار للواجهة
                     io.emit('printer:new', {
@@ -200,17 +200,6 @@ app.get("/get-print", (req, res) => {
         res.json({ print: rows[0].print });
     });
 });
-///////////////////////////////////////////////////////////////
-
-// // مثال استدعاء SumatraPDF (بعد تثبيت SumatraPDF في C:\Program Files\SumatraPDF\SumatraPDF.exe)
-// const { exec } = require('child_process');
-// function printWithSumatra(pdfPath, printerName) {
-//     const sumatra = `"C:\\Users\\sss\\AppData\\Local\\SumatraPDF\\SumatraPDF.exe" -print-to "${printerName}" -silent "${pdfPath}"`;
-//     exec(sumatra, (err, stdout, stderr) => {
-//         if (err) return console.error('Sumatra print error', err);
-//         console.log('Printed by Sumatra');
-//     });
-// }
 
 /////////////////////////////////////////////////////////////////////
 const puppeteer = require('puppeteer');
@@ -232,110 +221,6 @@ function toArabicNumbers(input) {
     // نضيف كلمة كيلو بعد الرقم
     return arabicNumbers;
 }
-
-// اقرأ اللوجو وحوله Base64
-// const logoBase64 = fs.readFileSync("D:/XAMPP/htdocs/710/logo/logo.png").toString("base64");
-
-// async function createTicket(row, outputPath) {
-//     const html = `
-//     <!doctype html>
-//     <html dir="rtl" lang="ar">
-//     <head>
-//       <meta charset="UTF-8">
-//       <style>
-//         body {
-//           font-family: "Amiri", "Arial", sans-serif;
-//           width: 80mm;
-//           margin: 0;
-//           padding: 6px;
-//           box-sizing: border-box;
-//           color: #000;
-//         }
-//         .center { text-align: center; }
-//         .bold { font-weight: 700; }
-//         .line { border-top: 2px dashed #000; margin: 6px 0; }
-//         table {
-//           width: 100%;
-//           border-collapse: collapse;
-//           direction: rtl;
-//           font-size: 18px; /* 🔥 خط كبير */
-//         }
-//         td {
-//           padding: 6px 4px;
-//           vertical-align: middle;
-//           border: 2px solid #000;
-//         }
-//         .label { width: 40%; font-weight: bold; }
-//         .value { width: 60%; text-align: center; font-weight: bold; }
-//         .large { font-size: 20px; }   /* 🔥 أكبر */
-//         .medium { font-size: 18px; }
-//         .small { font-size: 16px; }
-//       </style>
-//     </head>
-//     <body class="print-ticket">
-
-//       <!-- اللوجو -->
-//       <div class="center">
-//     <img src="data:image/png;base64,${logoBase64}" 
-//      alt="شعار الميزان" 
-//      style="max-width:120px; height:auto; margin-bottom:6px;">
-
-
-//       </div>
-
-//       <!-- العنوان -->
-//       <h2 class="center bold ">ميزان بسكول شوشان</h2>
-//       <h3 class="center medium">العنوان / مدخل أبوغنيمة  ت: 01099760031</h3>
-//       <div class="line"></div>
-
-//       <!-- البيانات -->
-//       <table>
-//         <tr><td class="label">التاريخ :</td><td class="value">${toArabicNumbers(row.date || '')}</td></tr>
-//         <tr><td class="label">الوقت :</td><td class="value">${toArabicNumbers(row.time || '')}</td></tr>
-//         <tr><td class="label">المسلسل :</td><td class="value">${toArabicNumbers(row.sn || '')}</td></tr>
-//         <tr><td class="label">رقم السيارة :</td><td class="value">${toArabicNumbers(row.number || '')}</td></tr>
-//       </table>
-
-//       <div class="line"></div>
-
-//       <table>
-//         <tr><td class="label large bold center">الوزن الأول :</td><td class="value large bold center">${toArabicNumbers(row.gross || '')} كيلو</td></tr>
-//         <tr><td class="label large bold center">الوزن الثاني :</td><td class="value large bold center">${toArabicNumbers(row.tare || '')} كيلو</td></tr>
-//         <tr><td class="label large bold center">الصافي :</td><td class="value large bold center">${toArabicNumbers(row.net || '')} كيلو</td></tr>
-//       </table>
-
-//       <div class="line"></div>
-
-//       <table>
-//         <tr><td class="label">النوع :</td><td class="value">${row.type || ''}</td></tr>
-//         <tr><td class="label">اسم العميل :</td><td class="value">${row.customer || ''}</td></tr>
-//       </table>
-
-//       <div class="line"></div>
-//       <div class="center small">شكرًا لاستخدامكم خدمتنا</div>
-
-//     </body>
-//     </html>
-//     `;
-
-//     const browser = await puppeteer.launch({ headless: true });
-//     const page = await browser.newPage();
-
-//     await page.setContent(html, { waitUntil: 'networkidle0' });
-
-//     await page.pdf({
-//         path: outputPath,
-//         width: '80mm',
-//         printBackground: true
-//     });
-
-//     await browser.close();
-// }
-
-
-
-// تقديم الملفات الثابتة
-// app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -436,7 +321,7 @@ parser.on('data', (data) => {
             }, 1000);
             // شغّل الإرسال مرة واحدة فقط
             if (!sendInterval3) {
-                sendInterval3= setInterval(() => {
+                sendInterval3 = setInterval(() => {
                     sendMessageIfEnabled(` يوجد سياره علي الميزان  ${weight}`);
                 }, 5000);
             }
@@ -565,7 +450,7 @@ app.get('/get-data2', (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const offset = parseInt(req.query.offset) || 0;
 
-        const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `net`, `customer`, `type`,`note`,`images` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
+        const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`,`tare2`, `net`, `customer`, `type`,`note`,`images` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
         connection.query(query, [limit, offset], (error, results) => {
             connection.release(); // إخلاء الاتصال
             if (error) {
@@ -588,22 +473,22 @@ app.get('/get-data3', (req, res) => {
         const type = req.query.type;   // النوع (number, sn, date)
         const value = req.query.value; // القيمة اللي هيكتبها المستخدم
 
-       const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 10;
         const offset = parseInt(req.query.offset) || 0;
 
         let query = "";
         if (type === "number") {
-        query = "SELECT * FROM printer WHERE number = ? ORDER BY id DESC LIMIT ?, ?";
-    } else if (type === "sn") {
-        query = "SELECT * FROM printer WHERE sn = ? ORDER BY id DESC LIMIT ?, ?";
-    } else if (type === "date") {
-        query = "SELECT * FROM printer WHERE date = ? ORDER BY id DESC LIMIT ?, ?";
-    } else {
-        connection.release();
-        return res.status(400).json({ error: "نوع البحث غير صحيح" });
-    }
+            query = "SELECT * FROM printer WHERE number = ? ORDER BY id DESC LIMIT ?, ?";
+        } else if (type === "sn") {
+            query = "SELECT * FROM printer WHERE sn = ? ORDER BY id DESC LIMIT ?, ?";
+        } else if (type === "date") {
+            query = "SELECT * FROM printer WHERE date = ? ORDER BY id DESC LIMIT ?, ?";
+        } else {
+            connection.release();
+            return res.status(400).json({ error: "نوع البحث غير صحيح" });
+        }
 
-    connection.query(query, [value, offset, limit], (error, results) => {
+        connection.query(query, [value, offset, limit], (error, results) => {
             connection.release(); // لازم نحرر الاتصال بعد الاستعلام
             if (error) {
                 console.error('خطأ في جلب البيانات:', error.message);
@@ -644,8 +529,9 @@ app.get('/get-data', (req, res) => {
 
 app.put('/update-ticket/:id', (req, res) => {
     const { id } = req.params;
-    const { number, customer, type, gross, tare, net, note, extraWeightsTable } = req.body;
+    const { number, customer, type, gross, tare, tare2, net, note, extraWeightsTable } = req.body;
     // const extraData = extraWeightsTable ? JSON.stringify(extraWeightsTable) : '';
+  let _tare2 =tare2;
     if (extraWeightsTable) {
 
         let extra = extraWeightsTable;
@@ -653,14 +539,15 @@ app.put('/update-ticket/:id', (req, res) => {
         if (typeof extra === "string") {
             extra = JSON.parse(extra);
         }
+        _tare2 = extra.thirdWeight;
+        // extraData = `الفارغ :${toArabicNumbers(extra.thirdWeight)}\n ${extra.extraEditType} :${toArabicNumbers(extra.finalNetWeight)}\nالاجمالي :${toArabicNumbers(extra.totalNetWeight)}`;
+    } 
+    // else {
+    //     extraData = '';
+    // }
+    const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, tare2=?,net=?, note=? WHERE id=?';
 
-        extraData = `الفارغ :${toArabicNumbers(extra.thirdWeight)}\n ${extra.extraEditType} :${toArabicNumbers(extra.finalNetWeight)}\nالاجمالي :${toArabicNumbers(extra.totalNetWeight)}`;
-    } else {
-        extraData = '';
-    }
-    const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, net=?, note=? WHERE id=?';
-
-    pool.query(sql, [number, customer, type, gross, tare, net, note + " " + extraData, id], (err, result) => {
+    pool.query(sql, [number, customer, type, gross, tare, _tare2, net, note , id], (err, result) => {
         if (err) {
             console.error('❌ خطأ أثناء التحديث:', err);
             return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
@@ -671,52 +558,6 @@ app.put('/update-ticket/:id', (req, res) => {
     });
 });
 
-
-// // WebSocket listeners
-// io.on('connection', (socket) => {
-//     const ip = socket.handshake.address;
-//       console.log(' New Socket Connection IP Address:', ip);
-//      socket.on('disconnect', () => {
-//         console.log(`❌ Disconnected:  (${ip})`);
-//     });
-// });
-
-
-// // ✅ طباعة تذكرة مباشرة من السيرفر باستخدام ID
-// app.post('/print-ticket-direct/:id', async (req, res) => {
-//     const { id } = req.params;
-
-//     try {
-//         // جلب بيانات التذكرة من قاعدة البيانات
-//         const [rows] = await pool.promise().query(
-//             'SELECT * FROM printer WHERE id = ?', [id]
-//         );
-
-//         if (rows.length === 0) {
-//             return res.status(404).json({ success: false, message: 'التذكرة غير موجودة' });
-//         }
-
-//         const row = rows[0];
-
-//         // إنشاء ملف PDF مؤقت
-//         const filePath = `d:\\ticket_${id}.pdf`;
-//         await createTicket(row, filePath);
-
-//         // تنفيذ الطباعة
-//         printWithSumatra(filePath, "XP-80");
-
-//         // (اختياري) حذف الملف بعد فترة قصيرة
-//         setTimeout(() => {
-//             try { fs.unlinkSync(filePath); } catch (e) { /* تجاهل */ }
-//         }, 5000);
-
-//         res.json({ success: true, message: 'تم إرسال أمر الطباعة.' });
-
-//     } catch (error) {
-//         console.error('خطأ في الطباعة المباشرة:', error);
-//         res.status(500).json({ success: false, message: 'فشل في الطباعة' });
-//     }
-// });
 
 
 
