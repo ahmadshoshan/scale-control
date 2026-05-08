@@ -51,7 +51,6 @@ function createTableRow(row) {
             <div class="image-card" onclick='openGallery(${JSON.stringify(images)}, "صور التذكرة - ${row.number || ''}")'>
               <img src="${images[0]}" alt="صورة التذكرة" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22 viewBox=%220 0 70 70%22><rect width=%2270%22 height=%2270%22 fill=%22%23f0f0f0%22/><text x=%2235%22 y=%2235%22 font-size=%2210%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22>لا توجد</text></svg>'">
             </div>
-       
           </td>
           <td>
             <strong>${row.customer || 'غير محدد'}</strong>
@@ -66,14 +65,22 @@ function createTableRow(row) {
           <td hidden>${row.sn || ''}</td>
           <td style="font-size: x-large;"><span class="badge bg-dark">${row.number || 'غير محدد'}</span></td>
           <td style="font-size: x-large;">${gross}</td>
-           <td style="font-size: x-large;">${tare}</td>
-           <td style="font-size: x-large;"><span class="">${net}</span></td>
-          <td class="multi-line">${row.note || '-'} ${row.tare2 || '-'}</td>
+          <td style="font-size: x-large;">${tare}</td>
+          <td style="font-size: x-large;"><span class="">${net}</span></td>
+          <td class="multi-line">
+            ${row.note === 'معلق'
+      ? `<span style="font-size: large;" class="badge bg-warning text-dark">${row.note}</span> ${row.tare2 || '-'}`
+      : `${row.note || '-'} ${row.tare2 || '-'}`
+    }
+          </td>
           <td>
             <div class="action-buttons">
-              <button class="action-btn btn-print" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
-                <i class="fas fa-print"></i>
-              </button>
+              ${row.note !== 'معلق'
+      ? `<button class="action-btn btn-print" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+                    <i class="fas fa-print"></i>
+                  </button>`
+      : ''
+    }
               <button class="action-btn btn-edit" onclick='openEdit(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
                 <i class="fas fa-edit"></i>
               </button>
@@ -190,9 +197,15 @@ function printTicket(row) {
   window.open("../ticket.html", "_blank", "width=650,height=650,scrollbars=yes");
   // location.reload();
 }
+function printTicket2(row) {
+  localStorage.setItem("ticketData", JSON.stringify(row));
+  window.open("../ticket2.html", "_blank", "width=650,height=650,scrollbars=yes");
+  // location.reload();
+}
 
 // فتح التعديل
 function openEdit(row) {
+  loadCustomerList();
   //  extraWeightsTable = document.getElementById('extraWeightsTable');
   toggleExtraWeightTable(false);
 
@@ -281,7 +294,7 @@ function openEdit(row) {
 
 
 // تحديث وطباعة
-async function updateAndPrint(toPrint = false) {
+async function updateAndPrint(toPrint = false ,printdir =false) {
   // ✅ أهم سطر
   document.activeElement.blur();
   const id = document.getElementById('editId').value;
@@ -329,8 +342,9 @@ async function updateAndPrint(toPrint = false) {
 
     if (response.ok) {
       if (toPrint) {
+      if (printdir) { printTicket2(updatedData);}else{  printTicket(updatedData);}
 
-        printTicket(updatedData);
+      
         const modalEl = document.getElementById('editModal');
         const modal = bootstrap.Modal.getInstance(modalEl);
         modal.hide();
@@ -417,20 +431,20 @@ socket.on('printer:new', (row) => {
   }, 500);
 });
 
-socket.on('id:new', (row) => {
-  if (row.NE) {
-    setTimeout(() => {
-      document.getElementById("toastBody").innerHTML = `تم إضافة سيارة جديدة ${row.NE} (الوزن: ${row.gross})`;
-      document.getElementById("toastImg1").src = `images/sensor/${row.images}_cam1.jpg`;
-      document.getElementById("toastImg2").src = `images/sensor/${row.images}_cam2.jpg`;
-      document.getElementById("toastImg3").src = `images/sensor/${row.images}_cam3.jpg`;
+// socket.on('id:new', (row) => {
+//   if (row.NE) {
+//     setTimeout(() => {
+//       document.getElementById("toastBody").innerHTML = `تم إضافة سيارة جديدة ${row.NE} (الوزن: ${row.gross})`;
+//       document.getElementById("toastImg1").src = `../images/sensor/${row.images}_cam1.jpg`;
+//       document.getElementById("toastImg2").src = `../images/sensor/${row.images}_cam2.jpg`;
+//       document.getElementById("toastImg3").src = `../images/sensor/${row.images}_cam3.jpg`;
 
-      const toastEl = document.getElementById('liveToast');
-      const toast = new bootstrap.Toast(toastEl, { delay: 10000 });
-      toast.show();
-    }, 500);
-  }
-});
+//       const toastEl = document.getElementById('liveToast');
+//       const toast = new bootstrap.Toast(toastEl, { delay: 10000 });
+//       toast.show();
+//     }, 500);
+//   }
+// });
 
 socket.on('play-audio', (fileName) => {
   const audioPlayer = document.getElementById('audioPlayer');
@@ -665,4 +679,100 @@ document.getElementById("editModal")
   .addEventListener("shown.bs.modal", initClearButtons);
 //////////////////////////////////////////////////////
 
+
+// ==================== تحميل العملاء والأنواع ====================
+
+// تحميل قائمة العملاء
+async function loadCustomerList() {
+  try {
+    const response = await fetch('/api/customers');
+    if (!response.ok) throw new Error('فشل في تحميل العملاء');
+
+    const data = await response.json();
+    console.log('✅ تم تحميل العملاء:', data.length);
+
+    const datalist = document.getElementById('customers');
+    if (datalist) {
+      if (data.length > 0) {
+        datalist.innerHTML = data.map(c => `<option value="${c.name}">`).join('');
+      } else {
+        // بيانات افتراضية
+        datalist.innerHTML = `
+                        <option value="الحاج خالد عبد السلام">
+                        <option value="عماد نوح">
+                        <option value="محمد الصندفاوي">
+                        <option value="محمد منصور">
+                        <option value="محمود نصير">
+                    `;
+      }
+    }
+  } catch (error) {
+    console.error('❌ خطأ في تحميل العملاء:', error);
+    // بيانات افتراضية في حالة الخطأ
+    const datalist = document.getElementById('customers');
+    if (datalist) {
+      datalist.innerHTML = `
+                  <option value="الحاج خالد عبد السلام">
+                      <option value="عماد نوح">
+                      <option value="محمد الصندفاوي">
+                      <option value="محمد منصور">
+                      <option value="محمود نصير">
+                      <option value="هاني عبد الباعث">
+                      <option value="الشحات عبد الباعث">
+                      <option value="احمد علي">
+                      <option value="علي محروس">
+                   
+                `;
+    }
+  }
+}
+//  window.onload = function () {
+//     console.log('🚀 بدء تحميل الصفحة...');
+
+//     // تحميل العملاء والأنواع
+//     loadCustomerList();
+//   }
+
+
+
+
+
+
+
+
+function printTicketDir() {
+  const row = {
+    date: document.getElementById('editDate').value,
+    time: document.getElementById('editTime').value,
+    sn: document.getElementById('editSn').value,
+    number: document.getElementById('editNumber').value,
+    customer: document.getElementById('editCustomer').value,
+    type: document.getElementById('editType').value,
+    gross: document.getElementById('editGross').value,
+    tare: document.getElementById('editTare').value,
+    tare2: document.getElementById('thirdWeight').value || '',
+    net: document.getElementById('editNet').value,
+    price: document.getElementById('editPrice').value,
+    unitWeight: getUnitWeight(document.getElementById('editType').value)
+  };
+  localStorage.setItem("ticketData", JSON.stringify(row));
+  const data = JSON.parse(localStorage.getItem("ticketData"));
+  console.log(data);
+
+  fetch('/print-ticket', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+    .then(res => res.json())
+    .then(res => {
+      alert("تمت الطباعة ✅");
+    })
+    .catch(err => {
+      alert("خطأ في الطباعة ❌");
+      console.error(err);
+    });
+}
 

@@ -5,12 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>نظام وزن السيارات - ميزان شوشان</title>
   
-  <!-- Bootstrap 5.3 -->
-  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> -->
-  <!-- Font Awesome 6 -->
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
-  <!-- Google Fonts -->
-  <!-- <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet"> -->
   
      <link href="css/bootstrap.min.css" rel="stylesheet">
  <link href="css/all.min.css" rel="stylesheet">
@@ -51,24 +45,62 @@
     }
 
     .weight-display {
-      font-size: clamp(3rem, 10vw, 6rem);
+      font-size: clamp(2rem, 8vw, 4rem);
       font-weight: 900;
       background: linear-gradient(135deg, var(--primary-color), #7209b7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       line-height: 1.2;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .weight-display:hover {
+      opacity: 0.8;
     }
 
     .weight-unit {
-      font-size: 2rem;
+      font-size: 1.5rem;
       color: #666;
+    }
+
+    /* نافذة إدخال الوزن يدوي */
+    .manual-weight-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 10001;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .manual-weight-content {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .manual-weight-input {
+      font-size: 2rem;
+      text-align: center;
+      margin: 20px 0;
+      padding: 15px;
+      border: 2px solid var(--primary-color);
+      border-radius: 15px;
     }
 
     /* بطاقات السيارات - تصغير الحجم */
     .truck-card {
       background: white;
       border-radius: 15px;
-      padding: 5px;
+      padding: 8px;
       margin-bottom: 10px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.1);
       transition: all 0.3s;
@@ -86,7 +118,7 @@
     }
 
     .truck-number {
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       font-weight: 700;
       color: var(--dark-color);
     }
@@ -94,8 +126,7 @@
     /* بطاقة الوزن المنفصلة - تصغير */
     .weight-box {
       background: #f8f9fa;
-      border-radius: 5px;
-      /* padding: 8px; */
+      border-radius: 8px;
       text-align: center;
       border: 1px solid #e0e0e0;
       height: 100%;
@@ -116,51 +147,42 @@
     }
 
     .weight-label {
-      font-size: 0.85rem;
+      font-size: 0.7rem;
       color: #666;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .weight-value {
-      font-size: 1.3rem;
+      font-size: 1rem;
       font-weight: 700;
       color: var(--dark-color);
-      margin: 3px 0;
+      margin: 2px 0;
     }
 
     .weight-value.net {
       color: var(--success-color);
-      font-size: 1.6rem;
+      font-size: 1.2rem;
     }
 
     .datetime {
-      font-size: 0.7rem;
+      font-size: 0.6rem;
       color: #888;
-      margin-top: 3px;
-      padding-top: 3px;
+      margin-top: 2px;
+      padding-top: 2px;
       border-top: 1px dashed #ddd;
     }
 
     /* الصور - شكل مربع وتصغير */
-    .image-container {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-top: 8px;
-    }
-
     .image-box {
-      flex: 1;
       text-align: center;
       background: #f0f0f0;
       border-radius: 8px;
-      /* padding: 5px; */
     }
 
     .image-box img {
-      width: 50%;
-      height: 100px;
-      object-fit: fill;
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.3s;
@@ -173,43 +195,37 @@
       box-shadow: 0 3px 10px rgba(0,0,0,0.2);
     }
 
-    .image-box .image-label {
-      font-size: 0.7rem;
-      color: #666;
-      margin-top: 3px;
-    }
-
     .image-placeholder {
-      width: 100%;
-      height: 80px;
+      width: 60px;
+      height: 60px;
       background: #e0e0e0;
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #999;
-      font-size: 1.5rem;
+      font-size: 1rem;
     }
 
     /* أزرار الإجراءات - تصغير */
     .action-buttons {
       display: flex;
-      gap: 6px;
+      gap: 4px;
       justify-content: center;
       align-items: center;
       flex-wrap: wrap;
-      margin-top: 5px;
+      margin-top: 3px;
     }
 
     .action-btn {
-      width: 35px;
-      height: 35px;
-      border-radius: 10px;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
       border: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       transition: all 0.3s;
       cursor: pointer;
     }
@@ -218,14 +234,34 @@
       transform: scale(1.05);
     }
 
+    .btn-weight {
+      background: linear-gradient(135deg, var(--primary-color), #7209b7);
+      color: white;
+    }
+
+    .btn-print {
+      background: linear-gradient(135deg, var(--success-color), #0cb8b8);
+      color: white;
+    }
+
+    .btn-clear {
+      background: linear-gradient(135deg, var(--danger-color), #b5179e);
+      color: white;
+    }
+
     /* لوحة المفاتيح الرقمية */
     .keyboard-container {
       background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      padding: 10px;
-      margin-top: 10px;
+      border-radius: 15px;
+      padding: 8px;
+      margin-top: 8px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
     }
 
     .keyboard-container.show {
@@ -246,23 +282,23 @@
 
     .keyboard-row {
       display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 8px;
+      margin-bottom: 8px;
       justify-content: center;
     }
 
     .key-btn {
       flex: 1;
-      padding: 15px;
-      font-size: 1.5rem;
+      padding: 12px;
+      font-size: 1.2rem;
       font-weight: bold;
       border: none;
-      border-radius: 15px;
+      border-radius: 12px;
       background: linear-gradient(135deg, #667eea, #764ba2);
       color: white;
       cursor: pointer;
       transition: all 0.2s;
-      min-width: 70px;
+      min-width: 60px;
     }
 
     .key-btn:active {
@@ -286,8 +322,8 @@
       position: fixed;
       bottom: 20px;
       left: 20px;
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--primary-color), #7209b7);
       color: white;
@@ -295,25 +331,21 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       cursor: pointer;
       z-index: 1000;
-      font-size: 1.2rem;
-    }
-
-    .toggle-keyboard:hover {
-      transform: scale(1.1);
+      font-size: 1rem;
     }
 
     /* حقل الإدخال */
     .input-group-custom {
       background: white;
       border-radius: 50px;
-      padding: 5px;
+      padding: 3px;
       box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     }
 
     .input-group-custom input {
       border: none;
-      padding: 12px 20px;
-      font-size: 1.1rem;
+      padding: 10px 15px;
+      font-size: 1rem;
       border-radius: 0 50px 50px 0;
       text-align: center;
       font-weight: bold;
@@ -321,8 +353,8 @@
 
     .input-group-custom button {
       border-radius: 50px 0 0 50px;
-      padding: 12px 25px;
-      font-size: 1rem;
+      padding: 10px 20px;
+      font-size: 0.9rem;
       font-weight: 700;
       background: linear-gradient(135deg, var(--primary-color), #7209b7);
       color: white;
@@ -332,27 +364,22 @@
     /* التبويبات */
     .tab-buttons {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 10px;
       flex-wrap: wrap;
     }
 
     .tab-btn {
       flex: 1;
-      min-width: 100px;
-      padding: 10px;
+      min-width: 80px;
+      padding: 8px;
       border: none;
-      border-radius: 12px;
+      border-radius: 10px;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       background: rgba(255,255,255,0.5);
       backdrop-filter: blur(5px);
       transition: all 0.3s;
-    }
-
-    .tab-btn.active {
-      background: white;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
     /* معرض الصور المنبثق */
@@ -379,11 +406,11 @@
       position: absolute;
       top: 20px;
       left: 20px;
-      font-size: 40px;
+      font-size: 30px;
       color: white;
       cursor: pointer;
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
       background: rgba(255,255,255,0.2);
       border-radius: 50%;
       display: flex;
@@ -398,12 +425,6 @@
       border-radius: 10px;
     }
 
-    .modal-caption {
-      color: white;
-      margin-top: 15px;
-      font-size: 1.2rem;
-    }
-
     /* إشعار toast */
     .toast-notification {
       position: fixed;
@@ -411,12 +432,13 @@
       left: 50%;
       transform: translateX(-50%);
       background: white;
-      padding: 12px 25px;
+      padding: 10px 20px;
       border-radius: 50px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       display: none;
       z-index: 9999;
       font-weight: 600;
+      font-size: 0.9rem;
     }
 
     .toast-notification.show {
@@ -445,10 +467,10 @@
     }
 
     .loading-spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid var(--primary-color);
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-color);
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
@@ -458,48 +480,53 @@
       100% { transform: rotate(360deg); }
     }
 
+    /* تنسيق الشاشات الصغيرة */
     @media (max-width: 768px) {
-      .truck-number { font-size: 1.1rem; }
-      .weight-value { font-size: 1.1rem; }
-      .weight-value.net { font-size: 1.3rem; }
-      .action-btn { width: 32px; height: 32px; font-size: 0.8rem; }
-      .image-box img { height: 60px; }
-      .key-btn { padding: 10px; font-size: 1.2rem; min-width: 50px; }
+      .truck-number { font-size: 0.9rem; }
+      .weight-value { font-size: 0.9rem; }
+      .weight-value.net { font-size: 1rem; }
+      .action-btn { width: 28px; height: 28px; font-size: 0.7rem; }
+      .image-box img { width: 50px; height: 50px; }
+      .image-placeholder { width: 50px; height: 50px; font-size: 0.8rem; }
+      .key-btn { padding: 10px; font-size: 1rem; min-width: 50px; }
+      .col-4 { padding: 0 4px; }
+      .gap-2 { gap: 5px !important; }
     }
 
-
-
-
     /* تنسيق إضافي لعرض الصورة على اليمين */
-.weight-box .d-flex {
-  direction: rtl;
-}
+    .weight-box .d-flex {
+      direction: rtl;
+    }
 
-.weight-box .image-box {
-  margin: 0;
-  padding: 0;
-  background: transparent;
-}
+    .weight-box .image-box {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+    }
 
-.weight-box .image-box img {
-  border: 2px solid #e0e0e0;
-  transition: all 0.3s;
-}
+    .weight-box .image-box img {
+      border: 2px solid #e0e0e0;
+      transition: all 0.3s;
+    }
 
-.weight-box .image-box img:hover {
-  transform: scale(1.05);
-  border-color: var(--primary-color);
-}
+    .weight-box .image-box img:hover {
+      transform: scale(1.05);
+      border-color: var(--primary-color);
+    }
 
-.weight-box .flex-grow-1 {
-  text-align: right;
-}
+    .weight-box .flex-grow-1 {
+      text-align: right;
+    }
 
-.weight-value small {
-  font-size: 0.7rem;
-  font-weight: normal;
-  color: #888;
-}
+    .weight-value small {
+      font-size: 0.6rem;
+      font-weight: normal;
+      color: #888;
+    }
+
+    .badge {
+      font-size: 0.6rem !important;
+    }
   </style>
 </head>
 <body>
@@ -511,6 +538,18 @@
 
   <!-- إشعار toast -->
   <div class="toast-notification" id="toastMessage"></div>
+
+  <!-- نافذة إدخال الوزن يدوي -->
+  <div id="manualWeightModal" class="manual-weight-modal">
+    <div class="manual-weight-content">
+      <h4><i class="fas fa-weight-scale"></i> إدخال الوزن يدوي</h4>
+      <input type="number" id="manualWeightInput" class="manual-weight-input" placeholder="أدخل الوزن" step="any">
+      <div class="d-flex gap-2">
+        <button class="btn btn-success flex-grow-1" onclick="confirmManualWeight()">تأكيد</button>
+        <button class="btn btn-danger flex-grow-1" onclick="closeManualWeightModal()">إلغاء</button>
+      </div>
+    </div>
+  </div>
 
   <!-- معرض الصور المنبثق -->
   <div id="imgModal" class="img-modal" onclick="closeModal(event)">
@@ -529,8 +568,8 @@
   <div class="main-container">
     
     <!-- عنوان الصفحة -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1 class="text-white" style="font-size: 1.5rem;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="text-white" style="font-size: 1.2rem;">
         <i class="fas fa-truck me-2"></i>
         نظام وزن السيارات
       </h1>
@@ -542,12 +581,13 @@
       </div>
     </div>
 
-    <div style="display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap;">
+    <div style="display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap;">
       <!-- بطاقة الوزن المباشر -->
-      <div class="weight-card" style="flex: 1; min-width: 200px;">
-        <div class="weight-display" id="currentWeight">
+      <div class="weight-card" style="flex: 1; min-width: 180px;">
+        <div class="weight-display" id="currentWeight" onclick="openManualWeightModal()" title="اضغط لإدخال الوزن يدوي">
           -- <span class="weight-unit">كجم</span>
         </div>
+        <small class="text-muted">اضغط على الوزن لإدخاله يدوياً</small>
       </div>
 
       <!-- إضافة سيارة جديدة -->
@@ -565,10 +605,10 @@
     </div>
 
     <!-- حقول إضافية للعميل والنوع -->
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">
+    <div class="row g-2 mb-3">
+      <div class="col-6">
         <div class="weight-card">
-          <input list="customers" id="globalCustomer" class="form-control" placeholder="اختر العميل">
+          <input list="customers" id="globalCustomer" class="form-control form-control-sm" placeholder="العميل">
           <datalist id="customers">
             <option value="الحاج خالد عبد السلام">
             <option value="عماد نوح">
@@ -578,9 +618,9 @@
           </datalist>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-6">
         <div class="weight-card">
-          <input list="types" id="globalType" class="form-control" placeholder="اختر النوع">
+          <input list="types" id="globalType" class="form-control form-control-sm" placeholder="النوع">
           <datalist id="types">
             <option value="أرز">
             <option value="غلة">
@@ -639,7 +679,7 @@
     </div>
 
     <!-- زر تحميل المزيد -->
-    <button class="btn btn-light w-100 py-2 mt-3" onclick="loadMore()" id="loadMoreBtn" style="display: none;">
+    <button class="btn btn-light w-100 py-1 mt-2" onclick="loadMore()" id="loadMoreBtn" style="display: none; font-size: 0.8rem;">
       <i class="fas fa-arrow-down"></i>
       تحميل المزيد
     </button>
@@ -658,6 +698,8 @@
     let currentTab = 'all';
     let displayLimit = 10;
     let allTrucks = [];
+    let pendingAction = null; // لتخزين الإجراء المعلق (first أو second)
+    let pendingTruckId = null; // لتخزين معرف السيارة المعلق
 
     // تحميل السيارات المحفوظة عند بدء التشغيل
     window.onload = function() {
@@ -669,6 +711,45 @@
     // تركيز على حقل الإدخال
     function focusInput() {
       document.getElementById('newTruckNumber').focus();
+    }
+
+    // فتح نافذة إدخال الوزن يدوي
+    function openManualWeightModal() {
+      document.getElementById('manualWeightModal').style.display = 'flex';
+      document.getElementById('manualWeightInput').value = '';
+      document.getElementById('manualWeightInput').focus();
+    }
+
+    // إغلاق نافذة إدخال الوزن يدوي
+    function closeManualWeightModal() {
+      document.getElementById('manualWeightModal').style.display = 'none';
+      pendingAction = null;
+      pendingTruckId = null;
+    }
+
+    // تأكيد إدخال الوزن يدوي
+    function confirmManualWeight() {
+      const weight = parseFloat(document.getElementById('manualWeightInput').value);
+      if (isNaN(weight) || weight <= 0) {
+        showToast('الرجاء إدخال وزن صحيح', 'error');
+        return;
+      }
+      
+      currentWeight = weight;
+      const weightDisplay = document.getElementById('currentWeight');
+      weightDisplay.innerHTML = `${weight.toLocaleString()} <span class="weight-unit">كجم</span>`;
+      closeManualWeightModal();
+      
+      // تنفيذ الإجراء المعلق إذا وجد
+      if (pendingAction === 'first') {
+        addFirstWeight();
+      } else if (pendingAction === 'second' && pendingTruckId) {
+        captureSecondWeight(pendingTruckId);
+      }
+      
+      pendingAction = null;
+      pendingTruckId = null;
+      showToast(`تم تعيين الوزن: ${weight} كجم`, 'success');
     }
 
     // تبديل لوحة المفاتيح
@@ -724,7 +805,7 @@
             secondWeight: parseFloat(row.tare) || null,
             secondTime: row.time,
             secondDate: row.date,
-            secondImage: row.images ? `images/print/${row.images}_cam3.jpg` : null,
+            secondImage: row.images ? `images/print/${row.images}_cam2.jpg` : null,
             netWeight: parseFloat(row.net) || null,
             netCalculated: true,
             images: row.images,
@@ -740,8 +821,6 @@
 
       // استقبال بيانات الحساسات
       socket.on('id:new', (row) => {
-        console.log('استقبال بيانات الحساسات');
-        
         if (row.NE && !allTrucks.find(t => t.number === row.NE && !t.secondWeight)) {
           const newTruck = {
             id: Date.now().toString(),
@@ -813,9 +892,9 @@
       
       if (trucks.length === 0) {
         listElement.innerHTML = `
-          <div class="text-center text-white py-4">
-            <i class="fas fa-truck fa-3x mb-2"></i>
-            <h5>لا توجد سيارات</h5>
+          <div class="text-center text-white py-3">
+            <i class="fas fa-truck fa-2x mb-2"></i>
+            <h6>لا توجد سيارات</h6>
             <p class="small">أضف سيارة جديدة باستخدام الحقل أعلاه</p>
           </div>
         `;
@@ -827,109 +906,126 @@
       });
     }
 
-    // إنشاء بطاقة سيارة - نسخة مصغرة
-// إنشاء بطاقة سيارة - نسخة مصغرة مع الصورة على اليمين
-function createTruckCard(truck) {
-  const card = document.createElement('div');
-  card.className = `truck-card ${!truck.secondWeight ? 'first-weight' : truck.netCalculated ? 'completed' : 'second-weight'}`;
-  card.id = `truck-${truck.id}`;
+    // إنشاء بطاقة سيارة مع الصورة على اليمين
+    function createTruckCard(truck) {
+      const card = document.createElement('div');
+      card.className = `truck-card ${!truck.secondWeight ? 'first-weight' : truck.netCalculated ? 'completed' : 'second-weight'}`;
+      card.id = `truck-${truck.id}`;
 
-  // تنسيق الأوزان
-  const firstWeight = truck.firstWeight ? truck.firstWeight.toLocaleString() : '---';
-  const secondWeight = truck.secondWeight ? truck.secondWeight.toLocaleString() : '---';
-  const netWeight = truck.netWeight ? truck.netWeight.toLocaleString() : '---';
+      // تنسيق الأوزان
+      const firstWeight = truck.firstWeight ? truck.firstWeight.toLocaleString() : '---';
+      const secondWeight = truck.secondWeight ? truck.secondWeight.toLocaleString() : '---';
+      const netWeight = truck.netWeight ? truck.netWeight.toLocaleString() : '---';
 
-  // تنسيق الوقت والتاريخ
-  const firstDateTime = truck.firstTime ? 
-    `<div class="datetime"><i class="far fa-clock"></i> ${truck.firstTime}</div>` : '';
-  
-  const secondDateTime = truck.secondTime ? 
-    `<div class="datetime"><i class="far fa-clock"></i> ${truck.secondTime}</div>` : '';
+      // تنسيق الوقت والتاريخ
+      const firstDateTime = truck.firstTime ? 
+        `<div class="datetime"><i class="far fa-clock"></i> ${truck.firstTime}</div>` : '';
+      
+      const secondDateTime = truck.secondTime ? 
+        `<div class="datetime"><i class="far fa-clock"></i> ${truck.secondTime}</div>` : '';
 
-  card.innerHTML = `
-    <div class="row align-items-center">
-      <!-- رقم السيارة -->
-      <div class="col-12 mb-2">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <span class="truck-number">🚛 ${truck.number}</span>
-            ${truck.customer ? `<span class="badge bg-info ms-1" style="font-size: 0.7rem;">${truck.customer}</span>` : ''}
-            ${truck.type ? `<span class="badge bg-success" style="font-size: 0.7rem;">${truck.type}</span>` : ''}
-          </div>
-        </div>
-      </div>
-
-      <!-- الوزن الأول - الصورة على اليمين -->
-      <div class="col-4">
-        <div class="weight-box first">
-          <div class="d-flex align-items-center gap-2">
-            <!-- الصورة على اليمين -->
-            <div class="image-box" style="flex-shrink: 0; width: 70px;">
-              ${truck.firstImage ? 
-                `<img src="${truck.firstImage}" onclick="openImage('${truck.firstImage}', 'الوزن الأول - ${truck.number}')" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">` : 
-                `<div class="image-placeholder" style="width: 100px; height: 100px;"><i class="fas fa-camera"></i></div>`
-              }
-            </div>
-            <!-- النصوص على اليسار -->
-            <div class="flex-grow-1 text-end">
-              <div class="weight-label"><i class="fas fa-arrow-up text-warning"></i> الوزن الأول</div>
-              <div class="weight-value">${firstWeight} <small>كجم</small></div>
-              ${firstDateTime}
+      card.innerHTML = `
+        <div class="row align-items-center g-1">
+          <!-- رقم السيارة -->
+          <div class="col-12 mb-1">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="truck-number">🚛 ${truck.number}</span>
+                ${truck.customer ? `<span class="badge bg-info ms-1">${truck.customer}</span>` : ''}
+                ${truck.type ? `<span class="badge bg-success">${truck.type}</span>` : ''}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- الوزن الثاني - الصورة على اليمين -->
-      <div class="col-4">
-        <div class="weight-box second">
-          <div class="d-flex align-items-center gap-2">
-            <!-- الصورة على اليمين -->
-            <div class="image-box" style="flex-shrink: 0; width: 70px;">
-              ${truck.secondImage ? 
-                `<img src="${truck.secondImage}" onclick="openImage('${truck.secondImage}', 'الوزن الثاني - ${truck.number}')" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">` : 
-                `<div class="image-placeholder" style="width: 100px; height: 100px;"><i class="fas fa-camera"></i></div>`
-              }
-            </div>
-            <!-- النصوص على اليسار -->
-            <div class="flex-grow-1 text-end">
-              <div class="weight-label"><i class="fas fa-arrow-down text-success"></i> الوزن الثاني</div>
-              <div class="weight-value">${secondWeight} <small>كجم</small></div>
-              ${secondDateTime}
+          <!-- الوزن الأول - الصورة على اليمين -->
+          <div class="col-4">
+            <div class="weight-box first p-1">
+              <div class="d-flex align-items-center gap-1">
+                <div class="image-box" style="flex-shrink: 0;">
+                  ${truck.firstImage ? 
+                    `<img src="${truck.firstImage}" onclick="openImage('${truck.firstImage}', 'الوزن الأول - ${truck.number}')" style="width: 50px; height: 50px;">` : 
+                    `<div class="image-placeholder" style="width: 50px; height: 50px;"><i class="fas fa-camera"></i></div>`
+                  }
+                </div>
+                <div class="flex-grow-1 text-end">
+                  <div class="weight-label"><i class="fas fa-arrow-up text-warning"></i> الوزن الأول</div>
+                  <div class="weight-value">${firstWeight} <small>كجم</small></div>
+                  ${firstDateTime}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- الصافي -->
-      <div class="col-4">
-        <div class="weight-box net">
-          <div class="text-center">
-            <div class="weight-label"><i class="fas fa-balance-scale"></i> الصافي</div>
-            <div class="weight-value net">${netWeight} <small>كجم</small></div>
-            <div class="action-buttons">
-              ${!truck.secondWeight ? 
-                `<button class="action-btn btn-weight" onclick="captureSecondWeight('${truck.id}')" title="وزن ثاني">
-                  <i class="fas fa-weight-scale"></i>
-                </button>` : ''
-              }
-              ${truck.netWeight ? 
-                `<button class="action-btn btn-print" onclick="printTicket('${truck.id}')" title="طباعة">
-                  <i class="fas fa-print"></i>
-                </button>` : ''
-              }
-              <button class="action-btn btn-clear" onclick="clearTruck('${truck.id}')" title="حذف">
-                <i class="fas fa-trash"></i>
-              </button>
+          <!-- الوزن الثاني - الصورة على اليمين -->
+          <div class="col-4">
+            <div class="weight-box second p-1">
+              <div class="d-flex align-items-center gap-1">
+                <div class="image-box" style="flex-shrink: 0;">
+                  ${truck.secondImage ? 
+                    `<img src="${truck.secondImage}" onclick="openImage('${truck.secondImage}', 'الوزن الثاني - ${truck.number}')" style="width: 50px; height: 50px;">` : 
+                    `<div class="image-placeholder" style="width: 50px; height: 50px;"><i class="fas fa-camera"></i></div>`
+                  }
+                </div>
+                <div class="flex-grow-1 text-end">
+                  <div class="weight-label"><i class="fas fa-arrow-down text-success"></i> الوزن الثاني</div>
+                  <div class="weight-value">${secondWeight} <small>كجم</small></div>
+                  ${secondDateTime}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- الصافي -->
+          <div class="col-4">
+            <div class="weight-box net p-1">
+              <div class="text-center">
+                <div class="weight-label"><i class="fas fa-balance-scale"></i> الصافي</div>
+                <div class="weight-value net">${netWeight} <small>كجم</small></div>
+                <div class="action-buttons">
+                  ${!truck.secondWeight ? 
+                    `<button class="action-btn btn-weight" onclick="checkAndCaptureSecondWeight('${truck.id}')" title="وزن ثاني">
+                      <i class="fas fa-weight-scale"></i>
+                    </button>` : ''
+                  }
+                  ${truck.netWeight ? 
+                    `<button class="action-btn btn-print" onclick="printTicket('${truck.id}')" title="طباعة">
+                      <i class="fas fa-print"></i>
+                    </button>` : ''
+                  }
+                  <button class="action-btn btn-clear" onclick="clearTruck('${truck.id}')" title="حذف">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  `;
+      `;
 
-  return card;
-}
+      return card;
+    }
+
+    // التحقق من الوزن قبل إضافة الوزن الثاني
+    function checkAndCaptureSecondWeight(id) {
+      const truck = allTrucks.find(t => t.id === id);
+      if (!truck) return;
+
+      if (truck.secondWeight) {
+        showToast('تم أخذ الوزن الثاني مسبقاً', 'warning');
+        return;
+      }
+
+      if (currentWeight === 0) {
+        pendingAction = 'second';
+        pendingTruckId = id;
+        showToast('الرجاء إدخال الوزن الثاني يدوياً أو انتظار قراءة الميزان', 'warning');
+        openManualWeightModal();
+        return;
+      }
+
+      captureSecondWeight(id);
+    }
+
     // إضافة وزن أول لسيارة جديدة
     async function addFirstWeight() {
       const number = document.getElementById('newTruckNumber').value.trim();
@@ -942,13 +1038,15 @@ function createTruckCard(truck) {
       }
 
       if (currentWeight === 0) {
-        showToast('الرجاء التأكد من وجود وزن على الميزان', 'warning');
+        pendingAction = 'first';
+        showToast('الرجاء إدخال الوزن الأول يدوياً أو انتظار قراءة الميزان', 'warning');
+        openManualWeightModal();
         return;
       }
 
       const existing = allTrucks.find(t => t.number === number && !t.secondWeight);
       if (existing) {
-        showToast('هذه السيارة موجودة بالفعل في قائمة الوزن الأول', 'warning');
+        showToast(`السيارة رقم ${number} موجودة بالفعل في قائمة الوزن الأول`, 'warning');
         return;
       }
 
@@ -1002,11 +1100,6 @@ function createTruckCard(truck) {
     async function captureSecondWeight(id) {
       const truck = allTrucks.find(t => t.id === id);
       if (!truck) return;
-
-      if (currentWeight === 0) {
-        showToast('الرجاء التأكد من وجود وزن على الميزان', 'warning');
-        return;
-      }
 
       if (truck.secondWeight) {
         showToast('تم أخذ الوزن الثاني مسبقاً', 'warning');
@@ -1070,6 +1163,7 @@ function createTruckCard(truck) {
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeModal();
+        closeManualWeightModal();
       }
     });
 
@@ -1147,4 +1241,4 @@ function createTruckCard(truck) {
     }
   </script>
 </body>
-</html> 
+</html>

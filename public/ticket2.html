@@ -8,7 +8,7 @@
   <style>
     body {
       font-family: "Arial", "Tahoma", sans-serif;
-      width: 80mm;
+      width: 160mm;
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -20,39 +20,39 @@
     }
 
     .small0 {
-      font-size: 13px;
+      font-size: 30px;
     }
 
     .small {
-      font-size: 15px;
+      font-size: 35px;
     }
 
     .medium {
-      font-size: 17px;
+      font-size: 40px;
     }
 
     .large {
-      font-size: 18px;
+      font-size: 35px;
     }
 
     .large2 {
-      font-size: 25px;
+      font-size: 50px;
     }
 
     .bold {
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .line {
-      border-top: 1px dashed #000;
-      margin: 6px 0;
+      border-top: 5px dashed #000;
+      margin: 10px 0;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       direction: rtl;
-      font-size: 14px;
+      font-size: 40px;
     }
 
     td {
@@ -67,17 +67,17 @@
     }
 
     .value {
-      width: 35%;
+      width: 40%;
     }
 
     @media print {
       @page {
-        size: 70mm auto;
+        size: 150mm auto;
         margin: 0;
       }
 
       body {
-        width: 70mm;
+        width: 150mm;
         margin: 0;
         padding: 6px;
       }
@@ -87,13 +87,11 @@
 
 <body class="print-ticket">
 
-  <div class="center">
-    <img src="logo/logo.png" alt="شعار الميزان" style="max-width:120px; height:auto; margin-bottom:6px;">
-  </div>
 
-  <h1 class="center bold">ميزان بسكول شوشان</h1>
+
+  <!-- <h1 class="center bold">ميزان بسكول شوشان</h1>
   <h3 class="center small">العنوان مدخل أبوغنيمة ت: 01099760031</h3>
-  <div class="line"></div>
+  <div class="line"></div> -->
 
   <table>
     <tr>
@@ -107,12 +105,12 @@
       <td class="value center" id="sn"></td>
     </tr> -->
     <tr>
-      <td class="label">رقم السيارة :</td>
+      <td class="label">رقم السيارة</td>
       <td class="value large bold center" id="number" colspan="3"></td>
     </tr>
 
     <tr>
-      <td class="label">اسم العميل :</td>
+      <td class="label">اسم العميل</td>
       <td class="value large bold center" id="customer" colspan="3"></td>
     </tr>
 
@@ -128,12 +126,12 @@
     <tr>
       <td class="label large bold">القائم :</td>
       <td class="value large bold center" id="gross"></td>
-      <td class="value large bold center" id="extra_gross">كجم</td>
+      <td class="value large bold center" id="extra_gross"></td>
     </tr>
     <tr>
       <td class="label large bold">الفارغ :</td>
       <td class="value large bold center" id="tare"></td>
-      <td class="value large bold center" id="extra_tare">كجم</td>
+      <td class="value large bold center" id="extra_tare"></td>
     </tr>
     <tr>
       <td class="label large bold">الصافي :</td>
@@ -141,7 +139,7 @@
         <div class="large2" id="net"></div>
       </td>
       <td class="value large bold center">
-        <div class="large2" id="extra_net">كجم</div>
+        <div class="large2" id="extra_net"></div>
       </td>
     </tr>
   </table>
@@ -188,9 +186,9 @@
         if (typeof extra === "string") {
           extra = JSON.parse(extra);
         }
-        document.getElementById("extra_gross").textContent = toArabicNumbers(extra.secondWeight) +"كجم";
-        document.getElementById("extra_tare").textContent = toArabicNumbers(extra.thirdWeight) +"كجم";
-        document.getElementById("extra_net").textContent = toArabicNumbers(extra.finalNetWeight)+"كجم" ;
+        document.getElementById("extra_gross").textContent = toArabicNumbers(extra.secondWeight) ;
+        document.getElementById("extra_tare").textContent = toArabicNumbers(extra.thirdWeight) ;
+        document.getElementById("extra_net").textContent = toArabicNumbers(extra.finalNetWeight) ;
         document.getElementById("extra_type").textContent = extra.extraEditType;
 
         document.getElementById("extraWeightsTable").innerHTML = `
@@ -200,7 +198,7 @@
 
     <tr>
       <td class="label large bold">الاجمالي </td>
-      <td class="value large bold center">${toArabicNumbers(extra.totalNetWeight)} كجم</td>
+      <td class="value large bold center">${toArabicNumbers(extra.totalNetWeight)} </td>
     </tr>
   </table>
   `;
@@ -222,7 +220,7 @@
         document.getElementById("tableBody").innerHTML = `
 
 <div class="row mb-2">
-  <label class="col-12 col-form-label fw-bold text-center">تفاصيل الحساب</label>
+  <label class="col-12 col-form-label fw-bold text-center center small">تفاصيل الحساب</label>
   <div class="col-12">
 
     <table >
@@ -243,7 +241,7 @@
       <td class="value center" >${price}</td>
       <td class="value center" >${unitWeight}</td>
       <td class="value center" >${units}</td>
-      <td class="value center" >${remain} كجم</td>
+      <td class="value center" >${remain} </td>
       <td class="value center" >${total.toFixed(2)} جنيه</td>
     </tr>
       </tbody>
@@ -275,13 +273,41 @@
 
   </script>
   <script>
-    window.onload = function () {
-      window.print();
-      setTimeout(() => {
-        window.close();
-      }, 2000); // ثانيتين بعد الطباعة
-    };
+    // window.onload = function () {
+    //   window.print();
+    //   setTimeout(() => {
+    //     window.close();
+    //   }, 2000); // ثانيتين بعد الطباعة
+    // };
 
+
+window.onload = function () {
+    // إرسال محتوى الصفحة بالكامل للسيرفر
+    fetch('/print-ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: document.documentElement.outerHTML })
+    })
+    .then(res => res.json())
+    // .then(() => console.log("تم الإرسال والطباعة ✅"));
+    //      setTimeout(() => {
+    //     window.close();
+    //   }, 2000); // ثانيتين بعد الطباعة
+};
+
+
+// window.onload = function () {
+//     // إرسال البيانات فقط (أسرع وأخف)
+//     const data = JSON.parse(localStorage.getItem("ticketData"));
+    
+//     fetch('/print-ticket', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(data) 
+//     })
+//     .then(res => res.json())
+//     .then(() => console.log("تم إرسال البيانات والطباعة ✅"));
+// };
 
   </script>
 

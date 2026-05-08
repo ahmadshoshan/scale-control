@@ -187,6 +187,7 @@
                       <option value="محمود ابو منصور">
                     </datalist>
                   </div>
+
                 </div>
 
                 <div class="row g-2 mb-2">
@@ -199,7 +200,7 @@
                       <option value="أرز" data-unit="300">
                       <option value="غلة" data-unit="155">
                       <option value="تبن" data-unit="250">
-                        <option value="فول" data-unit="155">
+                      <option value="فول" data-unit="155">
                       <option value="خشب" data-unit="1000">
                       <option value="خشب صنعه" data-unit="1000">
                       <option value="خشب حريق" data-unit="1000">
@@ -347,13 +348,16 @@
           </div>
         </div>
         <div class="modal-footer">
+          <button onclick="updateAndPrint(true,true);" class="btn btn-success">
+            🖨️  
+          </button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             <i class="fas fa-times"></i>
             إلغاء
           </button>
           <button type="button" class="btn btn-primary" onclick="updateAndPrint(false)">
             <i class="fas fa-save"></i>
-              انتظار
+            انتظار
           </button>
           <button type="button" class="btn btn-success" onclick="updateAndPrint(true)">
             <i class="fas fa-save"></i>

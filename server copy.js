@@ -1,10 +1,27 @@
-// ═══════════════════════════════════════════════════════════════════
-// 🚀 نقطة الدخول وتحميل المكتبات الأساسية
-// ═══════════════════════════════════════════════════════════════════
 const express = require('express');
 const http = require('http');
+
+
+
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const path = require('path');
 let type_id = '';
@@ -17,7 +34,9 @@ const io = require('socket.io')(server);
 
 const fs = require('fs');
 
-// ✅ 1. خدمة المجلد public كامل
+
+
+// ✅ 1. خدمة المجلد public كامل (  )
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ✅ 2. إضافة مسار إضافي لمجلد webfonts في الجذر
@@ -37,16 +56,15 @@ app.get('/webfonts/:file', (req, res) => {
     res.redirect(`/public/css/webfonts/${req.params.file}`);
 });
 
+
+
+
 require('dotenv').config();
 
-// ═══════════════════════════════════════════════════════════════════
-// 🔌 إعداد الاتصالات (Serial Ports)
-// ═══════════════════════════════════════════════════════════════════
+
+//////////////////////////////
 const port = new SerialPort({ path: process.env.COM_PORT1, baudRate: 9600 });
 const port2 = new SerialPort({ path: process.env.COM_PORT2, baudRate: 9600 });
-
-port.on('error', (err) => console.error('❌ SerialPort1 erroe', err.message));
-port2.on('error', (err) => console.error('❌ SerialPort2 erroe', err.message));
 
 const { playSoundAlert } = require('./modules/audio');
 const pool = require('./modules/db');
@@ -60,12 +78,10 @@ port2.on('error', (err) => {
     console.error('  port2 :', err.message);
 });
 
+
 const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 const get_printer = port2.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 
-// ═══════════════════════════════════════════════════════════════════
-// 🖨️ معالج بيانات الطابعة (Printer Logic)
-// ═══════════════════════════════════════════════════════════════════
 let buffer = []; // تخزين المؤقت للبيانات
 const expectedLines = 7; // عدد السطور المتوقعة لكل عملية طباعة
 
@@ -206,11 +222,10 @@ app.get("/get-print", (req, res) => {
 });
 
 /////////////////////////////////////////////////////////////////////
-// 📷 دوال الكاميرا والمساعدات
-/////////////////////////////////////////////////////////////////////
-// const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer');
 
 // دالة تحويل الأرقام للعربي
+
 function toArabicNumbers(input) {
     input = input.toString().trim();
 
@@ -240,7 +255,6 @@ app.get('/send-command', (req, res) => {
 
     const command = req.query.command; // الحصول على الأمر من الطلب
     if (command) {
-
         port.write(`${command}\r`, (err) => {
             if (err) {
                 console.error('خطأ في إرسال command:', err.message);
@@ -255,9 +269,8 @@ app.get('/send-command', (req, res) => {
     }
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// ⚖️ معالج بيانات الميزان (Sensor Logic)
-// ═══════════════════════════════════════════════════════════════════
+
+
 let match = "";
 let match1 = "";
 let lastMessage = ''; // متغير لتخزين آخر رسالة مستلمة
@@ -267,8 +280,7 @@ let sendInterval = null;
 let sendInterval2 = null;
 let sendInterval3 = null;
 // let alertPlayed = false; // لمنع تكرار الصوت
-// let zeroSentTimer = null; // متغير لحفظ حالة إرسال أمر التصفير
-// let weightStartTime = null;
+
 // استقبال البيانات من الجهاز وإرسالها إلى الواجهة الأمامية
 parser.on('data', (data) => {
     // console.log(data)
@@ -276,11 +288,8 @@ parser.on('data', (data) => {
 
     const currentMessage = data
         // .replace(/[^\p{L}\p{N}]/gu, '')
-        // إزالة STX () و ETX () وأي أحرف غير مرغوب فيها
-        .replace(/[\x02\x03]/g, "") // إزالة STX و ETX أولاً
         .replace(/[\x00-\x1F\x7F]/g, '')   // رموز التحكم
         .trim();
-
 
     // تنظيف الرسالة الحالية
     // التحقق مما إذا كانت الرسالة الحالية مكررة
@@ -297,9 +306,8 @@ parser.on('data', (data) => {
     let cleanedWeight = data.replace(/[^0-9.-]/g, "");
     // تحويل الوزن إلى رقم
     const weight = parseFloat(cleanedWeight.trim());
-    // متغير لتسجيل وقت بدء الحالة
 
-    if (!isNaN(weight) && weight < -10 && (currentMessage.slice(-2).toUpperCase() !== "KN")) {
+    if (!isNaN(weight) && weight < -10) {
         // playSoundAlert("yagib_tasfier_almezan.mp3", io);
         playSoundIfEnabled("yagib_tasfier_almezan.mp3");
 
@@ -309,44 +317,12 @@ parser.on('data', (data) => {
                 sendMessageIfEnabled(`يجب تصفير الميزان  ${weight}`);
             }, 5000);
         }
-        ///////////////////////////////////
-        // ✅ تسجيل وقت البدء مرة واحدة فقط عند أول دخول للحالة
-        // if (weightStartTime === null) {
-        //     weightStartTime = Date.now();
-        //     console.log("start" + weightStartTime);
-        // }
-        //  console.log("is" + weightStartTime);
-
-        // التحقق مما إذا مرت دقيقة
-        // const elapsed = Date.now() - weightStartTime;
-        // console.log(elapsed);
-
-        // if (!zeroSentTimer && elapsed >= 30000) {
-        //         //  
-        //     port.write('kzero\r', (err) => {
-        //         if (err) {
-        //             console.log("err", err);
-        //         } else {
-        //             console.log("✅ zero  ", Math.floor(elapsed / 1000), "ثانية");
-        //             weightStartTime=null;
-        //             zeroSentTimer = true;
-        //         }
-        //     });
-        // }
-        ///////////////////////////
     } else {
         if (sendInterval2) {
             clearInterval(sendInterval2);
             sendInterval2 = null;
 
         }
-        ///////////////////////
-        // if (weightStartTime) {
-        //     weightStartTime = null;
-        // }
-        // if (zeroSentTimer) {
-        //     zeroSentTimer = null;
-        // }
     }
 
     if (!isNaN(weight) && weight > 300) {
@@ -482,10 +458,6 @@ app.get("/get-sound", (req, res) => {
     );
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// 🗄️ مسارات جلب البيانات (Data Routes)
-// ═══════════════════════════════════════════════════════════════════
-
 // جلب بيانات محددة من قاعدة البيانات باستخدام LIMIT و OFFSET
 app.get('/get-data2', (req, res) => {
     // (date, time, sn, number, gross, tare, net) 
@@ -509,7 +481,6 @@ app.get('/get-data2', (req, res) => {
         });
     });
 });
-
 // بحث بيانات محددة من قاعدة البيانات باستخدام 
 app.get('/get-data3', (req, res) => {
 
@@ -570,13 +541,17 @@ app.get('/get-data', (req, res) => {
             res.json(results);
         });
     });
+
+
+
+
 });
 
 app.put('/update-ticket/:id', (req, res) => {
     const { id } = req.params;
     const { number, customer, type, gross, tare, tare2, net, note, extraWeightsTable } = req.body;
     // const extraData = extraWeightsTable ? JSON.stringify(extraWeightsTable) : '';
-    let _tare2 = tare2;
+  let _tare2 =tare2;
     if (extraWeightsTable) {
 
         let extra = extraWeightsTable;
@@ -586,13 +561,13 @@ app.put('/update-ticket/:id', (req, res) => {
         }
         _tare2 = extra.thirdWeight;
         // extraData = `الفارغ :${toArabicNumbers(extra.thirdWeight)}\n ${extra.extraEditType} :${toArabicNumbers(extra.finalNetWeight)}\nالاجمالي :${toArabicNumbers(extra.totalNetWeight)}`;
-    }
+    } 
     // else {
     //     extraData = '';
     // }
     const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, tare2=?,net=?, note=? WHERE id=?';
 
-    pool.query(sql, [number, customer, type, gross, tare, _tare2, net, note, id], (err, result) => {
+    pool.query(sql, [number, customer, type, gross, tare, _tare2, net, note , id], (err, result) => {
         if (err) {
             console.error('❌ خطأ أثناء التحديث:', err);
             return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
@@ -603,20 +578,36 @@ app.put('/update-ticket/:id', (req, res) => {
     });
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// 🚀 تشغيل الخادم
-// ═══════════════════════════════════════════════════════════════════
+
+
+
+
+// تشغيل الخادم
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '192.168.1.222';
 server.listen(PORT, HOST, () => {
     console.log(` HOST :   ${HOST} --  ${PORT}`);
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// 📷 دالة التقاط الصور (كاميرات المراقبة)
-// ═══════════════════════════════════════════════════════════════════
+
+
+
+
+
+
+
+
+
+
+
 const DigestFetch = require('digest-fetch').default;
+
+
+
 const client = new DigestFetch('admin', 'admin100');
+
+
+
 
 async function captureImage(car_No_Date_weight, path) {
     // انتظار 1.5 ثانية (1500 ملي ثانية) قبل التقاط الصورة
@@ -628,9 +619,12 @@ async function captureImage(car_No_Date_weight, path) {
     ];
 
     try {
+
+
         // إنشاء مصفوفة من الوعود (Promises)
         const promises = urls.map(async (url, index) => {
             try {
+
                 const response = await client.fetch(url);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -664,11 +658,13 @@ async function captureImage(car_No_Date_weight, path) {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// 📡 مراقبة النظام (PM2 & Telegram)
-// ═══════════════════════════════════════════════════════════════════
+
+
+
+
+
 const pm2 = require('pm2');
-const { sendMessageIfEnabled, sendMessage } = require('./backend/services/telegram/pm2-telegram');
+const { sendMessageIfEnabled, sendMessage } = require('./backend/pm2-telegram');
 
 pm2.connect(function (err) {
     if (err) {
@@ -697,9 +693,11 @@ pm2.connect(function (err) {
 });
 
 // const https = require('https');
+
 // https.get("https://api.telegram.org/bot7965946681:AAEBYL15_UiA3FzvN5r_j1LcgwqLTn8RHuw/sendMessageIfEnabled?chat_id=1390890695&text=Test", res => {
 //   console.log(res.statusCode);
 // });
+
 
 // تشغيل / إيقاف الإشعارات
 app.get("/set-notify/:status", (req, res) => {
@@ -725,9 +723,6 @@ app.get("/get-notify", (req, res) => {
     });
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// 👥 إدارة العملاء والأنواع (CRUD APIs)
-// ═══════════════════════════════════════════════════════════════════
 
 // ظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظظ
 // ==================== إدارة العملاء ====================
@@ -874,9 +869,27 @@ app.delete('/api/types/:id', (req, res) => {
     });
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // ==================== طباعة Xprinter مباشرة ====================
+// ==================== طباعة Xprinter مباشرة ====================
+
 ///////////////////////////////////////////////////////////////////////////////
+
 
 // إضافة مسار لالتقاط الصور
 app.get('/capture-images/:imageId/:type', async (req, res) => {
@@ -892,6 +905,9 @@ app.get('/capture-images/:imageId/:type', async (req, res) => {
     }
 });
 
+
+
+
 //////////////////////////////////////////////////////////////
 // setInterval(() => {
 //     const used = process.memoryUsage();
@@ -903,325 +919,39 @@ app.get('/capture-images/:imageId/:type', async (req, res) => {
 // const keys = webpush.generateVAPIDKeys();
 // console.log(keys);
 //////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
+
+// const webpush = require('web-push');
+
+// const PUBLIC_KEY = process.env.publicKey;
+// const PRIVATE_KEY = process.env.privateKey;
+
+// webpush.setVapidDetails(
+//     'mailto:you@example.com',
+//     PUBLIC_KEY,
+//     PRIVATE_KEY
+// );
+
+// let subscriptions = [];
 
 
 
 
 
 
+// app.post('/subscribe', express.json(), (req, res) => {
+//     const subscription = req.body;
+//     subscriptions.push(subscription);
 
+//     res.status(201).json({});
+// });
 
-
-
-
-
-
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-const { ThermalPrinter, PrinterTypes } = require('node-thermal-printer');
-
-const printer = new ThermalPrinter({
-    type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
-    interface: 'tcp://192.168.1.11:9100', // 🔥 لازم بورت 9100
-    // interface: 'printer:XP-80',
-    characterSet: 'WPC1256_ARABIC',
-    removeSpecialCharacters: false,
-});
-const nodeHtmlToImage = require('node-html-to-image');
-
-// async function printHtml(htmlContent) {
-//     const imageBuffer = await nodeHtmlToImage({
-//         html: `<div style="width: 384px; background: white; padding: 10px;">${htmlContent}</div>`,
-//         transparent: false // مهم جداً للطابعة الحرارية
+// function sendPushNotification(message) {
+//     subscriptions.forEach(sub => {
+//         webpush.sendNotification(sub, JSON.stringify({
+//             title: '🚛 نظام الميزان',
+//             body: message
+//         }));
 //     });
-    
-//     // حفظ الصورة مؤقتاً أو إرسال البافر مباشرة
-//     await printer.printImage(imageBuffer);
-//     await printer.execute();
 // }
 
-// app.post('/print-ticket', express.json(), async (req, res) => {
-//     try {
-//         const row = req.body;
-
-
-//         printer.clear();
-//         printer.beep(2,2);
-//         // D:\XAMPP\htdocs\710\public\logo\logo.png
-//         printer.alignCenter();
-//         await printer.printImage('./public/logo/l1.png');
-//         await printer.printImage('./public/logo/222.png');
-//         // printer.setTextSize(1, 1);
-//         // printer.bold(true);
-//         // printer.println("ميزان بسكول شوشان");
-//         // printer.setTextSize(0, 0);
-//         // printer.bold(false);
-//         printer.drawLine();
-
-//         printer.alignRight();
-//         printer.println(`   التاريخ:   ${row.date}`);
-//         printer.print(`   الوقت:     ${row.time}`);
-//         printer.println(`   السيارة:   ${row.number}`);
-//         printer.println(`   العميل:    ${row.customer}`);
-//         printer.println(`   النوع :    ${row.type}`);
-
-//         printer.drawLine();
-// // printer.setTextDoubleHeight();
-// // printer.setTextDoubleWidth();
-//        printer.bold(true);
-//        printer.bold(true);
-
-//         printer.println(`   الوزن القائم:    ${row.gross} كجم`);
-//         printer.println(`   الوزن الفارغ:    ${row.tare} كجم`);
-//         printer.println(`   الصافي:          ${row.net} كجم`);
-
-//         printer.drawLine();
-    
-
-//         printer.println("     الميزان غير مسئول عن فقدان الكارت");
-// //        printer.tableCustom([
-// //   { text: "المنتج", align: "RIGHT", width: 0.4, bold: true },
-// //   { text: "الكمية", align: "CENTER", width: 0.2, bold: true },
-// //   { text: "السعر", align: "RIGHT", width: 0.2, bold: true },
-// //   { text: "الإجمالي", align: "RIGHT", width: 0.2, bold: true }
-// // ]);
-
-
-
-  
-//         printer.cut();
-
-//         await printer.execute();
-
-//         res.json({ success: true });
-
-//     } catch (err) {
-//         console.error("خطأ طباعة:", err);
-//         res.status(500).json({ error: err.message });
-//     }
-// });
-
-
-
-
-// app.post('/print-ticket', express.json(), async (req, res) => {
-//     // تحديد مسار مؤقت للصورة
-//     const tempImagePath = path.join(__dirname, 'temp_ticket.png');
-
-//     try {
-//         const row = req.body;
-
-//         // 1. إنشاء الـ HTML
-//         const htmlLayout = `<html><body style="width:550px; background:white; direction:rtl; font-family:Arial;">
-//             <h1 style="text-align:center;">ميزان بسكول شوشان</h1>
-//             <p style="text-align:center;">الصافي: ${row.net} كجم</p>
-//         </body></html>`;
-
-//         // 2. تحويل الـ HTML وحفظه كملف حقيقي
-//         await nodeHtmlToImage({
-//             output: tempImagePath, // حفظ الصورة في ملف بدلاً من Buffer
-//             html: htmlLayout,
-//             transparent: false,
-//             puppeteerArgs: { args: ['--no-sandbox'] }
-//         });
-
-//         // 3. الطباعة باستخدام مسار الملف
-//         printer.clear();
-//         await printer.printImage(tempImagePath); // الآن نرسل المسار النصي للملف
-//         await printer.execute();
-
-//         // 4. مسح الملف المؤقت بعد الطباعة للحفاظ على مساحة الهارد
-//         if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
-
-//         res.send({ status: "success" });
-//     } catch (error) {
-//         console.error("خطأ طباعة:", error);
-//         // في حال فشل السوكيت، حاول إعادة الاتصال أو التأكد من الـ IP
-//         res.status(500).send("فشل الاتصال بالطابعة: " + error.message);
-//     }
-// });
-
-
-
-app.post('/print-ticket', async (req, res) => {
-    try {
-        const { html } = req.body;
-        const tempPath = path.join(__dirname, 'final_ticket.png');
-
-        await nodeHtmlToImage({
-            output: tempPath,
-            html: html,
-            transparent: false,
-            puppeteerArgs: {
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--window-size=576,600' // 🔥 تثبيت العرض لورق 80 ملم
-                ]
-            },
-            // إضافة ستايل إضافي لتقوية الطباعة قبل التصوير
-            beforeScreenshot: async (page) => {
-                await page.addStyleTag({
-                    content: `
-                    body { 
-                        width: 550px !important; 
-                        filter: contrast(1000%) grayscale(100%); /* 🔥 جعل الأسود فاحم جداً */
-                    }
-                    * { color: black !important; -webkit-print-color-adjust: exact; }
-                    `
-                });
-                await page.setViewport({ width: 576, height: 500 });
-            }
-        });
-
-        // إرسال الصورة للطابعة
-        printer.clear();
-        printer.alignCenter();
-                printer.beep(2,2);
-        printer.alignCenter();
-        await printer.printImage('./public/logo/l1.png');
-        await printer.printImage('./public/logo/222.png');
-        await printer.printImage(tempPath);
-        printer.cut();
-        await printer.execute();
-
-        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
-        res.json({ success: true });
-
-    } catch (error) {
-        console.error("خطأ:", error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-
-// app.post('/print-ticket', async (req, res) => {
-//     try {
-//         const { html } = req.body; // استلام الـ HTML المرسل
-//         const tempImagePath = path.join(__dirname, 'ticket_temp.png');
-
-//         // تحويل الـ HTML القادم من المتصفح إلى صورة
-//         await nodeHtmlToImage({
-//             output: tempImagePath,
-//             html: html,
-//             transparent: false,
-//             puppeteerArgs: { 
-//                 // args: ['--no-sandbox', '--window-size=600,1000'] 
-//                 args: [
-//                     '--no-sandbox',
-//                     '--disable-setuid-sandbox',
-//                     '--window-size=576,1000' // 🔥 تثبيت العرض لورق 80 ملم
-//                 ]
-//             }
-//         });
-//         printer.clear();
-//         await printer.printImage(tempImagePath);
-//         printer.cut();
-//         await printer.execute();
-
-//         // مسح الملف المؤقت
-//         // if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
-
-//         res.json({ success: true });
-//     } catch (error) {
-//         console.error("خطأ سيرفر:", error);
-//         res.status(500).json({ error: error.message });
-//     }
-// });
-
-
-
-// app.post('/print-ticket', async (req, res) => {
-//     try {
-//         const row = req.body; // البيانات القادمة من الواجهة
-//         const tempImagePath = path.join(__dirname, 'ticket_temp.png');
-        
-//         // 1. قراءة ملف الـ HTML المحفوظ عندك على السيرفر
-//         let htmlTemplate = fs.readFileSync(path.join(__dirname, './public/ticket.html'), 'utf8');
-
-//         // 2. استبدال المتغيرات داخل الملف بالبيانات الحقيقية
-//         // (تأكد أن ملف template.html يحتوي على كلمات مثل {{number}} ليتم استبدالها)
-//         htmlTemplate = htmlTemplate.replace('{{number}}', row.number)
-//                                    .replace('{{gross}}', row.gross)
-//                                    .replace('{{tare}}', row.tare)
-//                                    .replace('{{net}}', row.net);
-
-//         // 3. تحويل الـ HTML المحسن إلى صورة
-//         await nodeHtmlToImage({
-//             output: tempImagePath,
-//             html: htmlTemplate,
-//             transparent: false,
-//             puppeteerArgs: { 
-//                 args: ['--no-sandbox', '--window-size=576,1000']
-//             }
-//         });
-
-//         // 4. الطباعة
-//         printer.clear();
-//         await printer.printImage(tempImagePath);
-//         printer.cut();
-//         await printer.execute();
-
-//         res.json({ success: true });
-//     } catch (error) {
-//         console.error("خطأ:", error);
-//         res.status(500).json({ error: error.message });
-//     }
-// });
-
-//////////////////////////////////////////////////////
-// {date: "07/05/2026", time: "08:03PM", sn: "33984", number: "43", customer: "احمد شوشه", type: "غلة",…}
-// customer
-// :
-// "احمد شوشه"
-// date
-// :
-// "07/05/2026"
-// gross
-// :
-// "1915 kg RECALLED"
-// net
-// :
-// "1045 kg"
-// note
-// :
-// ""
-// number
-// :
-// "43"
-// price
-// :
-// "2510"
-// sn
-// :
-// "33984"
-// tare
-// :
-// "870 kg"
-// tare2
-// :
-// ""
-// time
-// :
-// "08:03PM"
-// type
-// :
-// "غلة"
-// unitWeight
-// :
-// 155
+//////////////////////////////////////////////////

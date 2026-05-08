@@ -5,10 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>نظام إدارة الميزان - جدول البيانات</title>
   <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> -->
   <!-- Font Awesome للأيقونات -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+  
+     <link href="css/bootstrap.min.css" rel="stylesheet">
+
+ <link href="css/all.min.css" rel="stylesheet">
+  
+  
   <style>
+
+
     :root {
       --primary-color: #2c3e50;
       --secondary-color: #3498db;
@@ -50,7 +58,7 @@
       background: linear-gradient(45deg, var(--primary-color), var(--dark-color));
       color: white;
       padding: 15px 12px;
-      border-radius: 18px;
+      border-radius: 5px;
       margin-bottom: 15px;
       box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3);
       display: flex;
@@ -135,20 +143,20 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 5px;
     }
 
     @media (min-width: 768px) {
       .stats-grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: 15px;
+        gap: 5px;
       }
     }
 
     .stat-card {
-      background: white;
+      /* background: white; */
       border-radius: 16px;
-      padding: 15px 10px;
+      /* padding: 15px 10px; */
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       transition: all 0.3s;
       position: relative;
@@ -181,11 +189,11 @@
     .stat-icon {
       font-size: clamp(1.5rem, 5vw, 2.5rem);
       color: var(--secondary-color);
-      margin-bottom: 8px;
+      /* margin-bottom: 8px; */
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
+      /* gap: 5px; */
     }
 
     .stat-icon i {
@@ -196,7 +204,7 @@
       font-size: clamp(1.5rem, 5vw, 2.2rem);
       font-weight: 700;
       color: var(--primary-color);
-      margin: 5px 0;
+      /* margin: 5px 0; */
       line-height: 1.2;
     }
 
@@ -529,7 +537,7 @@
       border: 4px solid #f3f3f3;
       border-top: 4px solid var(--secondary-color);
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+
       margin: 0 auto;
     }
 
@@ -554,10 +562,7 @@
       font-size: clamp(0.85rem, 3vw, 1rem);
     }
 
-    /* تأثيرات إضافية */
-    .fade-in {
-      animation: fadeIn 0.5s ease-in;
-    }
+  
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -582,7 +587,7 @@
       }
       
       .page-header {
-        padding: 12px 10px;
+        padding: 5px 10px;
       }
       
       .stat-card {
@@ -630,7 +635,7 @@
       </div>
 
       <!-- بطاقات الإحصائيات المحسنة للجوال -->
-      <div class="stats-grid">
+      <!-- <div class="stats-grid">
         <div class="stat-card fade-in">
           <div class="stat-icon">
             <i class="fas fa-database"></i>
@@ -638,28 +643,28 @@
           </div>
           <div class="stat-number" id="totalRecords">0</div>
         </div>
-        <div class="stat-card fade-in" style="animation-delay: 0.1s;">
+        <div class="stat-card fade-in" >
           <div class="stat-icon">
             <i class="fas fa-truck"></i>
             <span class="stat-label">عدد السيارات</span>
           </div>
           <div class="stat-number" id="uniqueCars">0</div>
         </div>
-        <div class="stat-card fade-in" style="animation-delay: 0.2s;">
+        <div class="stat-card fade-in" >
           <div class="stat-icon">
             <i class="fas fa-calendar-check"></i>
             <span class="stat-label">سجلات اليوم</span>
           </div>
           <div class="stat-number" id="todayRecords">0</div>
         </div>
-        <div class="stat-card fade-in" style="animation-delay: 0.3s;">
+        <div class="stat-card fade-in">
           <div class="stat-icon">
             <i class="fas fa-camera"></i>
             <span class="stat-label">إجمالي الصور</span>
           </div>
           <div class="stat-number" id="totalImages">0</div>
         </div>
-      </div>
+      </div> -->
 
       <!-- قسم البحث والتصفية المحسن للجوال -->
       <div class="search-section">
@@ -798,7 +803,7 @@
       data.forEach((row, index) => {
         const tr = document.createElement('tr');
         tr.className = 'fade-in';
-        tr.style.animationDelay = `${index * 0.05}s`;
+     
         
         // معالجة الصور - التحقق من وجودها
         const img1 = row.images ? `images/sensor/${row.images}_cam1.jpg` : '';
@@ -837,10 +842,10 @@
         return acc + (item.images ? 3 : 0);
       }, 0);
 
-      document.getElementById('totalRecords').textContent = totalRecords;
-      document.getElementById('uniqueCars').textContent = uniqueCars;
-      document.getElementById('todayRecords').textContent = todayRecords;
-      document.getElementById('totalImages').textContent = totalImages;
+      // document.getElementById('totalRecords').textContent = totalRecords;
+      // document.getElementById('uniqueCars').textContent = uniqueCars;
+      // document.getElementById('todayRecords').textContent = todayRecords;
+      // document.getElementById('totalImages').textContent = totalImages;
     }
 
     // دالة البحث المحسنة

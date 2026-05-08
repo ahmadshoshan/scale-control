@@ -3,7 +3,7 @@ const https = require("https");
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 
-const pool = require('../modules/db'); // تأكد من استدعاء قاعدة البيانات
+const pool = require('../../../modules/db'); // تأكد من استدعاء قاعدة البيانات
 
 async function sendMessageIfEnabled(text) {
   pool.query("SELECT notify FROM control WHERE id = 1", (err, rows) => {

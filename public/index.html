@@ -7,11 +7,13 @@
   <title>نظام تحكم الميزان المتطور</title>
 
   <!-- Bootstrap 5.3 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> -->
   <!-- Font Awesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="css/all.min.css" rel="stylesheet">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <!-- <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet"> -->
 
   <style>
     * {
@@ -651,6 +653,13 @@
             <span>مستقل </span>
           </a>
         </div>
+        <div class="col-6">
+          <button
+            class="btn btn-outline-success w-100 py-3 rounded-4 d-flex align-items-center justify-content-center gap-2"
+            onclick="openCustomersPage()">
+            <i class="fas fa-cog"></i> إدارةالعملاء
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1213,9 +1222,14 @@
                             <span class="badge bg-primary">رقم: ${row.number}</span>
                             <span class="badge bg-success">صافي: ${row.net}</span>
                         </div>
-                        <button class="btn btn-primary btn-sm w-100" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+                         <div class="d-flex justify-content-around mb-2 flex-wrap gap-2">
+                        <button class="btn btn-primary btn-sm w-50" onclick='printTicket(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
                             <i class="fas fa-print"></i> طباعة
                         </button>
+                        <button class="btn btn-primary btn-sm w-50" onclick='printTicket2(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+                            <i class="fas fa-print"></i> 🖨️ مباشر
+                        </button>
+       </div>
                     </div>
                 `;
         }
@@ -1357,7 +1371,11 @@
       localStorage.setItem("ticketData", JSON.stringify(row));
       window.open("ticket.html", "_blank", "width=650,height=650");
     }
-
+    function printTicket2(row) {
+      localStorage.setItem("ticketData", JSON.stringify(row));
+      window.open("../ticket2.html", "_blank", "width=650,height=650,scrollbars=yes");
+      // location.reload();
+    }
     function takeScreenshot() {
       html2canvas(document.body, { scale: 1.5 }).then(canvas => {
         const link = document.createElement('a');
