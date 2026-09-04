@@ -92,7 +92,7 @@ function createTableRow(row) {
 
 // متغيرات التحميل
 let offset2 = 0;
-const limit2 = 5;
+const limit2 = 10;
 
 async function fetchData2() {
   const searchValue = document.getElementById('searchValue').value;
@@ -131,7 +131,7 @@ function updateStats(data) {
   document.getElementById('todayTickets').textContent = todayTickets;
 }
 let offset3 = 0;
-const limit3 = 5;
+const limit3 = 10;
 let searchValueOld = '';
 
 async function fetchData3() {
@@ -642,21 +642,21 @@ function initClearButtons() {
 
     let btn = wrapper.querySelector(".clear-btn");
 
-    if (!btn) {
+    // if (!btn) {
 
-      btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "clear-btn";
-      btn.innerHTML = "✖";
+    //   btn = document.createElement("button");
+    //   btn.type = "button";
+    //   btn.className = "clear-btn";
+    //   btn.innerHTML = "✖";
 
-      btn.onclick = () => {
-        input.value = "";
-        btn.style.display = "none";
-        input.focus();
-      };
+    //   btn.onclick = () => {
+    //     input.value = "";
+    //     btn.style.display = "none";
+    //     input.focus();
+    //   };
 
-      wrapper.appendChild(btn);
-    }
+    //   wrapper.appendChild(btn);
+    // }
 
     function toggleBtn() {
       btn.style.display = input.value ? "flex" : "none";

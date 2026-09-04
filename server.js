@@ -12,7 +12,24 @@ let customer_id = '';
 let type_p = '';
 let customer_p = '';
 const app = express();
+
+// const server = http.createServer(app);
+
+// const server = app.listen(3000, '0.0.0.0', () => {
+//     console.log('Server started on port 3000');
+//     const os = require('os');
+//     const networkInterfaces = os.networkInterfaces();
+//     for (const [name, interfaces] of Object.entries(networkInterfaces)) {
+//         for (const iface of interfaces) {
+//             if (iface.family === 'IPv4' && !iface.internal) {
+//                 console.log(`  - http://${iface.address}:3000`);
+//             }
+//         }
+//     }
+// });
+
 const server = http.createServer(app);
+
 const io = require('socket.io')(server);
 
 const fs = require('fs');
@@ -266,6 +283,9 @@ let NE = '00';
 let sendInterval = null;
 let sendInterval2 = null;
 let sendInterval3 = null;
+
+let lastSentWeight = null;
+
 // let alertPlayed = false; // لمنع تكرار الصوت
 // let zeroSentTimer = null; // متغير لحفظ حالة إرسال أمر التصفير
 // let weightStartTime = null;
@@ -293,11 +313,27 @@ parser.on('data', (data) => {
         // تحديث قيمة آخر رسالة
         lastMessage = currentMessage;
     }
-    io.emit('response', data.trim());
+
+    // io.emit('response', data.trim());
+    // let cleanedWeight = data.replace(/[^0-9.-]/g, "");
+    // // تحويل الوزن إلى رقم
+    // const weight = parseFloat(cleanedWeight.trim());
+    // // متغير لتسجيل وقت بدء الحالة
+
     let cleanedWeight = data.replace(/[^0-9.-]/g, "");
-    // تحويل الوزن إلى رقم
-    const weight = parseFloat(cleanedWeight.trim());
-    // متغير لتسجيل وقت بدء الحالة
+const weight = parseFloat(cleanedWeight.trim());
+
+// إرسال الوزن للواجهة فقط عندما تتغير قيمته
+if (!isNaN(weight)) {
+    if (weight !== lastSentWeight) {
+        lastSentWeight = weight;
+        io.emit('response', data.trim());
+    }
+} else {
+    // الرسائل غير الرقمية تظل تعمل كما هي
+    // مثل OK / ?? / NE وغيرها
+    io.emit('response', data.trim());
+}
 
     if (!isNaN(weight) && weight < -10 && (currentMessage.slice(-2).toUpperCase() !== "KN")) {
         // playSoundAlert("yagib_tasfier_almezan.mp3", io);
@@ -527,6 +563,7 @@ app.get('/get-data3', (req, res) => {
 
         let query = "";
         if (type === "number") {
+
             query = "SELECT * FROM printer WHERE number = ? ORDER BY id DESC LIMIT ?, ?";
         } else if (type === "sn") {
             query = "SELECT * FROM printer WHERE sn = ? ORDER BY id DESC LIMIT ?, ?";
@@ -539,6 +576,45 @@ app.get('/get-data3', (req, res) => {
 
         connection.query(query, [value, offset, limit], (error, results) => {
             connection.release(); // لازم نحرر الاتصال بعد الاستعلام
+            if (error) {
+                console.error('خطأ في جلب البيانات:', error.message);
+                return res.status(500).json({ error: 'خطأ في جلب البيانات' });
+            }
+            res.json(results);
+        });
+    });
+
+
+});
+app.get('/get-data4', (req, res) => {
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('لا يمكن الحصول على اتصال:', err);
+            return res.status(500).json({ error: 'فشل في الاتصال بقاعدة البيانات' });
+        }
+
+        const type = req.query.type;   // النوع (number, sn, date)
+        const value = req.query.value; // القيمة اللي هيكتبها المستخدم
+
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = parseInt(req.query.offset) || 0;
+
+        let query = "";
+        if (type === "number") {
+
+            // query = "SELECT * FROM sensor_data WHERE number = ? ORDER BY id DESC LIMIT ?, ?";
+            query = `SELECT * FROM sensor_data  WHERE ${type} = ${value} ORDER BY id DESC LIMIT ? OFFSET ?`;
+            // console.log(query);
+
+        } else {
+            connection.release();
+            return res.status(400).json({ error: "نوع البحث غير صحيح" });
+        }
+
+
+        connection.query(query, [limit, offset], (error, results) => {
+            connection.release(); // إخلاء الاتصال
             if (error) {
                 console.error('خطأ في جلب البيانات:', error.message);
                 return res.status(500).json({ error: 'خطأ في جلب البيانات' });
@@ -939,6 +1015,7 @@ const printer = new ThermalPrinter({
     type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
     interface: 'tcp://192.168.1.11:9100', // 🔥 لازم بورت 9100
     // interface: 'printer:XP-80',
+
     characterSet: 'WPC1256_ARABIC',
     removeSpecialCharacters: false,
 });
@@ -949,7 +1026,7 @@ const nodeHtmlToImage = require('node-html-to-image');
 //         html: `<div style="width: 384px; background: white; padding: 10px;">${htmlContent}</div>`,
 //         transparent: false // مهم جداً للطابعة الحرارية
 //     });
-    
+
 //     // حفظ الصورة مؤقتاً أو إرسال البافر مباشرة
 //     await printer.printImage(imageBuffer);
 //     await printer.execute();
@@ -991,7 +1068,7 @@ const nodeHtmlToImage = require('node-html-to-image');
 //         printer.println(`   الصافي:          ${row.net} كجم`);
 
 //         printer.drawLine();
-    
+
 
 //         printer.println("     الميزان غير مسئول عن فقدان الكارت");
 // //        printer.tableCustom([
@@ -1003,7 +1080,7 @@ const nodeHtmlToImage = require('node-html-to-image');
 
 
 
-  
+
 //         printer.cut();
 
 //         await printer.execute();
@@ -1092,7 +1169,7 @@ app.post('/print-ticket', async (req, res) => {
         // إرسال الصورة للطابعة
         printer.clear();
         printer.alignCenter();
-                printer.beep(2,2);
+        printer.beep(2, 2);
         printer.alignCenter();
         await printer.printImage('./public/logo/l1.png');
         await printer.printImage('./public/logo/222.png');
@@ -1150,7 +1227,7 @@ app.post('/print-ticket', async (req, res) => {
 //     try {
 //         const row = req.body; // البيانات القادمة من الواجهة
 //         const tempImagePath = path.join(__dirname, 'ticket_temp.png');
-        
+
 //         // 1. قراءة ملف الـ HTML المحفوظ عندك على السيرفر
 //         let htmlTemplate = fs.readFileSync(path.join(__dirname, './public/ticket.html'), 'utf8');
 
@@ -1224,4 +1301,273 @@ app.post('/print-ticket', async (req, res) => {
 // "غلة"
 // unitWeight
 // :
-// 155
+// 155\\\
+
+
+
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+const WebSocket = require('ws');
+
+const wss = new WebSocket.Server({
+    server,
+    // إعدادات إضافية لتحسين الأداء
+    perMessageDeflate: false,
+    maxPayload: 1024 * 1024 * 10 // 10MB max payload
+});
+const { spawn } = require('child_process');
+// استخدم رابط RTSP الصحيح من تجربتك السابقة
+
+
+
+
+
+// أضف هذا في ملف server.js مع بقية الكود
+let currentCameraChannel = '201'; // القناة الافتراضية (كاميرا 1)
+
+// إضافة مسار لتبديل الكاميرا
+app.get('/switch-camera', (req, res) => {
+    const camera = req.query.camera;
+    
+    // تحديث قناة RTSP بناءً على الكاميرا المحددة
+    switch(camera) {
+        case '1':
+            currentCameraChannel = '201'; // كاميرا أمامية
+            break;
+        case '2':
+            currentCameraChannel = '701'; // كاميرا خلفية
+            break;
+        case '3':
+            currentCameraChannel = '401'; // كاميرا جانبية
+            break;
+        default:
+            currentCameraChannel = '201';
+    }
+    
+    // تحديث رابط RTSP
+    const newRtspUrl = `rtsp://admin:admin100@192.168.1.2:554/ISAPI/Streaming/Channels/${currentCameraChannel}`;
+    console.log(`Switching to camera ${camera}: ${newRtspUrl}`);
+    
+    // إعادة تشغيل FFmpeg مع الكاميرا الجديدة
+    if (ffmpeg) {
+        isRestarting = true;
+        ffmpeg.kill('SIGTERM');
+        ffmpeg = null;
+        
+        setTimeout(() => {
+            // تحديث المتغير العام لرابط RTSP
+            // ملاحظة: ستحتاج إلى تعديل دالة startFFmpeg لتقبل معامل
+            startFFmpeg(newRtspUrl);
+            isRestarting = false;
+        }, 1000);
+    }
+    
+    res.json({ success: true, camera: camera, url: newRtspUrl });
+});
+let ffmpeg = null;
+const clients = new Set();
+let isRestarting = false;
+// تعديل دالة startFFmpeg لتقبل رابط RTSP كمعامل
+function startFFmpeg(rtspUrlParam = null) {
+    const rtspUrl = rtspUrlParam || `rtsp://admin:admin100@192.168.1.2:554/ISAPI/Streaming/Channels/${currentCameraChannel}`;
+    // ... باقي الكود كما هو
+
+    if (ffmpeg) {
+        try {
+            ffmpeg.kill('SIGTERM');
+        } catch (e) { }
+    }
+
+    console.log('Starting FFmpeg...');
+
+    ffmpeg = spawn('C:\\ffmpeg\\bin\\ffmpeg.exe', [
+        '-rtsp_transport', 'tcp',
+        '-i', rtspUrl,
+        '-f', 'mpegts',
+        '-codec:v', 'mpeg1video',
+        '-r', '25',
+        '-b:v', '800k',
+        '-bf', '0',
+        '-an',  // تعطيل الصوت مؤقتاً لتقليل المشاكل
+        '-sn',  // تعطيل الترجمة
+        '-'
+    ], {
+        windowsHide: true,  // هذا الخيار يخفي النافذة السوداء
+        detached: false     // لا تفصل العملية
+    });
+
+    let stderrBuffer = '';
+
+    ffmpeg.stderr.on('data', (data) => {
+        const output = data.toString();
+        stderrBuffer += output;
+
+        // // طباعة فقط الخطوط المهمة
+        // if (output.includes('frame=')) {
+        //     const match = output.match(/frame=\s*(\d+)/);
+        //     if (match) {
+        //         console.log(`FFmpeg: frame ${match[1]}`);
+        //     }
+        // } else if (output.includes('Error') || output.includes('error')) {
+        //     console.error('FFmpeg error:', output);
+        // }
+    });
+
+    ffmpeg.on('error', (error) => {
+        console.error('FFmpeg process error:', error);
+    });
+
+    ffmpeg.on('close', (code) => {
+        console.log(`FFmpeg exited with code ${code}`);
+
+        if (!isRestarting && clients.size > 0) {
+            console.log('Restarting FFmpeg in 3 seconds...');
+            setTimeout(() => {
+                startFFmpeg();
+            }, 3000);
+        }
+    });
+
+    
+    // استبدال قسم معالجة الفيديو بهذا الكود المحسن
+    let videoBuffer = Buffer.alloc(0);
+    let lastSendTime = Date.now();
+    let frameCount = 0;
+    // أضف هذا بعد تعريف المتغيرات
+
+
+
+    // تنظيف الذاكرة كل ساعة
+    setInterval(() => {
+        if (global.gc) {
+            global.gc();
+            console.log('🧹 Garbage collection triggered');
+        }
+
+        // تنظيف الـ buffer إذا كان كبيراً جداً
+        if (videoBuffer.length > 1024 * 1024 * 5) { // 5MB
+            console.log('⚠️ Buffer too large, clearing...');
+            videoBuffer = Buffer.alloc(0);
+        }
+    }, 3600000);
+    ffmpeg.stdout.on('data', (data) => {
+        frameCount++;
+
+        // تجميع البيانات بشكل أكثر كفاءة
+        if (videoBuffer.length === 0) {
+            // أول قطعة من الإطار
+            videoBuffer = Buffer.from(data);
+        } else {
+            videoBuffer = Buffer.concat([videoBuffer, data], videoBuffer.length + data.length);
+        }
+
+        const now = Date.now();
+        // إرسال كل 40ms (25 إطار في الثانية) أو عند اكتمال الإطار
+        if (now - lastSendTime >= 40 || videoBuffer.length >= 32768) {
+            if (videoBuffer.length > 0 && clients.size > 0) {
+                const dataToSend = videoBuffer;
+                videoBuffer = Buffer.alloc(0);
+
+                // إرسال لجميع العملاء مرة واحدة
+                const sendPromises = [];
+                for (const client of clients) {
+                    if (client.readyState === WebSocket.OPEN) {
+                        try {
+                            client.send(dataToSend);
+                        } catch (e) {
+                            // سجل الخطأ مرة واحدة فقط
+                            if (frameCount % 100 === 0) {
+                                console.error('Send error:', e.message);
+                            }
+                        }
+                    }
+                }
+            }
+            lastSendTime = now;
+        }
+    });
+
+    // عرض إحصائيات كل دقيقة
+    setInterval(() => {
+        if (clients.size > 0) {
+            console.log(`📊 Clients: ${clients.size}, Frames: ${frameCount}, Buffer: ${videoBuffer.length}`);
+            frameCount = 0;
+        }
+    }, 60000);
+}
+
+wss.on('connection', (ws, req) => {
+
+    // في جزء WebSocket connection
+    ws.on('message', (message) => {
+        // تجاهل أي رسائل واردة (لا نحتاجها للبث)
+        return;
+    });
+    const clientIp = req.socket.remoteAddress;
+    console.log(`Client connected from ${clientIp}`);
+
+    // إضافة العميل
+    clients.add(ws);
+    console.log(`Total clients: ${clients.size}`);
+
+    // إرسال رسالة تأكيد
+    try {
+        ws.send(JSON.stringify({ type: 'ping', message: 'connected' }));
+    } catch (e) { }
+
+    // بدء FFmpeg إذا لم يكن يعمل
+    if (!ffmpeg) {
+        startFFmpeg();
+    }
+
+    // معالجة الرسائل الواردة من العميل
+    ws.on('message', (message) => {
+        try {
+            const data = JSON.parse(message);
+            if (data.type === 'pong') {
+                // الحفاظ على الاتصال حياً
+            }
+        } catch (e) {
+            // تجاهل الرسائل غير JSON
+        }
+    });
+
+    ws.on('close', (code, reason) => {
+        console.log(`Client disconnected from ${clientIp}, code: ${code}`);
+        clients.delete(ws);
+        console.log(`Total clients: ${clients.size}`);
+
+        // إيقاف FFmpeg إذا لم يتبق عملاء
+        if (clients.size === 0 && ffmpeg) {
+            console.log('No clients, stopping FFmpeg...');
+            isRestarting = true;
+            try {
+                ffmpeg.kill('SIGTERM');
+                ffmpeg = null;
+            } catch (e) { }
+            setTimeout(() => { isRestarting = false; }, 1000);
+        }
+    });
+
+    ws.on('error', (error) => {
+        console.error(`WebSocket error for ${clientIp}:`, error.message);
+        // clients.delete(ws);
+    });
+});
+
+// تنظيف عند إغلاق الخادم
+process.on('SIGINT', () => {
+    console.log('Shutting down...');
+    if (ffmpeg) {
+        ffmpeg.kill('SIGTERM');
+    }
+    server.close(() => {
+        process.exit(0);
+    });
+});
+
+console.log('Server ready, waiting for connections...');
+
+
+
+const weighingTrucksRouter = require('./modules/weighingTrucks');
+app.use('/api/weighing-trucks', weighingTrucksRouter);

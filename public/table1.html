@@ -744,7 +744,7 @@
 
   <script>
     let offset = 0;
-    const limit = 5;
+    const limit = 10;
     let allData = [];
     let currentData = [];
 
@@ -861,7 +861,7 @@
       showLoading(true);
       
       try {
-        const response = await fetch(`/get-data3?type=${encodeURIComponent(searchType)}&value=${encodeURIComponent(searchValue)}`);
+        const response = await fetch(`/get-data4?type=${encodeURIComponent(searchType)}&value=${encodeURIComponent(searchValue)}`);
         const data = await response.json();
         
         const tableBody = document.getElementById('table-body');

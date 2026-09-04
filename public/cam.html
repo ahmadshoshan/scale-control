@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>بث الكاميرا</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        canvas {
+            width: 100%;
+            height: auto;
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background: rgba(0,0,0,0.7);
+            color: #0f0;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 100;
+        }
+        
+        @media (max-width: 768px) {
+            button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="videoCanvas" width="800" height="600"></canvas>
+    </div>
+    <div class="controls">
+        <button onclick="location.reload()">🔄 إعادة الاتصال</button>
+        <button onclick="toggleFullscreen()">📺 ملء الشاشة</button>
+    </div>
+    <div class="status" id="status">جاري التحميل...</div>
+
+    <script src="js/jsmpeg.min.js"></script>
+    
+    <script>
+        // استخدم نفس IP الخاص بالخادم
+        const SERVER_IP = window.location.hostname;
+        const wsUrl = `ws://${SERVER_IP}:3000`;
+        
+        const statusDiv = document.getElementById('status');
+        let reconnectAttempts = 0;
+        let player = null;
+        
+        function updateStatus(message, isError = false) {
+            statusDiv.textContent = message;
+            statusDiv.style.color = isError ? '#f44' : '#0f0';
+            console.log('Status:', message);
+        }
+        
+        function toggleFullscreen() {
+            const canvas = document.getElementById('videoCanvas');
+            if (!document.fullscreenElement) {
+                canvas.requestFullscreen().catch(err => {
+                    console.error('Fullscreen error:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        function startPlayer() {
+            const canvas = document.getElementById('videoCanvas');
+            
+            updateStatus('جاري الاتصال...');
+            
+            try {
+                if (player) {
+                    player.destroy();
+                }
+                
+                player = new JSMpeg.Player(wsUrl, {
+                    canvas: canvas,
+                    audio: false,
+                    videoBufferSize: 1024 * 1024 * 2,
+                    preserveDrawingBuffer: true,
+                    onPlay: () => {
+                        updateStatus('✅ بث مباشر');
+                        reconnectAttempts = 0;
+                    },
+                    onEnded: () => {
+                        updateStatus('⚠️ توقف البث - إعادة محاولة...');
+                        if (reconnectAttempts < 5) {
+                            reconnectAttempts++;
+                            setTimeout(() => {
+                                startPlayer();
+                            }, 3000);
+                        } else {
+                            updateStatus('❌ فشل الاتصال', true);
+                        }
+                    },
+                    onError: (error) => {
+                        console.error('JSMpeg error:', error);
+                        updateStatus('❌ خطأ في الاتصال', true);
+                    }
+                });
+                
+                console.log('Player created, connecting to:', wsUrl);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                updateStatus('❌ خطأ: ' + error.message, true);
+            }
+        }
+        
+        // بدء التشغيل بعد تحميل الصفحة
+        if (typeof JSMpeg !== 'undefined') {
+            startPlayer();
+        } else {
+            updateStatus('❌ جارٍ تحميل المكتبة...', true);
+            // انتظر تحميل المكتبة
+            const checkInterval = setInterval(() => {
+                if (typeof JSMpeg !== 'undefined') {
+                    clearInterval(checkInterval);
+                    startPlayer();
+                }
+            }, 500);
+        }
+        
+        // إعادة المحاولة عند فقدان الاتصال
+        window.addEventListener('online', () => {
+            updateStatus('تم استعادة الاتصال...');
+            setTimeout(startPlayer, 1000);
+        });
+    </script>
+</body>
+</html>

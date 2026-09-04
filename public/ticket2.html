@@ -289,10 +289,10 @@ window.onload = function () {
         body: JSON.stringify({ html: document.documentElement.outerHTML })
     })
     .then(res => res.json())
-    // .then(() => console.log("تم الإرسال والطباعة ✅"));
-    //      setTimeout(() => {
-    //     window.close();
-    //   }, 2000); // ثانيتين بعد الطباعة
+    .then(() => console.log("تم الإرسال والطباعة ✅"));
+         setTimeout(() => {
+        window.close();
+      }, 5000); // ثانيتين بعد الطباعة
 };
 
 

@@ -59,7 +59,7 @@
               <i class="fas fa-weight-scale"></i>
               <span>الوزن الحالي</span>
             </div>
-            <p class="stats-number" id="response">0</p>
+            <p class="stats-number" id="response" style="color: blueviolet;">0</p>
           </div>
         </div>
         <div class="col-6 col-md-3">
@@ -168,7 +168,7 @@
                 <div class="row g-2 mb-2">
                   <div class="col-6">
                     <div class="input-label">رقم السيارة</div>
-                    <input type="text" id="editNumber" class="modern-input">
+                    <input type="text" disabled id="editNumber" class="modern-input">
                   </div>
                   <div class="col-6">
                     <div class="input-label">العميل</div>
@@ -220,15 +220,15 @@
                 <div class="row g-2 mb-2">
                   <div class="col-4">
                     <div class="input-label">الوزن الأول</div>
-                    <input type="text" id="editGross" class="modern-input">
+                    <input type="text" disabled id="editGross" class="modern-input">
                   </div>
                   <div class="col-4">
                     <div class="input-label">الوزن الثاني</div>
-                    <input type="text" id="editTare" class="modern-input">
+                    <input type="text" disabled id="editTare" class="modern-input">
                   </div>
                   <div class="col-4">
                     <div class="input-label">الصافي</div>
-                    <input type="text" id="editNet" class="modern-input">
+                    <input type="text" disabled id="editNet" class="modern-input">
                   </div>
                 </div>
 
@@ -405,6 +405,48 @@
       <div class="toast-body" id="toastBody"></div>
     </div>
   </div>
+
+
+
+
+
+
+
+
+<script>
+    function scrollTo20Percent() {
+        // انتظار قليلاً لتحميل كل المحتوى
+        setTimeout(function() {
+            var pageHeight = document.documentElement.scrollHeight;
+            if (pageHeight > 0) {
+                var scrollTo = pageHeight * 0.20;
+                window.scrollTo({
+                    top: scrollTo,
+                    behavior: 'smooth'
+                });
+            }
+        }, 500); // تأخير نصف ثانية
+    }
+
+    // محاولة التمرير عند تحميل الصفحة
+    window.addEventListener('load', scrollTo20Percent);
+    
+    // محاولة إضافية بعد تحميل الجدول (إذا كان ticket_table.js يقوم بتحميل بيانات)
+    if (typeof fetchData3 !== 'undefined') {
+        // افتراض أن fetchData3 تقوم بتحميل البيانات
+        var originalFetchData3 = fetchData3;
+        fetchData3 = function() {
+            originalFetchData3.apply(this, arguments);
+            setTimeout(scrollTo20Percent, 300);
+        };
+    }
+</script>
+
+
+
+
+
+
 
   <!-- السكربتات -->
   <script src="../js/bootstrap.bundle.min.js"></script>
