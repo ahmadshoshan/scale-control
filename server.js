@@ -522,9 +522,8 @@ app.get("/get-sound", (req, res) => {
 // 🗄️ مسارات جلب البيانات (Data Routes)
 // ═══════════════════════════════════════════════════════════════════
 
-// جلب بيانات محددة من قاعدة البيانات باستخدام LIMIT و OFFSET
+// جلب بيانات محددة من قاعدة البيانات باستخدام LIMIT و OFFSET (بيانات اليوم فقط)
 app.get('/get-data2', (req, res) => {
-    // (date, time, sn, number, gross, tare, net) 
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('لا يمكن الحصول على اتصال:', err);
@@ -534,17 +533,54 @@ app.get('/get-data2', (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const offset = parseInt(req.query.offset) || 0;
 
-        const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`,`tare2`, `net`, `customer`, `type`,`note`,`images` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
-        connection.query(query, [limit, offset], (error, results) => {
+        // 1️⃣ حساب تاريخ اليوم بالتنسيق المطابق لقاعدة البيانات (DD/MM/YYYY)
+        const today = new Date();
+        const todayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+
+        // 2️⃣ إضافة شرط WHERE date = ? لجلب بيانات اليوم فقط
+        const query = 'SELECT `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `tare2`, `net`, `customer`, `type`, `note`, `images`, `paid_amount` FROM printer WHERE date = ? ORDER BY id DESC LIMIT ? OFFSET ?';
+        
+        // 3️⃣ تمرير المتغيرات بالترتيب الصحيح: (تاريخ اليوم, الحد, الإزاحة)
+        connection.query(query, [todayStr, limit, offset], (error, results) => {
             connection.release(); // إخلاء الاتصال
+            
             if (error) {
                 console.error('خطأ في جلب البيانات:', error.message);
                 return res.status(500).json({ error: 'خطأ في جلب البيانات' });
             }
+            
             res.json(results);
         });
     });
 });
+
+
+// // جلب بيانات محددة من قاعدة البيانات باستخدام LIMIT و OFFSET
+// app.get('/get-data2', (req, res) => {
+//     // (date, time, sn, number, gross, tare, net) 
+//     pool.getConnection((err, connection) => {
+//         if (err) {
+//             console.error('لا يمكن الحصول على اتصال:', err);
+//             return res.status(500).json({ error: 'فشل في الاتصال بقاعدة البيانات' });
+//         }
+
+//         const limit = parseInt(req.query.limit) || 10;
+//         const offset = parseInt(req.query.offset) || 0;
+  
+//         // ✅ أضف paid_amount هنا
+//         const query = 'SELECT `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `tare2`, `net`, `customer`, `type`, `note`, `images`, `paid_amount` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
+        
+//         // const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`,`tare2`, `net`, `customer`, `type`,`note`,`images` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
+//         connection.query(query, [limit, offset], (error, results) => {
+//             connection.release(); // إخلاء الاتصال
+//             if (error) {
+//                 console.error('خطأ في جلب البيانات:', error.message);
+//                 return res.status(500).json({ error: 'خطأ في جلب البيانات' });
+//             }
+//             res.json(results);
+//         });
+//     });
+// });
 
 // بحث بيانات محددة من قاعدة البيانات باستخدام 
 app.get('/get-data3', (req, res) => {
@@ -650,8 +686,11 @@ app.get('/get-data', (req, res) => {
 
 app.put('/update-ticket/:id', (req, res) => {
     const { id } = req.params;
-    const { number, customer, type, gross, tare, tare2, net, note, extraWeightsTable } = req.body;
-    // const extraData = extraWeightsTable ? JSON.stringify(extraWeightsTable) : '';
+       // ✅ أضف paid_amount إلى المتغيرات المستلمة
+    const { number, customer, type, gross, tare, tare2, net, note, paid_amount, extraWeightsTable } = req.body;
+    
+    
+    // const { number, customer, type, gross, tare, tare2, net, note, extraWeightsTable } = req.body;
     let _tare2 = tare2;
     if (extraWeightsTable) {
 
@@ -666,9 +705,9 @@ app.put('/update-ticket/:id', (req, res) => {
     // else {
     //     extraData = '';
     // }
-    const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, tare2=?,net=?, note=? WHERE id=?';
+    const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, tare2=?,net=?, note=?, paid_amount=? WHERE id=?';
 
-    pool.query(sql, [number, customer, type, gross, tare, _tare2, net, note, id], (err, result) => {
+    pool.query(sql, [number, customer, type, gross, tare, _tare2, net, note,paid_amount ,id], (err, result) => {
         if (err) {
             console.error('❌ خطأ أثناء التحديث:', err);
             return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
@@ -821,15 +860,15 @@ app.get('/api/customers', (req, res) => {
 
 // إضافة عميل جديد
 app.post('/api/customers', express.json(), (req, res) => {
-    const { name, phone, address, notes } = req.body;
+    const { name, phone, n_car, notes } = req.body;
 
     if (!name) {
         return res.status(400).json({ error: 'اسم العميل مطلوب' });
     }
 
     pool.query(
-        'INSERT INTO customers (name, phone, address, notes) VALUES (?, ?, ?, ?)',
-        [name, phone, address, notes],
+        'INSERT INTO customers (name, phone, n_car, notes) VALUES (?, ?, ?, ?)',
+        [name, phone, n_car, notes],
         (err, result) => {
             if (err) {
                 console.error('خطأ في إضافة العميل:', err);
@@ -850,11 +889,11 @@ app.post('/api/customers', express.json(), (req, res) => {
 // تعديل عميل
 app.put('/api/customers/:id', express.json(), (req, res) => {
     const { id } = req.params;
-    const { name, phone, address, notes } = req.body;
+    const { name, phone, n_car, notes } = req.body;
 
     pool.query(
-        'UPDATE customers SET name = ?, phone = ?, address = ?, notes = ? WHERE id = ?',
-        [name, phone, address, notes, id],
+        'UPDATE customers SET name = ?, phone = ?, n_car = ?, notes = ? WHERE id = ?',
+        [name, phone, n_car, notes, id],
         (err, result) => {
             if (err) {
                 console.error('خطأ في تعديل العميل:', err);
@@ -1311,6 +1350,7 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({
     server,
     // إعدادات إضافية لتحسين الأداء
+      path: '/video-ws',
     perMessageDeflate: false,
     maxPayload: 1024 * 1024 * 10 // 10MB max payload
 });

@@ -2,10 +2,11 @@
 
 افتح CMD مرة واحدة فقط:
 
-npm install -g pm2
+npm install -g pm2   --------  او  npm install -g pm2-windows-service و pm2-service-install
 
 2️⃣ روح لمجلد مشروعك
 cd D:\xampp\htdocs\710
+cd /d "D:\xampp\htdocs\710"
 
 3️⃣ شغل السيرفر بـ PM2
 pm2 start server.js --name scale-app

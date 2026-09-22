@@ -93,7 +93,7 @@
         // تحديث عنوان الكاميرا
         document.getElementById('cameraName').innerHTML = cameraNames[cameraId] || `كاميرا ${cameraId}`;
         
-        const wsUrl = `ws://${window.location.hostname}:3000`;
+        const wsUrl = `ws://${window.location.hostname}:3000/video-ws`;
         const statusDiv = document.getElementById('status');
         
         function updateStatus(message, isError = false) {

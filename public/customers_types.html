@@ -411,7 +411,7 @@
                             <th>#</th>
                             <th>اسم العميل</th>
                             <th>رقم الهاتف</th>
-                            <th>العنوان</th>
+                            <th>رقم السياره</th>
                             <th>ملاحظات</th>
                             <th>تاريخ الإضافة</th>
                             <th>الإجراءات</th>
@@ -492,8 +492,8 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">العنوان</label>
-                        <textarea class="form-control" id="customerAddress" rows="2"></textarea>
+                        <label class="form-label">رقم السياره</label>
+                        <textarea class="form-control" id="n_car" rows="2"></textarea>
                     </div>
                     
                     <div class="mb-3">
@@ -645,7 +645,7 @@
                 <td>${index + 1}</td>
                 <td><strong>${customer.name || ''}</strong></td>
                 <td dir="ltr">${customer.phone || '—'}</td>
-                <td>${customer.address || '—'}</td>
+                <td>${customer.n_car || '—'}</td>
                 <td>${customer.notes || '—'}</td>
                 <td>${customer.created_at ? new Date(customer.created_at).toLocaleDateString('ar-EG') : '—'}</td>
                 <td>
@@ -704,7 +704,7 @@
         const filtered = customers.filter(c => 
             (c.name && c.name.toLowerCase().includes(searchTerm)) ||
             (c.phone && c.phone.includes(searchTerm)) ||
-            (c.address && c.address.toLowerCase().includes(searchTerm))
+            (c.n_car && c.n_car.toLowerCase().includes(searchTerm))
         );
         displayCustomers(filtered);
     }
@@ -732,7 +732,7 @@
             document.getElementById('customerId').value = customer.id;
             document.getElementById('customerName').value = customer.name || '';
             document.getElementById('customerPhone').value = customer.phone || '';
-            document.getElementById('customerAddress').value = customer.address || '';
+            document.getElementById('n_car').value = customer.n_car || '';
             document.getElementById('customerNotes').value = customer.notes || '';
             document.getElementById('customerModalTitle').textContent = 'تعديل بيانات العميل';
         }
@@ -750,7 +750,7 @@
         const data = {
             name: document.getElementById('customerName').value.trim(),
             phone: document.getElementById('customerPhone').value.trim(),
-            address: document.getElementById('customerAddress').value.trim(),
+            n_car: document.getElementById('n_car').value.trim(),
             notes: document.getElementById('customerNotes').value.trim()
         };
 

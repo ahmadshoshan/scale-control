@@ -1734,7 +1734,7 @@ function restartCameraStream() {
     }
     
     // استخدام WebSocket الخاص بالخادم (الخادم الآن يرسل الكاميرا المحددة)
-    const wsUrl = `ws://${window.location.hostname}:3000`;
+    const wsUrl = `ws://${window.location.hostname}:3000/video-ws`;
     
     try {
         cameraPlayer = new JSMpeg.Player(wsUrl, {

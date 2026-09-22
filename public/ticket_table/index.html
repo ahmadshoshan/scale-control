@@ -44,7 +44,7 @@
 
       <!-- بطاقات الإحصائيات المحسنة للجوال -->
       <div class="row g-2 g-sm-3 mb-2">
-        <div class="col-6 col-md-3">
+        <!-- <div class="col-6 col-md-3">
           <div class="stats-card">
             <div class="stats-label">
               <i class="fas fa-truck"></i>
@@ -52,7 +52,9 @@
             </div>
             <p class="stats-number" id="totalTickets">0</p>
           </div>
-        </div>
+        </div> -->
+
+        <p class="stats-number" hidden id="totalTickets">0</p>
         <div class="col-6 col-md-3">
           <div class="stats-card">
             <div class="stats-label">
@@ -78,6 +80,16 @@
               <span>تذاكر اليوم</span>
             </div>
             <p class="stats-number" id="todayTickets">0</p>
+          </div>
+        </div>
+        <!-- ✅ أضف هذه البطاقة الجديدة لإجمالي المبلغ المدفوع -->
+        <div class="col-6 col-md-3">
+          <div class="stats-card">
+            <div class="stats-label">
+              <i class="fas fa-coins" style="color: #28a745;"></i>
+              <span>إجمالي المدفوع اليوم</span>
+            </div>
+            <p class="stats-number" id="todayTotalPaid" style="color: #28a745; font-size: 1.2rem;">0 ج.م</p>
           </div>
         </div>
       </div>
@@ -131,7 +143,9 @@
               <th>الوزن الثاني</th>
               <th>الصافي</th>
               <th>ملحوظة</th>
+              <th>💰 المبلغ المدفوع</th> <!-- ✅ أضف هذا السطر -->
               <th>الإجراءات</th>
+
             </tr>
           </thead>
           <tbody></tbody>
@@ -166,7 +180,7 @@
                 <input type="hidden" id="editSn">
 
                 <div class="row g-2 mb-2">
-                  <div class="col-6">
+                  <div class="col-4">
                     <div class="input-label">رقم السيارة</div>
                     <input type="text" disabled id="editNumber" class="modern-input">
                   </div>
@@ -187,6 +201,13 @@
                       <option value="محمود ابو منصور">
                     </datalist>
                   </div>
+                  <div class="col-2">
+                    <button class="btn btn-outline-success" type="button" onclick="addNewCustomer(document.getElementById('editNumber').value)"
+                      title="إضافة عميل جديد">
+                      <i class="fas fa-user-plus"></i>
+                    </button>
+                  </div>
+
 
                 </div>
 
@@ -231,7 +252,28 @@
                     <input type="text" disabled id="editNet" class="modern-input">
                   </div>
                 </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">💰 المبلغ المدفوع</label>
 
+                  <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                    <input type="number" id="edit_paid_amount" class="form-control modern-input"
+                      style="max-width: 220px;" step="1" value="" placeholder="المبلغ المدفوع">
+
+                    <button type="button" class="btn btn-outline-success" onclick="setPaidAmount(30)">
+                      <i class="fas fa-money-bill-wave"></i> 30 جنيه
+                    </button>
+
+                    <button type="button" class="btn btn-outline-success" onclick="setPaidAmount(40)">
+                      <i class="fas fa-money-bill-wave"></i> 40 جنيه
+                    </button>
+
+                    <button type="button" class="btn btn-outline-success" onclick="setPaidAmount(50)">
+                      <i class="fas fa-money-bill-wave"></i> 50 جنيه
+                    </button>
+
+                  </div>
+                </div>
                 <div class="mb-2">
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="input-label">الوزن الحالي</div>
@@ -302,8 +344,10 @@
 
                       </div>
                     </div>
+
                   </div>
 
+                  <label class="form-label fw-bold">📝 الملحوظة - </label>
                   <!-- Textarea الملحوظة -->
                   <textarea id="editNote" class="modern-input" rows="2" placeholder="أدخل ملاحظات إضافية..."></textarea>
                 </div>
@@ -330,6 +374,13 @@
                   </tbody>
                 </table>
               </div>
+              <!-- أضف هذا الحقل داخل نموذج التعديل (Modal) بجانب باقي الحقول -->
+              <!-- <div class="mb-3">
+    <label class="form-label fw-bold">💰 المبلغ المدفوع</label>
+    <input type="number" id="edit_paid_amount" class="form-control modern-input" step="1" value="" placeholder="أدخل المبلغ المدفوع">
+</div> -->
+
+
             </div>
 
             <!-- عرض الصورة المحسن للجوال -->
@@ -349,7 +400,7 @@
         </div>
         <div class="modal-footer">
           <button onclick="updateAndPrint(true,true);" class="btn btn-success">
-            🖨️  
+            🖨️
           </button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             <i class="fas fa-times"></i>
@@ -413,34 +464,34 @@
 
 
 
-<script>
+  <script>
     function scrollTo20Percent() {
-        // انتظار قليلاً لتحميل كل المحتوى
-        setTimeout(function() {
-            var pageHeight = document.documentElement.scrollHeight;
-            if (pageHeight > 0) {
-                var scrollTo = pageHeight * 0.20;
-                window.scrollTo({
-                    top: scrollTo,
-                    behavior: 'smooth'
-                });
-            }
-        }, 500); // تأخير نصف ثانية
+      // انتظار قليلاً لتحميل كل المحتوى
+      setTimeout(function () {
+        var pageHeight = document.documentElement.scrollHeight;
+        if (pageHeight > 0) {
+          var scrollTo = pageHeight * 0.20;
+          window.scrollTo({
+            top: scrollTo,
+            behavior: 'smooth'
+          });
+        }
+      }, 500); // تأخير نصف ثانية
     }
 
     // محاولة التمرير عند تحميل الصفحة
     window.addEventListener('load', scrollTo20Percent);
-    
+
     // محاولة إضافية بعد تحميل الجدول (إذا كان ticket_table.js يقوم بتحميل بيانات)
     if (typeof fetchData3 !== 'undefined') {
-        // افتراض أن fetchData3 تقوم بتحميل البيانات
-        var originalFetchData3 = fetchData3;
-        fetchData3 = function() {
-            originalFetchData3.apply(this, arguments);
-            setTimeout(scrollTo20Percent, 300);
-        };
+      // افتراض أن fetchData3 تقوم بتحميل البيانات
+      var originalFetchData3 = fetchData3;
+      fetchData3 = function () {
+        originalFetchData3.apply(this, arguments);
+        setTimeout(scrollTo20Percent, 300);
+      };
     }
-</script>
+  </script>
 
 
 

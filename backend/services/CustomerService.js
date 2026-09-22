@@ -44,7 +44,7 @@ class CustomerService {
      * @returns {Promise}
      */
     async create(data) {
-        const { name, phone, address, notes } = data;
+        const { name, phone, n_car, notes } = data;
         
         if (!name) {
             throw new Error('اسم العميل مطلوب');
@@ -52,8 +52,8 @@ class CustomerService {
         
         return new Promise((resolve, reject) => {
             this.db.query(
-                'INSERT INTO customers (name, phone, address, notes) VALUES (?, ?, ?, ?)',
-                [name, phone, address, notes],
+                'INSERT INTO customers (name, phone, n_car, notes) VALUES (?, ?, ?, ?)',
+                [name, phone, n_car, notes],
                 (err, result) => {
                     if (err) {
                         if (err.code === 'ER_DUP_ENTRY') {
@@ -80,12 +80,12 @@ class CustomerService {
      * @returns {Promise}
      */
     async update(id, data) {
-        const { name, phone, address, notes } = data;
+        const { name, phone, n_car, notes } = data;
         
         return new Promise((resolve, reject) => {
             this.db.query(
-                'UPDATE customers SET name = ?, phone = ?, address = ?, notes = ? WHERE id = ?',
-                [name, phone, address, notes, id],
+                'UPDATE customers SET name = ?, phone = ?, n_car = ?, notes = ? WHERE id = ?',
+                [name, phone, n_car, notes, id],
                 (err, result) => {
                     if (err) {
                         reject(err);
