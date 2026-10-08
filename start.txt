@@ -98,7 +98,7 @@ pm2 save
 
 
 
-
+  pm2 kill
 
 
 
@@ -182,13 +182,13 @@ pm2 stop all
 pm2 restart all
 
 
+pm2 logs scale-app --lines 50
+
+pm2 flush
 
 
-
-
-
-
-
+pm2 show scale-app
+pm2 describe scale-app
 
 # في مجلد المشروع
 git init
@@ -199,4 +199,12 @@ git remote add origin https://github.com/ahmadshoshan/scale-control.git
 git push -u origin main
 
 
+
+C:\Users\sss>   wmic printer get Name,PortName,DriverName
+DriverName  Name       PortName
+XP-80       XP-80-lan  192.168.1.11
+XP-80       XP-80      USB002
+
+
+C:\Users\sss>
 

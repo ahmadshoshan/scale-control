@@ -71,9 +71,9 @@ function createTableRow(row) {
           <td style="font-size: x-large;"><span class="">${net}</span></td>
           <td class="multi-line">
           ${row.note === 'معلق'
-            ? `<span style="font-size: large;" class="badge bg-warning text-dark">${row.note}</span> ${row.tare2 || '-'}`
-            : `${row.note || '-'} ${row.tare2 || '-'}`
-          }
+      ? `<span style="font-size: large;" class="badge bg-warning text-dark">${row.note}</span> ${row.tare2 || '-'}`
+      : `${row.note || '-'} ${row.tare2 || '-'}`
+    }
           </td>
 <td style="font-size: x-large;">
   <span style="color: ${Number(row.paid_amount) < 30 ? 'red' : 'inherit'}; font-weight: ${Number(row.paid_amount) < 30 ? 'bold' : 'normal'};">
@@ -135,27 +135,27 @@ function updateStats(data) {
   // const todayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
   // const todayTickets = data.filter(row => row.date === todayStr).length;
   // document.getElementById('todayTickets').textContent = todayTickets;
-   // تحديث إجمالي التذاكر المحملة
+  // تحديث إجمالي التذاكر المحملة
   document.getElementById('totalTickets').textContent = offset2;
 
   const today = new Date();
   const todayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
-  
+
   // تصفية البيانات لجلب تذاكر اليوم فقط (لضمان الدقة في الحساب)
   const todayTicketsData = data.filter(row => row.date === todayStr);
-  
+
   // 1️⃣ تحديث عدد تذاكر اليوم
   document.getElementById('todayTickets').textContent = todayTicketsData.length;
 
   // 2️⃣ حساب إجمالي المبلغ المدفوع اليوم باستخدام reduce
   const totalPaid = todayTicketsData.reduce((sum, row) => {
-      return sum + (parseFloat(row.paid_amount) || 0);
+    return sum + (parseFloat(row.paid_amount) || 0);
   }, 0);
 
   // 3️⃣ عرض الإجمالي منسقاً مع إضافة "ج.م"
   document.getElementById('todayTotalPaid').textContent = totalPaid.toLocaleString() + ' ج.م';
 }
-  
+
 
 let offset3 = 0;
 const limit3 = 10;
@@ -224,9 +224,10 @@ function printTicket(row) {
   window.open("../ticket.html", "_blank", "width=650,height=650,scrollbars=yes");
   // location.reload();
 }
-function printTicket2(row) {
+function printTicket_POS(row,printerType="lan") {
   localStorage.setItem("ticketData", JSON.stringify(row));
-  window.open("../ticket2.html", "_blank", "width=650,height=650,scrollbars=yes");
+  localStorage.setItem("printerType", printerType);
+  window.open("../ticket_POS.html", "_blank", "width=650,height=650,scrollbars=yes");
   // location.reload();
 }
 
@@ -244,7 +245,7 @@ function openEdit(row) {
   document.getElementById('editId').value = row.id;
   document.getElementById('editNumber').value = row.number;
   // document.getElementById('editCustomer').value = row.customer;
-    // 1️⃣ تعيين رقم السيارة أولاً
+  // 1️⃣ تعيين رقم السيارة أولاً
   const carNumber = row.number ? row.number.toString().trim() : '';
   document.getElementById('editNumber').value = carNumber;
 
@@ -272,7 +273,7 @@ function openEdit(row) {
   document.getElementById('editNote').value = row.note || '';
   document.getElementById("modalImg2").src = `../images/print/${row.images}_cam1.jpg`;
 
-    // ✅ أضف هذا السطر لملء حقل المبلغ المدفوع
+  // ✅ أضف هذا السطر لملء حقل المبلغ المدفوع
   document.getElementById('edit_paid_amount').value = row.paid_amount || 0;
 
 
@@ -345,7 +346,7 @@ function openEdit(row) {
 
 
 // تحديث وطباعة
-async function updateAndPrint(toPrint = false ,printdir =false) {
+async function updateAndPrint(toPrint = false, print_POS = false,printerType='lan') {
   // ✅ أهم سطر
   document.activeElement.blur();
   const id = document.getElementById('editId').value;
@@ -367,9 +368,9 @@ async function updateAndPrint(toPrint = false ,printdir =false) {
     note: toPrint ? (value === 'معلق' ? '' : value) : 'معلق',    // note: (toPrint) ? (document.getElementById('editNote').value == 'معلق') ? '' : document.getElementById('editNote').value : 'معلق',
     price: document.getElementById('editPrice').value,
     unitWeight: getUnitWeight(document.getElementById('editType').value),
-     // ✅ أضف هذا السطر لإرسال المبلغ المدفوع
+    // ✅ أضف هذا السطر لإرسال المبلغ المدفوع
     paid_amount: parseFloat(document.getElementById('edit_paid_amount').value) || 0
-  
+
   };
   if (checkbox.checked && document.getElementById('thirdWeight').value > 0) {
     // if (document.getElementById('extraEditType').value=="") {
@@ -396,9 +397,9 @@ async function updateAndPrint(toPrint = false ,printdir =false) {
 
     if (response.ok) {
       if (toPrint) {
-      if (printdir) { printTicket2(updatedData);}else{  printTicket(updatedData);}
+        if (print_POS) { printTicket_POS(updatedData,printerType); } else { printTicket(updatedData); }
 
-      
+
         const modalEl = document.getElementById('editModal');
         const modal = bootstrap.Modal.getInstance(modalEl);
         modal.hide();
@@ -481,54 +482,54 @@ socket.on('printer:new', (row) => {
 
     setTimeout(() => {
       openEdit(row);
-         // إخفاء الإشعار بعد 10 ثواني
-      document.getElementById('idToast').innerHTML ='';
+      // إخفاء الإشعار بعد 10 ثواني
+      document.getElementById('idToast').innerHTML = '';
     }, 300);
 
 
-  console.log('a2');
+    console.log('a2');
 
-      // إخفاء الإشعار بعد 10 ثواني
-      setTimeout(() => {
-        const toast = document.getElementById(toastId);
-        if (toast) {
-          toast.style.animation = 'fadeOut 0.3s ease';
-          setTimeout(() => {
-            if (toast.parentNode) toast.remove();
-          }, 300);
-        }
-      }, 500);
-      }, 500);
+    // إخفاء الإشعار بعد 10 ثواني
+    setTimeout(() => {
+      const toast = document.getElementById(toastId);
+      if (toast) {
+        toast.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+          if (toast.parentNode) toast.remove();
+        }, 300);
+      }
+    }, 500);
+  }, 500);
 });
 
 
 
 
-    socket.on('id:new', (row) => {
-      setTimeout(() => {
+socket.on('id:new', (row) => {
+  setTimeout(() => {
 
-        showIdNotification(row);
+    showIdNotification(row);
 
-      }, 500);
-    });
+  }, 500);
+});
 
-    // دالة عرض الإشعار
-    function showIdNotification(row) {
-      // التحقق من وجود عنصر toast في الصفحة
-      let toastEl = document.getElementById('idToast');
+// دالة عرض الإشعار
+function showIdNotification(row) {
+  // التحقق من وجود عنصر toast في الصفحة
+  let toastEl = document.getElementById('idToast');
 
-      // إذا لم يكن موجوداً، قم بإنشائه
-      if (!toastEl) {
-        toastEl = document.createElement('div');
-        toastEl.id = 'idToast';
-        toastEl.className = 'toast-container position-fixed top-0 start-50 translate-middle-x p-3';
-        toastEl.style.zIndex = '200';
-        document.body.appendChild(toastEl);
-      }
+  // إذا لم يكن موجوداً، قم بإنشائه
+  if (!toastEl) {
+    toastEl = document.createElement('div');
+    toastEl.id = 'idToast';
+    toastEl.className = 'toast-container position-fixed top-0 start-50 translate-middle-x p-3';
+    toastEl.style.zIndex = '200';
+    document.body.appendChild(toastEl);
+  }
 
-      // إنشاء محتوى الإشعار
-      const toastId = 'liveToast_' + Date.now();
-      const toastHtml = `
+  // إنشاء محتوى الإشعار
+  const toastId = 'liveToast_' + Date.now();
+  const toastHtml = `
             <div id="${toastId}" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 350px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-right: 5px solid #17a2b8;">
                 <div class="toast-header" style="background: linear-gradient(45deg, #17a2b8, #0d6efd); color: white; border-radius: 15px 15px 0 0; padding: 12px;">
                     <i class="fas fa-truck me-2"></i>
@@ -572,20 +573,20 @@ socket.on('printer:new', (row) => {
             </div>
         `;
 
-      toastEl.innerHTML = toastHtml;
-console.log('a1');
+  toastEl.innerHTML = toastHtml;
+  console.log('a1');
 
-      // إخفاء الإشعار بعد 10 ثواني
+  // إخفاء الإشعار بعد 10 ثواني
+  setTimeout(() => {
+    const toast = document.getElementById(toastId);
+    if (toast) {
+      toast.style.animation = 'fadeOut 0.3s ease';
       setTimeout(() => {
-        const toast = document.getElementById(toastId);
-        if (toast) {
-          toast.style.animation = 'fadeOut 0.3s ease';
-          setTimeout(() => {
-            if (toast.parentNode) toast.remove();
-          }, 300);
-        }
-      }, 10000);
+        if (toast.parentNode) toast.remove();
+      }, 300);
     }
+  }, 10000);
+}
 // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -838,7 +839,7 @@ async function loadCustomerList() {
     const datalist = document.getElementById('customers');
     if (datalist) {
       if (data.length > 0) {
-             datalist.innerHTML = data.map(c => `<option value="${c.name}" data-n-car="${c.n_car || ''}">`).join('');
+        datalist.innerHTML = data.map(c => `<option value="${c.name}" data-n-car="${c.n_car || ''}">`).join('');
 
         // datalist.innerHTML = data.map(c => `<option value="${c.name}--${c.n_car}-">`).join('');
       } else {
@@ -927,43 +928,43 @@ function printTicketDir() {
 
 // دالة تعيين المبلغ المدفوع
 function setPaidAmount(amount) {
-    document.getElementById('edit_paid_amount').value = amount;
-    // تأثير بصري عند الضغط
-    showToast(`تم تعيين المبلغ المدفوع: ${amount} جنيه`, 'success');
+  document.getElementById('edit_paid_amount').value = amount;
+  // تأثير بصري عند الضغط
+  showToast(`تم تعيين المبلغ المدفوع: ${amount} جنيه`, 'success');
 }
 
 // // دالة تعيين الملحوظة والوزن الإضافي
 // function setNote(noteText, tareValue) {
 //     document.getElementById('editNote').value = noteText;
 //     document.getElementById('thirdWeight').value = tareValue;
-    
+
 //     // تفعيل checkbox الأوزان الإضافية إذا لم يكن مفعل
 //     if (!checkbox.checked) {
 //         checkbox.checked = true;
 //         toggleExtraWeightTable(true);
 //     }
-    
+
 //     // تحديث الحسابات
 //     calculateFinalNet();
 //     updateDisplayWeights();
-    
+
 //     // تأثير بصري
 //     showToast(`تم تعيين: ${noteText} - الوزن الإضافي: ${tareValue} كجم`, 'success');
 // }
 
 // دالة عرض الإشعارات (إذا لم تكن موجودة)
 function showToast(message, type = 'info') {
-    // يمكنك استخدام bootstrap toast أو alert بسيط
-    const toastBody = document.getElementById('toastBody');
-    if (toastBody) {
-        toastBody.innerHTML = message;
-        const toastEl = document.getElementById('liveToast');
-        const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
-        toast.show();
-    } else {
-        // fallback
-        console.log(message);
-    }
+  // يمكنك استخدام bootstrap toast أو alert بسيط
+  const toastBody = document.getElementById('toastBody');
+  if (toastBody) {
+    toastBody.innerHTML = message;
+    const toastEl = document.getElementById('liveToast');
+    const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+    toast.show();
+  } else {
+    // fallback
+    console.log(message);
+  }
 }
 
 
@@ -972,8 +973,8 @@ function showToast(message, type = 'info') {
 // دالة إضافة عميل جديد بسرعة من نافذة التعديل
 async function addNewCustomer(editNumber) {
   const customerName = prompt("أدخل اسم العميل الجديد:");
-  const n_car = prompt("أدخل رقم السياره  :",editNumber);
-  
+  const n_car = prompt("أدخل رقم السياره  :", editNumber);
+
   // التحقق من أن المستخدم أدخل اسماً وليس إلغاء
   if (!customerName || customerName.trim() === "") return;
 
@@ -981,17 +982,17 @@ async function addNewCustomer(editNumber) {
     const response = await fetch('/api/customers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        name: customerName.trim(), 
-        phone: '', 
-        n_car: n_car, 
-        notes: '' 
+      body: JSON.stringify({
+        name: customerName.trim(),
+        phone: '',
+        n_car: n_car,
+        notes: ''
       })
     });
 
     if (response.ok) {
       const result = await response.json();
-      
+
       // إشعار نجاح (يمكنك استبداله بـ Toast إذا كنت تفضله)
       const toastBody = document.getElementById('toastBody');
       if (toastBody) {
@@ -1002,13 +1003,13 @@ async function addNewCustomer(editNumber) {
       } else {
         alert('✅ تم إضافة العميل بنجاح');
       }
-      
+
       // 1️⃣ إعادة تحميل قائمة العملاء لتحديث الـ datalist
       await loadCustomerList();
-      
+
       // 2️⃣ تعيين العميل الجديد تلقائياً في حقل العميل
       document.getElementById('editCustomer').value = customerName.trim();
-      
+
     } else {
       const err = await response.json();
       alert('❌ فشل في إضافة العميل: ' + (err.error || 'خطأ غير معروف'));

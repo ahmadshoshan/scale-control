@@ -321,22 +321,19 @@ parser.on('data', (data) => {
     // // متغير لتسجيل وقت بدء الحالة
 
     let cleanedWeight = data.replace(/[^0-9.-]/g, "");
-    const weight = parseFloat(cleanedWeight.trim());
-    app.get("/get-weight", (req, res) => {
-        io.emit('response', data.trim());
-         res.send( data.trim());
-    });
-    // إرسال الوزن للواجهة فقط عندما تتغير قيمته
-    if (!isNaN(weight)) {
-        if (weight !== lastSentWeight) {
-            lastSentWeight = weight;
-            io.emit('response', data.trim());
-        }
-    } else {
-        // الرسائل غير الرقمية تظل تعمل كما هي
-        // مثل OK / ?? / NE وغيرها
+const weight = parseFloat(cleanedWeight.trim());
+
+// إرسال الوزن للواجهة فقط عندما تتغير قيمته
+if (!isNaN(weight)) {
+    if (weight !== lastSentWeight) {
+        lastSentWeight = weight;
         io.emit('response', data.trim());
     }
+} else {
+    // الرسائل غير الرقمية تظل تعمل كما هي
+    // مثل OK / ?? / NE وغيرها
+    io.emit('response', data.trim());
+}
 
     if (!isNaN(weight) && weight < -10 && (currentMessage.slice(-2).toUpperCase() !== "KN")) {
         // playSoundAlert("yagib_tasfier_almezan.mp3", io);
@@ -542,16 +539,16 @@ app.get('/get-data2', (req, res) => {
 
         // 2️⃣ إضافة شرط WHERE date = ? لجلب بيانات اليوم فقط
         const query = 'SELECT `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `tare2`, `net`, `customer`, `type`, `note`, `images`, `paid_amount` FROM printer WHERE date = ? ORDER BY id DESC LIMIT ? OFFSET ?';
-
+        
         // 3️⃣ تمرير المتغيرات بالترتيب الصحيح: (تاريخ اليوم, الحد, الإزاحة)
         connection.query(query, [todayStr, limit, offset], (error, results) => {
             connection.release(); // إخلاء الاتصال
-
+            
             if (error) {
                 console.error('خطأ في جلب البيانات:', error.message);
                 return res.status(500).json({ error: 'خطأ في جلب البيانات' });
             }
-
+            
             res.json(results);
         });
     });
@@ -569,10 +566,10 @@ app.get('/get-data2', (req, res) => {
 
 //         const limit = parseInt(req.query.limit) || 10;
 //         const offset = parseInt(req.query.offset) || 0;
-
+  
 //         // ✅ أضف paid_amount هنا
 //         const query = 'SELECT `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `tare2`, `net`, `customer`, `type`, `note`, `images`, `paid_amount` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
-
+        
 //         // const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`,`tare2`, `net`, `customer`, `type`,`note`,`images` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
 //         connection.query(query, [limit, offset], (error, results) => {
 //             connection.release(); // إخلاء الاتصال
@@ -689,10 +686,10 @@ app.get('/get-data', (req, res) => {
 
 app.put('/update-ticket/:id', (req, res) => {
     const { id } = req.params;
-    // ✅ أضف paid_amount إلى المتغيرات المستلمة
+       // ✅ أضف paid_amount إلى المتغيرات المستلمة
     const { number, customer, type, gross, tare, tare2, net, note, paid_amount, extraWeightsTable } = req.body;
-
-
+    
+    
     // const { number, customer, type, gross, tare, tare2, net, note, extraWeightsTable } = req.body;
     let _tare2 = tare2;
     if (extraWeightsTable) {
@@ -710,7 +707,7 @@ app.put('/update-ticket/:id', (req, res) => {
     // }
     const sql = 'UPDATE printer SET number=?, customer=?, type=?, gross=?, tare=?, tare2=?,net=?, note=?, paid_amount=? WHERE id=?';
 
-    pool.query(sql, [number, customer, type, gross, tare, _tare2, net, note, paid_amount, id], (err, result) => {
+    pool.query(sql, [number, customer, type, gross, tare, _tare2, net, note,paid_amount ,id], (err, result) => {
         if (err) {
             console.error('❌ خطأ أثناء التحديث:', err);
             return res.status(500).json({ success: false, message: 'حدث خطأ أثناء التحديث' });
@@ -1053,39 +1050,14 @@ app.get('/capture-images/:imageId/:type', async (req, res) => {
 
 const { ThermalPrinter, PrinterTypes } = require('node-thermal-printer');
 
-// const printer = new ThermalPrinter({
-//     type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
-//     interface: 'tcp://192.168.1.11:9100', // 🔥 لازم بورت 9100
-//     // interface: 'printer:XP-80',
-
-//     characterSet: 'WPC1256_ARABIC',
-//     removeSpecialCharacters: false,
-// });
-const printer_LAN = new ThermalPrinter({
+const printer = new ThermalPrinter({
     type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
     interface: 'tcp://192.168.1.11:9100', // 🔥 لازم بورت 9100
+    // interface: 'printer:XP-80',
 
     characterSet: 'WPC1256_ARABIC',
     removeSpecialCharacters: false,
 });
-
-const windowsPrinterDriver = require('./windows-printer-driver');
-
-const printer_USB = new ThermalPrinter({
-    type: PrinterTypes.EPSON,
-    interface: 'printer:XP-80',
-    characterSet: 'WPC1256_ARABIC',
-    removeSpecialCharacters: false,
-    driver: windowsPrinterDriver
-});
-// const printer_USB = new ThermalPrinter({
-//     type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
-// interface: 'printer:XP-80',
-// driver: require('printer'),
-//     characterSet: 'WPC1256_ARABIC',
-//     removeSpecialCharacters: false,
-// });
-
 const nodeHtmlToImage = require('node-html-to-image');
 
 // async function printHtml(htmlContent) {
@@ -1204,15 +1176,9 @@ const nodeHtmlToImage = require('node-html-to-image');
 
 app.post('/print-ticket', async (req, res) => {
     try {
-        // const { html } = req.body;
-        const { html, printerType = 'lan' } = req.body;
-
+        const { html } = req.body;
         const tempPath = path.join(__dirname, 'final_ticket.png');
-        // اختيار الطابعة
-        const selectedPrinter =
-            printerType === 'usb'
-                ? printer_USB
-                : printer_LAN;
+
         await nodeHtmlToImage({
             output: tempPath,
             html: html,
@@ -1238,30 +1204,17 @@ app.post('/print-ticket', async (req, res) => {
                 await page.setViewport({ width: 576, height: 500 });
             }
         });
-        // ================= // النسخة الأولى // ==========
+
         // إرسال الصورة للطابعة
-        selectedPrinter.clear();
-        selectedPrinter.alignCenter();
-        selectedPrinter.beep(2, 2);
-        selectedPrinter.alignCenter();
-        await selectedPrinter.printImage('./public/logo/l1.png');
-        await selectedPrinter.printImage('./public/logo/222.png');
-        await selectedPrinter.printImage(tempPath);
-        selectedPrinter.cut();
-        await selectedPrinter.execute();
-
-
-
-        // =============== // النسخة الثانية // =======================================
-        selectedPrinter.clear();
-        selectedPrinter.alignCenter();
-        selectedPrinter.beep(2, 2);
-        selectedPrinter.alignCenter();
-        await selectedPrinter.printImage('./public/logo/l1.png');
-        await selectedPrinter.printImage('./public/logo/222.png');
-        await selectedPrinter.printImage(tempPath);
-        selectedPrinter.cut();
-        await selectedPrinter.execute();
+        printer.clear();
+        printer.alignCenter();
+        printer.beep(2, 2);
+        printer.alignCenter();
+        await printer.printImage('./public/logo/l1.png');
+        await printer.printImage('./public/logo/222.png');
+        await printer.printImage(tempPath);
+        printer.cut();
+        await printer.execute();
 
         if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
         res.json({ success: true });
@@ -1271,58 +1224,6 @@ app.post('/print-ticket', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
-
-// app.post('/print-ticket', async (req, res) => {
-//     try {
-//         const { html } = req.body;
-//         const tempPath = path.join(__dirname, 'final_ticket.png');
-
-//         await nodeHtmlToImage({
-//             output: tempPath,
-//             html: html,
-//             transparent: false,
-//             puppeteerArgs: {
-//                 args: [
-//                     '--no-sandbox',
-//                     '--disable-setuid-sandbox',
-//                     '--window-size=576,600' // 🔥 تثبيت العرض لورق 80 ملم
-//                 ]
-//             },
-//             // إضافة ستايل إضافي لتقوية الطباعة قبل التصوير
-//             beforeScreenshot: async (page) => {
-//                 await page.addStyleTag({
-//                     content: `
-//                     body { 
-//                         width: 550px !important; 
-//                         filter: contrast(1000%) grayscale(100%); /* 🔥 جعل الأسود فاحم جداً */
-//                     }
-//                     * { color: black !important; -webkit-print-color-adjust: exact; }
-//                     `
-//                 });
-//                 await page.setViewport({ width: 576, height: 500 });
-//             }
-//         });
-
-//         // إرسال الصورة للطابعة
-// printer.clear();
-//         printer.alignCenter();
-//         printer.beep(2, 2);
-//         printer.alignCenter();
-//         await printer.printImage('./public/logo/l1.png');
-//         await printer.printImage('./public/logo/222.png');
-//         await printer.printImage(tempPath);
-//         printer.cut();
-//         await printer.execute();
-
-//         if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
-//         res.json({ success: true });
-
-//     } catch (error) {
-//         console.error("خطأ:", error);
-//         res.status(500).json({ error: error.message });
-//     }
-// });
 
 
 // app.post('/print-ticket', async (req, res) => {
@@ -1449,7 +1350,7 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({
     server,
     // إعدادات إضافية لتحسين الأداء
-    path: '/video-ws',
+      path: '/video-ws',
     perMessageDeflate: false,
     maxPayload: 1024 * 1024 * 10 // 10MB max payload
 });
@@ -1466,9 +1367,9 @@ let currentCameraChannel = '201'; // القناة الافتراضية (كامي
 // إضافة مسار لتبديل الكاميرا
 app.get('/switch-camera', (req, res) => {
     const camera = req.query.camera;
-
+    
     // تحديث قناة RTSP بناءً على الكاميرا المحددة
-    switch (camera) {
+    switch(camera) {
         case '1':
             currentCameraChannel = '201'; // كاميرا أمامية
             break;
@@ -1481,17 +1382,17 @@ app.get('/switch-camera', (req, res) => {
         default:
             currentCameraChannel = '201';
     }
-
+    
     // تحديث رابط RTSP
     const newRtspUrl = `rtsp://admin:admin100@192.168.1.2:554/ISAPI/Streaming/Channels/${currentCameraChannel}`;
     console.log(`Switching to camera ${camera}: ${newRtspUrl}`);
-
+    
     // إعادة تشغيل FFmpeg مع الكاميرا الجديدة
     if (ffmpeg) {
         isRestarting = true;
         ffmpeg.kill('SIGTERM');
         ffmpeg = null;
-
+        
         setTimeout(() => {
             // تحديث المتغير العام لرابط RTSP
             // ملاحظة: ستحتاج إلى تعديل دالة startFFmpeg لتقبل معامل
@@ -1499,7 +1400,7 @@ app.get('/switch-camera', (req, res) => {
             isRestarting = false;
         }, 1000);
     }
-
+    
     res.json({ success: true, camera: camera, url: newRtspUrl });
 });
 let ffmpeg = null;
@@ -1566,7 +1467,7 @@ function startFFmpeg(rtspUrlParam = null) {
         }
     });
 
-
+    
     // استبدال قسم معالجة الفيديو بهذا الكود المحسن
     let videoBuffer = Buffer.alloc(0);
     let lastSendTime = Date.now();

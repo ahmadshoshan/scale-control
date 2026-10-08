@@ -283,10 +283,16 @@
 
 window.onload = function () {
     // إرسال محتوى الصفحة بالكامل للسيرفر
+        const printerType = localStorage.getItem('printerType') || 'lan';
+
     fetch('/print-ticket', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html: document.documentElement.outerHTML })
+        // body: JSON.stringify({ html: document.documentElement.outerHTML })
+           body: JSON.stringify({
+            html: document.documentElement.outerHTML,
+            printerType: printerType
+        })
     })
     .then(res => res.json())
     .then(() => console.log("تم الإرسال والطباعة ✅"));
