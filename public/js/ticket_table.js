@@ -611,8 +611,8 @@ socket.on('response', (data) => {
       .trim();                // حذف المسافات
 
     document.getElementById('response').innerHTML = cleanData;
-    // document.getElementById('response').innerHTML = `${data}`;
   } else {
+    document.getElementById('response').innerHTML = `${data}`;
     if (data && data.slice(-2).toUpperCase() === "NE") {
       document.getElementById('response11').innerHTML = `<span class="badge bg-primary">${data}</span>`;
     }

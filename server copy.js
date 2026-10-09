@@ -13,11 +13,31 @@ let type_p = '';
 let customer_p = '';
 const app = express();
 
+// const server = http.createServer(app);
 
+// const server = app.listen(3000, '0.0.0.0', () => {
+//     console.log('Server started on port 3000');
+//     const os = require('os');
+//     const networkInterfaces = os.networkInterfaces();
+//     for (const [name, interfaces] of Object.entries(networkInterfaces)) {
+//         for (const iface of interfaces) {
+//             if (iface.family === 'IPv4' && !iface.internal) {
+//                 console.log(`  - http://${iface.address}:3000`);
+//             }
+//         }
+//     }
+// });
 
 const server = http.createServer(app);
 
-const io = require('socket.io')(server);
+// const io = require('socket.io')(server);
+
+const io = require('socket.io')(server, {
+    cors: {
+        origin: "*", // يسمح لأي خادم بالاتصال (يمكنك تغيير "*" إلى IP الخادم الثاني للأمان)
+        methods: ["GET", "POST"]
+    }
+});
 
 const fs = require('fs');
 
@@ -127,20 +147,56 @@ get_printer.on('data', (data) => {
                         type: '',
                         images
                     });
+                    // أضف هذا السطر لإرسال البيانات للخوادم الأخرى:
+                    io.emit('remote:printer_data', {
+                        date, time, sn, number, gross, tare, net,
+                        type: type_p, customer: customer_p, images
+                    });
 
-
-
+                    // استدعاء مباشر مع تأخير
+                    // setTimeout(() => {
                     captureImage(images, 'print');
-
+                    // }, 800); // تأخير .5 ثانية
+                    ////////////////////////////////////////////////////////////
+                    // 🔹 هنا نضيف إشعار Telegram
+                    //                     sendMessageIfEnabled(`✅ تم إضافة تذكرة جديدة:
+                    // 📅 التاريخ: ${date}
+                    // 🕒 الوقت: ${time}
+                    // 📌 المسلسل: ${sn}
+                    // 🚛 رقم السيارة: ${number}
+                    // ⚖️ الوزن الصافي: ${net} كيلو
+                    // `);
+                    ////////////////////////////////////////////////////////////
                 }
 
+                // // ⬇️ إنشاء ملف التذكرة
+                // const filePath = "d:\\dd.pdf";
+                // await createTicket({ date, time, sn, number, gross, tare, net }, filePath);
 
+                // // ⬇️ استدعاء أمر الطباعة
+                // printWithSumatra(filePath, 'XP-80C');
+                // 🔍 استعلام للتحقق من حالة الطباعة
                 pool.query("SELECT print FROM control WHERE id = 1", async (err, rows) => {
                     if (err) {
                         console.error("خطأ في قراءة جدول control:", err.message);
                         return;
                     }
 
+                    // if (rows.length > 0 && rows[0].print === 1) {
+                    //     // ⬇️ إنشاء ملف التذكرة
+                    //     const filePath = "d:\\dd.pdf";
+                    //     await createTicket({ date, time, sn, number, gross, tare, net, type_p, customer_p }, filePath);
+
+                    //     // ⬇️ استدعاء أمر الطباعة
+                    //     printWithSumatra(filePath, "XP-80");
+
+                    //     console.log("✅ تم تنفيذ الطباعة");
+
+                    //     // ⬇️ إعادة القيمة إلى 0 بعد الطباعة (علشان متطبعش كل مرة تلقائي)
+                    //     // pool.query("UPDATE control SET print = 0 WHERE id = 1");
+                    // } else {
+                    //     console.log("🚫 الطباعة متوقفة (print=0)");
+                    // }
                 });
                 type_p = '';
                 customer_p = '';
@@ -257,6 +313,7 @@ parser.on('data', (data) => {
         .trim();
 
 
+
     // تنظيف الرسالة الحالية
     // التحقق مما إذا كانت الرسالة الحالية مكررة
     if (currentMessage !== lastMessage) {
@@ -270,9 +327,18 @@ parser.on('data', (data) => {
     }
 
 
+    // io.emit('response', data.trim());
+    // let cleanedWeight = data.replace(/[^0-9.-]/g, "");
+    // // تحويل الوزن إلى رقم
+    // const weight = parseFloat(cleanedWeight.trim());
+    // // متغير لتسجيل وقت بدء الحالة
 
     let cleanedWeight = data.replace(/[^0-9.-]/g, "");
     const weight = parseFloat(cleanedWeight.trim());
+    app.get("/get-weight", (req, res) => {
+        io.emit('response', data.trim());
+        res.send(data.trim());
+    });
 
     // إرسال الوزن للواجهة فقط عندما تتغير قيمته
     if (!isNaN(weight)) {
@@ -285,6 +351,15 @@ parser.on('data', (data) => {
         // مثل OK / ?? / NE وغيرها
         io.emit('response', data.trim());
     }
+           ///////////////////////////////////
+        // بعد تنظيف الرسالة currentMessage، أضف هذا السطر:
+        io.emit('remote:weight_data', {
+            raw_data: currentMessage,
+            weight: !isNaN(weight) ? weight : null,
+            ne: NE,
+            timestamp: Date.now()
+        });
+        ///////////////////////////
 
     if (!isNaN(weight) && weight < -10 && (currentMessage.slice(-2).toUpperCase() !== "KN")) {
         // playSoundAlert("yagib_tasfier_almezan.mp3", io);
@@ -296,14 +371,20 @@ parser.on('data', (data) => {
                 sendMessageIfEnabled(`يجب تصفير الميزان  ${weight}`);
             }, 5000);
         }
-
+ 
     } else {
         if (sendInterval2) {
             clearInterval(sendInterval2);
             sendInterval2 = null;
 
         }
-
+        ///////////////////////
+        // if (weightStartTime) {
+        //     weightStartTime = null;
+        // }
+        // if (zeroSentTimer) {
+        //     zeroSentTimer = null;
+        // }
     }
 
     if (!isNaN(weight) && weight > 300) {
@@ -476,6 +557,32 @@ app.get('/get-data2', (req, res) => {
 });
 
 
+// // جلب بيانات محددة من قاعدة البيانات باستخدام LIMIT و OFFSET
+// app.get('/get-data2', (req, res) => {
+//     // (date, time, sn, number, gross, tare, net) 
+//     pool.getConnection((err, connection) => {
+//         if (err) {
+//             console.error('لا يمكن الحصول على اتصال:', err);
+//             return res.status(500).json({ error: 'فشل في الاتصال بقاعدة البيانات' });
+//         }
+
+//         const limit = parseInt(req.query.limit) || 10;
+//         const offset = parseInt(req.query.offset) || 0;
+
+//         // ✅ أضف paid_amount هنا
+//         const query = 'SELECT `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`, `tare2`, `net`, `customer`, `type`, `note`, `images`, `paid_amount` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
+
+//         // const query = 'SELECT  `id`, `date`, `time`, `sn`, `number`, `gross`, `tare`,`tare2`, `net`, `customer`, `type`,`note`,`images` FROM printer ORDER BY id DESC LIMIT ? OFFSET ?';
+//         connection.query(query, [limit, offset], (error, results) => {
+//             connection.release(); // إخلاء الاتصال
+//             if (error) {
+//                 console.error('خطأ في جلب البيانات:', error.message);
+//                 return res.status(500).json({ error: 'خطأ في جلب البيانات' });
+//             }
+//             res.json(results);
+//         });
+//     });
+// });
 
 // بحث بيانات محددة من قاعدة البيانات باستخدام 
 app.get('/get-data3', (req, res) => {
@@ -902,13 +1009,57 @@ app.get('/capture-images/:imageId/:type', async (req, res) => {
     }
 });
 
-
-
+//////////////////////////////////////////////////////////////
+// setInterval(() => {
+//     const used = process.memoryUsage();
+//     console.log("Heap:", Math.round(used.heapUsed / 1024 / 1024), "MB");
+// }, 10000);
+//////////////////////////////////////////////////////////////
+// توليد المفاتيح (مرة واحدة فقط)
+// const webpush = require('web-push');
+// const keys = webpush.generateVAPIDKeys();
+// console.log(keys);
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
 
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
 const { ThermalPrinter, PrinterTypes } = require('node-thermal-printer');
 
+// const printer = new ThermalPrinter({
+//     type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
+//     interface: 'tcp://192.168.1.11:9100', // 🔥 لازم بورت 9100
+//     // interface: 'printer:XP-80',
+
+//     characterSet: 'WPC1256_ARABIC',
+//     removeSpecialCharacters: false,
+// });
 const printer_LAN = new ThermalPrinter({
     type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
     interface: 'tcp://192.168.1.11:9100', // 🔥 لازم بورت 9100
@@ -916,16 +1067,137 @@ const printer_LAN = new ThermalPrinter({
     characterSet: 'WPC1256_ARABIC',
     removeSpecialCharacters: false,
 });
-const printer_USB = new ThermalPrinter({
-    type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
-    interface: 'printer:XP-80',
 
+const windowsPrinterDriver = require('./windows-printer-driver');
+
+const printer_USB = new ThermalPrinter({
+    type: PrinterTypes.EPSON,
+    interface: 'printer:XP-80',
     characterSet: 'WPC1256_ARABIC',
     removeSpecialCharacters: false,
+    driver: windowsPrinterDriver
 });
+// const printer_USB = new ThermalPrinter({
+//     type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
+// interface: 'printer:XP-80',
+// driver: require('printer'),
+//     characterSet: 'WPC1256_ARABIC',
+//     removeSpecialCharacters: false,
+// });
+
 const nodeHtmlToImage = require('node-html-to-image');
 
+// async function printHtml(htmlContent) {
+//     const imageBuffer = await nodeHtmlToImage({
+//         html: `<div style="width: 384px; background: white; padding: 10px;">${htmlContent}</div>`,
+//         transparent: false // مهم جداً للطابعة الحرارية
+//     });
 
+//     // حفظ الصورة مؤقتاً أو إرسال البافر مباشرة
+//     await printer.printImage(imageBuffer);
+//     await printer.execute();
+// }
+
+// app.post('/print-ticket', express.json(), async (req, res) => {
+//     try {
+//         const row = req.body;
+
+
+//         printer.clear();
+//         printer.beep(2,2);
+//         // D:\XAMPP\htdocs\710\public\logo\logo.png
+//         printer.alignCenter();
+//         await printer.printImage('./public/logo/l1.png');
+//         await printer.printImage('./public/logo/222.png');
+//         // printer.setTextSize(1, 1);
+//         // printer.bold(true);
+//         // printer.println("ميزان بسكول شوشان");
+//         // printer.setTextSize(0, 0);
+//         // printer.bold(false);
+//         printer.drawLine();
+
+//         printer.alignRight();
+//         printer.println(`   التاريخ:   ${row.date}`);
+//         printer.print(`   الوقت:     ${row.time}`);
+//         printer.println(`   السيارة:   ${row.number}`);
+//         printer.println(`   العميل:    ${row.customer}`);
+//         printer.println(`   النوع :    ${row.type}`);
+
+//         printer.drawLine();
+// // printer.setTextDoubleHeight();
+// // printer.setTextDoubleWidth();
+//        printer.bold(true);
+//        printer.bold(true);
+
+//         printer.println(`   الوزن القائم:    ${row.gross} كجم`);
+//         printer.println(`   الوزن الفارغ:    ${row.tare} كجم`);
+//         printer.println(`   الصافي:          ${row.net} كجم`);
+
+//         printer.drawLine();
+
+
+//         printer.println("     الميزان غير مسئول عن فقدان الكارت");
+// //        printer.tableCustom([
+// //   { text: "المنتج", align: "RIGHT", width: 0.4, bold: true },
+// //   { text: "الكمية", align: "CENTER", width: 0.2, bold: true },
+// //   { text: "السعر", align: "RIGHT", width: 0.2, bold: true },
+// //   { text: "الإجمالي", align: "RIGHT", width: 0.2, bold: true }
+// // ]);
+
+
+
+
+//         printer.cut();
+
+//         await printer.execute();
+
+//         res.json({ success: true });
+
+//     } catch (err) {
+//         console.error("خطأ طباعة:", err);
+//         res.status(500).json({ error: err.message });
+//     }
+// });
+
+
+
+
+// app.post('/print-ticket', express.json(), async (req, res) => {
+//     // تحديد مسار مؤقت للصورة
+//     const tempImagePath = path.join(__dirname, 'temp_ticket.png');
+
+//     try {
+//         const row = req.body;
+
+//         // 1. إنشاء الـ HTML
+//         const htmlLayout = `<html><body style="width:550px; background:white; direction:rtl; font-family:Arial;">
+//             <h1 style="text-align:center;">ميزان بسكول شوشان</h1>
+//             <p style="text-align:center;">الصافي: ${row.net} كجم</p>
+//         </body></html>`;
+
+//         // 2. تحويل الـ HTML وحفظه كملف حقيقي
+//         await nodeHtmlToImage({
+//             output: tempImagePath, // حفظ الصورة في ملف بدلاً من Buffer
+//             html: htmlLayout,
+//             transparent: false,
+//             puppeteerArgs: { args: ['--no-sandbox'] }
+//         });
+
+//         // 3. الطباعة باستخدام مسار الملف
+//         printer.clear();
+//         await printer.printImage(tempImagePath); // الآن نرسل المسار النصي للملف
+//         await printer.execute();
+
+//         // 4. مسح الملف المؤقت بعد الطباعة للحفاظ على مساحة الهارد
+//         if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
+
+//         res.send({ status: "success" });
+//     } catch (error) {
+//         console.error("خطأ طباعة:", error);
+//         // في حال فشل السوكيت، حاول إعادة الاتصال أو التأكد من الـ IP
+//         res.status(500).send("فشل الاتصال بالطابعة: " + error.message);
+//     }
+// });
 
 
 
@@ -998,6 +1270,177 @@ app.post('/print-ticket', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+// app.post('/print-ticket', async (req, res) => {
+//     try {
+//         const { html } = req.body;
+//         const tempPath = path.join(__dirname, 'final_ticket.png');
+
+//         await nodeHtmlToImage({
+//             output: tempPath,
+//             html: html,
+//             transparent: false,
+//             puppeteerArgs: {
+//                 args: [
+//                     '--no-sandbox',
+//                     '--disable-setuid-sandbox',
+//                     '--window-size=576,600' // 🔥 تثبيت العرض لورق 80 ملم
+//                 ]
+//             },
+//             // إضافة ستايل إضافي لتقوية الطباعة قبل التصوير
+//             beforeScreenshot: async (page) => {
+//                 await page.addStyleTag({
+//                     content: `
+//                     body { 
+//                         width: 550px !important; 
+//                         filter: contrast(1000%) grayscale(100%); /* 🔥 جعل الأسود فاحم جداً */
+//                     }
+//                     * { color: black !important; -webkit-print-color-adjust: exact; }
+//                     `
+//                 });
+//                 await page.setViewport({ width: 576, height: 500 });
+//             }
+//         });
+
+//         // إرسال الصورة للطابعة
+// printer.clear();
+//         printer.alignCenter();
+//         printer.beep(2, 2);
+//         printer.alignCenter();
+//         await printer.printImage('./public/logo/l1.png');
+//         await printer.printImage('./public/logo/222.png');
+//         await printer.printImage(tempPath);
+//         printer.cut();
+//         await printer.execute();
+
+//         if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+//         res.json({ success: true });
+
+//     } catch (error) {
+//         console.error("خطأ:", error);
+//         res.status(500).json({ error: error.message });
+//     }
+// });
+
+
+// app.post('/print-ticket', async (req, res) => {
+//     try {
+//         const { html } = req.body; // استلام الـ HTML المرسل
+//         const tempImagePath = path.join(__dirname, 'ticket_temp.png');
+
+//         // تحويل الـ HTML القادم من المتصفح إلى صورة
+//         await nodeHtmlToImage({
+//             output: tempImagePath,
+//             html: html,
+//             transparent: false,
+//             puppeteerArgs: { 
+//                 // args: ['--no-sandbox', '--window-size=600,1000'] 
+//                 args: [
+//                     '--no-sandbox',
+//                     '--disable-setuid-sandbox',
+//                     '--window-size=576,1000' // 🔥 تثبيت العرض لورق 80 ملم
+//                 ]
+//             }
+//         });
+//         printer.clear();
+//         await printer.printImage(tempImagePath);
+//         printer.cut();
+//         await printer.execute();
+
+//         // مسح الملف المؤقت
+//         // if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
+
+//         res.json({ success: true });
+//     } catch (error) {
+//         console.error("خطأ سيرفر:", error);
+//         res.status(500).json({ error: error.message });
+//     }
+// });
+
+
+
+// app.post('/print-ticket', async (req, res) => {
+//     try {
+//         const row = req.body; // البيانات القادمة من الواجهة
+//         const tempImagePath = path.join(__dirname, 'ticket_temp.png');
+
+//         // 1. قراءة ملف الـ HTML المحفوظ عندك على السيرفر
+//         let htmlTemplate = fs.readFileSync(path.join(__dirname, './public/ticket.html'), 'utf8');
+
+//         // 2. استبدال المتغيرات داخل الملف بالبيانات الحقيقية
+//         // (تأكد أن ملف template.html يحتوي على كلمات مثل {{number}} ليتم استبدالها)
+//         htmlTemplate = htmlTemplate.replace('{{number}}', row.number)
+//                                    .replace('{{gross}}', row.gross)
+//                                    .replace('{{tare}}', row.tare)
+//                                    .replace('{{net}}', row.net);
+
+//         // 3. تحويل الـ HTML المحسن إلى صورة
+//         await nodeHtmlToImage({
+//             output: tempImagePath,
+//             html: htmlTemplate,
+//             transparent: false,
+//             puppeteerArgs: { 
+//                 args: ['--no-sandbox', '--window-size=576,1000']
+//             }
+//         });
+
+//         // 4. الطباعة
+//         printer.clear();
+//         await printer.printImage(tempImagePath);
+//         printer.cut();
+//         await printer.execute();
+
+//         res.json({ success: true });
+//     } catch (error) {
+//         console.error("خطأ:", error);
+//         res.status(500).json({ error: error.message });
+//     }
+// });
+
+//////////////////////////////////////////////////////
+// {date: "07/05/2026", time: "08:03PM", sn: "33984", number: "43", customer: "احمد شوشه", type: "غلة",…}
+// customer
+// :
+// "احمد شوشه"
+// date
+// :
+// "07/05/2026"
+// gross
+// :
+// "1915 kg RECALLED"
+// net
+// :
+// "1045 kg"
+// note
+// :
+// ""
+// number
+// :
+// "43"
+// price
+// :
+// "2510"
+// sn
+// :
+// "33984"
+// tare
+// :
+// "870 kg"
+// tare2
+// :
+// ""
+// time
+// :
+// "08:03PM"
+// type
+// :
+// "غلة"
+// unitWeight
+// :
+// 155\\\
+
+
 
 // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 const WebSocket = require('ws');
@@ -1096,7 +1539,15 @@ function startFFmpeg(rtspUrlParam = null) {
         const output = data.toString();
         stderrBuffer += output;
 
-
+        // // طباعة فقط الخطوط المهمة
+        // if (output.includes('frame=')) {
+        //     const match = output.match(/frame=\s*(\d+)/);
+        //     if (match) {
+        //         console.log(`FFmpeg: frame ${match[1]}`);
+        //     }
+        // } else if (output.includes('Error') || output.includes('error')) {
+        //     console.error('FFmpeg error:', output);
+        // }
     });
 
     ffmpeg.on('error', (error) => {

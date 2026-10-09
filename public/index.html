@@ -1414,13 +1414,13 @@
     // ==================== استقبال الردود ====================
     socket.on('response', (data) => {
       console.log(data);
-
+  weightDisplay.innerHTML = `${data} <span class="weight-unit">كجم</span>`;
 
       if (data && data.length >= 11 && data.length <= 12) {
 
-        if (weightDisplay) {
-          weightDisplay.innerHTML = `${data} <span class="weight-unit">كجم</span>`;
-        }
+        // if (weightDisplay) {
+        //   weightDisplay.innerHTML = `${data} <span class="weight-unit">كجم</span>`;
+        // }
       } else {
         const box = document.getElementById('response1');
         if (box) {
