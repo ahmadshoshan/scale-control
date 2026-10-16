@@ -487,7 +487,7 @@ socket.on('printer:new', (row) => {
     }, 300);
 
 
-    console.log('a2');
+    // console.log('a2');
 
     // إخفاء الإشعار بعد 10 ثواني
     setTimeout(() => {
@@ -574,7 +574,7 @@ function showIdNotification(row) {
         `;
 
   toastEl.innerHTML = toastHtml;
-  console.log('a1');
+  // console.log('a1');
 
   // إخفاء الإشعار بعد 10 ثواني
   setTimeout(() => {
@@ -598,11 +598,26 @@ socket.on('play-audio', (fileName) => {
 });
 
 socket.on('response', (data) => {
+ console.log(data);
+ const panel = document.getElementById('scaleControlPanel');
+
   if (data && data.toUpperCase() === "OK") {
     sendCommand('p');
+       // التأكد من أن لوحة التحكم مفتوحة
+    if (!panel || getComputedStyle(panel).display === 'none') {
+        return;
+    }
+
+    playClickSound("OK");
   }
   if (data && data.toUpperCase() === "??") {
     sendCommand('p');
+       // التأكد من أن لوحة التحكم مفتوحة
+    if (!panel || getComputedStyle(panel).display === 'none') {
+        return;
+    }
+
+    playClickSound("??");
   }
   if (data && data.length >= 11 && data.length <= 12) {
     let cleanData = data
@@ -611,34 +626,57 @@ socket.on('response', (data) => {
       .trim();                // حذف المسافات
 
     document.getElementById('response').innerHTML = cleanData;
-  } else {
-    document.getElementById('response').innerHTML = `${data}`;
-    if (data && data.slice(-2).toUpperCase() === "NE") {
-      document.getElementById('response11').innerHTML = `<span class="badge bg-primary">${data}</span>`;
-    }
-    else {
+    document.getElementById('scaleDisplay').innerHTML = cleanData;
 
-      // else {
-      // document.getElementById('response11').innerHTML = `<span class="badge bg-primary">---</span>`;
-      // }
+  } else {
+        const box = document.getElementById('EDP');
+        if (box) {
+          box.innerText += ` ${data}\n`;
+          box.scrollTop = box.scrollHeight;
+        }
+  if (data && data.slice(-2).toUpperCase() === "NE") {
+      document.getElementById('response11').innerHTML = `<span class="badge bg-primary">${data}</span>`;
+      document.getElementById('scaleNE').innerHTML = `<span class="badge bg-primary">${data}</span>`;
     }
+
+    // if (data  !== "OK"||data   !== "??") {
+    // document.getElementById('response').innerHTML = `${data}`;
+    // document.getElementById('scaleDisplay').innerHTML = `${data}`;
+    // }
+    
+   
 
   }
 });
 // إرسال أمر
-function sendCommand(command) {
-  const type = document.getElementById('type').value;
-  const customer = document.getElementById('customer').value;
+// function sendCommand(command) {
+//   const type = document.getElementById('type').value||'';
+//   const customer = document.getElementById('customer').value||'';
 
-  fetch(`/send-command?command=${command}&type=${encodeURIComponent(type)}&customer=${encodeURIComponent(customer)}`)
+//   fetch(`/send-command?command=${command}&type=${encodeURIComponent(type)}&customer=${encodeURIComponent(customer)}`)
+//     .then(() => {
+//       if (command == 'Kid' || command == 'KPRINT') {
+//         document.getElementById('type').value = '';
+//         document.getElementById('customer').value = '';
+//       }
+//     })
+//     .catch(error => console.error("Error sending command:", error));
+// }
+
+// إرسال أمر (نسخة آمنة ومتوافقة مع صفحة جدول التذاكر)
+function sendCommand(command) {
+
+    // console.log(command);
+    
+    fetch(`/send-command?command=${command} `)
     .then(() => {
-      if (command == 'Kid' || command == 'KPRINT') {
-        document.getElementById('type').value = '';
-        document.getElementById('customer').value = '';
-      }
+    // playClickSound();
     })
     .catch(error => console.error("Error sending command:", error));
 }
+
+
+
 // اختصار لوحة المفاتيح للمودال
 document.addEventListener('keydown', function (e) {
   if (e.key !== 'Enter') return;
@@ -1025,11 +1063,151 @@ async function addNewCustomer(editNumber) {
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+
+// // دالة إظهار/إخفاء لوحة تحكم الميزان
+// function toggleScaleControls() {
+//     const panel = document.getElementById('scaleControlsPanel');
+//     if (panel.style.display === 'none' || panel.style.display === '') {
+//         panel.style.display = 'block';
+//     } else {
+//         panel.style.display = 'none';
+//     }
+// }
+
+// إظهار/إخفاء لوحة التحكم
+function toggleScaleControlPanel() {
+    const panel = document.getElementById('scaleControlPanel');
+    const btn = document.getElementById('toggleScalePanel');
+    
+    if (panel.style.display === 'none' || !panel.style.display) {
+        panel.style.display = 'block';
+        btn.innerHTML = '<i class="fas fa-times fa-lg"></i>';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-danger');
+    } else {
+        panel.style.display = 'none';
+        btn.innerHTML = '<i class="fas fa-weight-hanging fa-lg"></i>';
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-primary');
+    }
+}
 
 
 
+/* التحكم في الميزان من لوحة المفاتيح */
+document.addEventListener('keydown', function (event) {
+    const panel = document.getElementById('scaleControlPanel');
+
+    // التأكد من أن لوحة التحكم مفتوحة
+    if (!panel || getComputedStyle(panel).display === 'none') {
+        return;
+    }
+
+    // عدم تنفيذ الأوامر أثناء الكتابة داخل حقول الإدخال
+    const target = event.target;
+    if (
+        target.matches('input, textarea, select') ||
+        target.isContentEditable
+    ) {
+        return;
+    }
+
+    // منع تكرار الأمر عند استمرار الضغط على المفتاح
+    if (event.repeat) {
+        return;
+    }
+
+    // الأرقام من 0 إلى 9
+    if (/^[0-9]$/.test(event.key)) {
+        event.preventDefault();
+        sendCommand('k' + event.key);
+        return;
+    }
+
+    // أمر المسح
+    if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault();
+        sendCommand('kclr');
+        return;
+    }
+
+    // زر / لإرسال أمر kid
+    if (event.key === '+') {
+        event.preventDefault();
+        sendCommand('kid');
+    }
+    if (event.key === '-') {
+        event.preventDefault();
+        sendCommand('ktare');
+    }
+
+    // زر Enter للطباعة
+if (event.key === 'Enter') {
+    event.preventDefault();
+    sendCommand('kprint');
+    return;
+}
+});
+
+// تشغيل صوت نقر (اختياري)
+function playClickSound(res) {
+  // console.log(res);
+  
+  if (res =="OK") {
+    const audio = new Audio('/audio/click.wav');
+      audio.play().catch(e => console.log('Sound play failed:', e));
+  }else{
+ const audio = new Audio('/audio/0.wav');
+  audio.play().catch(e => console.log('Sound play failed:', e));
+  }
+  
+    
+  
+}
 
 
+// تحديث عرض الميزان من Socket.IO
+// تأكد من تحديث دالة socket.on('response') الموجودة لتحديث الشاشة
+// const originalSocketResponse = socket.on('response');
+// socket.on('response', (data) => {
+//     // استدعاء الدالة الأصلية
+//     if (originalSocketResponse) {
+//         originalSocketResponse(data);
+//     }
+    
+//     // تحديث شاشة لوحة التحكم
+//     updateScaleDisplay(data);
+// });
+
+// // تحديث عرض الميزان
+// function updateScaleDisplay(data) {
+//     const displayEl = document.getElementById('scaleDisplay');
+//     const modeEl = document.getElementById('scaleMode');
+//     const neEl = document.getElementById('scaleNE');
+    
+//     if (data && data.length >= 11 && data.length <= 12) {
+//         let cleanData = data
+//             .replace(/\x02/g, '')
+//             .replace(/KG/g, '')
+//             .trim();
+        
+//         if (displayEl) {
+//             displayEl.innerHTML = `${cleanData} <span style="font-size: 1.5rem;">kg</span>`;
+//         }
+//         if (modeEl) {
+//             modeEl.textContent = 'Gross';
+//         }
+//     } else if (data && data.slice(-2).toUpperCase() === "NE") {
+//         if (neEl) {
+//             neEl.textContent = data;
+//         }
+//     } else {
+//         if (displayEl) {
+//             displayEl.textContent = data || '0.00 kg';
+//         }
+//     }
+// }
 
 
 
