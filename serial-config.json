@@ -1,0 +1,5 @@
+{
+  "scalePort": "COM1",
+  "printerPort": "COM4",
+  "baudRate": 9600
+}

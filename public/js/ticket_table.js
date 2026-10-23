@@ -860,6 +860,16 @@ document.addEventListener("DOMContentLoaded", initClearButtons);
 /* عند فتح المودال */
 document.getElementById("editModal")
   .addEventListener("shown.bs.modal", initClearButtons);
+
+
+  // استبدل 'myModal' بـ ID الخاص بالنافذة المنبثقة (Modal) الخاصة بك
+document.getElementById('editModal').addEventListener('shown.bs.modal', function () {
+    const inputField = document.getElementById('edit_paid_amount');
+    if (inputField) {
+        inputField.focus();       // 1. وضع المؤشر داخل الحقل
+        inputField.select();      // 2. تحديد النص (القيمة 0) بالكامل
+    }
+});
 //////////////////////////////////////////////////////
 
 
@@ -1098,7 +1108,11 @@ function toggleScaleControlPanel() {
 /* التحكم في الميزان من لوحة المفاتيح */
 document.addEventListener('keydown', function (event) {
     const panel = document.getElementById('scaleControlPanel');
-
+   if (event.key === '*') {
+        event.preventDefault();
+      //  document.getElementById('toggleScalePanel').click();
+       toggleScaleControlPanel();
+    }
     // التأكد من أن لوحة التحكم مفتوحة
     if (!panel || getComputedStyle(panel).display === 'none') {
         return;
@@ -1141,6 +1155,7 @@ document.addEventListener('keydown', function (event) {
         event.preventDefault();
         sendCommand('ktare');
     }
+ 
 
     // زر Enter للطباعة
 if (event.key === 'Enter') {

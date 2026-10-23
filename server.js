@@ -12,7 +12,8 @@ let customer_id = '';
 let type_p = '';
 let customer_p = '';
 const app = express();
-
+// متغير للتحكم في التقاط صورة واحدة فقط لكل مركبة
+let isImageCapturedForCurrentVehicle = false;
 // const server = http.createServer(app);
 
 // const server = app.listen(3000, '0.0.0.0', () => {
@@ -47,7 +48,7 @@ app.use('/css', express.static(path.join(__dirname, 'public/css')));
 app.use('/js', express.static(path.join(__dirname, 'public/js')));
 
 // ✅ 5. إضافة مسار للصور (اختياري)
-// app.use('/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
 // ✅ 6. إعادة توجيه تلقائي للمسارات المفقودة (اختياري)
 app.get('/webfonts/:file', (req, res) => {
@@ -324,7 +325,7 @@ parser.on('data', (data) => {
     const weight = parseFloat(cleanedWeight.trim());
     app.get("/get-weight", (req, res) => {
         io.emit('response', data.trim());
-         res.send( data.trim());
+        res.send(data.trim());
     });
     // إرسال الوزن للواجهة فقط عندما تتغير قيمته
     if (!isNaN(weight)) {
@@ -476,7 +477,52 @@ parser.on('data', (data) => {
         });
 
     }
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    // داخل parser.on('data', (data) => { ...
+    // let cleanedWeight = data.replace(/[^0-9.-]/g, "");
+    // const weight = parseFloat(cleanedWeight.trim());
 
+    if (!isNaN(weight)) {
+        // 1. شرط التقاط الصورة: الوزن أكبر من 50 كجم (يمكنك تغيير 50 إلى 20 حسب رغبتك) ولم يتم الالتقاط بعد
+        if (weight > 300 && !isImageCapturedForCurrentVehicle) {
+            isImageCapturedForCurrentVehicle = true; // منع الالتقاط المتكرر
+
+            console.log(`weight=> {{${weight}}}----  (> 50)...`);
+
+            // تنظيم الصور في مجلدات حسب التاريخ لتسهيل عرضها مثل الـ DVR
+            const todayStr = new Date().toISOString().split('T')[0]; // صيغة YYYY-MM-DD
+            const imageId = `${Date.now()}_${weight}`;
+
+            // استدعاء دالة التقاط الصور مع تمرير مسار يحتوي على التاريخ
+            captureImage(imageId, `weights/${todayStr}`).then(() => {
+                console.log(' captureImage and save');
+               
+                // إشعار الواجهة الأمامية (اختياري)
+                io.emit('new_weight_image', { date: todayStr, id: imageId, weight: weight });
+            }).catch(err => {
+                console.error('error captureImage', err);
+                // في حال الفشل، نعيد تعيين المتغير لمحاولة أخرى
+                isImageCapturedForCurrentVehicle = false;
+            });
+        }
+        // 2. شرط إعادة التعيين: عندما يفرغ الميزان (أقل من 10 كجم)، نسمح بالتقاط صورة للمركبة التالية
+        else if (weight < 10) {
+            if (isImageCapturedForCurrentVehicle) {
+                console.log('< 10');
+            }
+            isImageCapturedForCurrentVehicle = false;
+        }
+
+        // إرسال الوزن للواجهة (كما كان سابقاً)
+        if (weight !== lastSentWeight) {
+            lastSentWeight = weight;
+            io.emit('response', data.trim());
+        }
+    }
+    // ... باقي كود معالجة GROSS و DATE كما هو ...
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
 });
 
@@ -736,7 +782,9 @@ server.listen(PORT, HOST, () => {
 const DigestFetch = require('digest-fetch').default;
 const client = new DigestFetch('admin', 'admin100');
 
-async function captureImage(car_No_Date_weight, path) {
+async function captureImage(car_No_Date_weight, targetFolder) {
+    console.log(car_No_Date_weight, targetFolder);
+    
     // انتظار 1.5 ثانية (1500 ملي ثانية) قبل التقاط الصورة
 
     const urls = [
@@ -746,27 +794,58 @@ async function captureImage(car_No_Date_weight, path) {
     ];
 
     try {
+       
+        
         // إنشاء مصفوفة من الوعود (Promises)
         const promises = urls.map(async (url, index) => {
+           
             try {
+                
                 const response = await client.fetch(url);
+                
                 if (!response.ok) {
+                    
                     throw new Error(`HTTP error! status: ${response.status}`);
+                     
                 }
 
+////////////////////////////////////////////
+       // 1. بناء المسار المطلق (Absolute Path) بدقة
+        const baseDir = path.join(__dirname, 'public', 'images',  targetFolder);
+
+        // 2. محاولة إنشاء المجلد مع كشف الأخطاء بدقة
+        try {
+            if (!fs.existsSync(baseDir)) {
+                fs.mkdirSync(baseDir, { recursive: true });
+                console.log(` [SUCCESS] ${baseDir}`);
+            } else {
+                console.log(` [INFO]  ${baseDir}`);
+            }
+        } catch (mkdirError) {
+            console.error(` [FATAL ERROR] `, mkdirError.message);
+            return [null, null, null]; // إيقاف العملية إذا فشل إنشاء المجلد
+        }
+////////////////////////////////////////////
+
+                
+ 
                 const buffer = await response.arrayBuffer();
-                const fileName = `public/images/${path}/${car_No_Date_weight}_cam${index + 1}.jpg`;
+                const fileName = `public/images/${targetFolder}/${car_No_Date_weight}_cam${index + 1}.jpg`;
+               
                 fs.writeFileSync(fileName, Buffer.from(buffer));
 
                 console.log(`cam ${index + 1} `);
+                console.log(fileName);
+                
                 return fileName;
 
             } catch (error) {
                 console.error(`cam    ${index + 1}:`, error.message || error);
                 return null;
             }
+             
         });
-
+ 
         // انتظار اكتمال جميع الوعود
         const savedFiles = await Promise.all(promises);
 
@@ -780,6 +859,7 @@ async function captureImage(car_No_Date_weight, path) {
         console.error('خطأ في تحميل الصور:', error.message || error);
         return [null, null, null];
     }
+    
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1053,14 +1133,7 @@ app.get('/capture-images/:imageId/:type', async (req, res) => {
 
 const { ThermalPrinter, PrinterTypes } = require('node-thermal-printer');
 
-// const printer = new ThermalPrinter({
-//     type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
-//     interface: 'tcp://192.168.1.11:9100', // 🔥 لازم بورت 9100
-//     // interface: 'printer:XP-80',
 
-//     characterSet: 'WPC1256_ARABIC',
-//     removeSpecialCharacters: false,
-// });
 const printer_LAN = new ThermalPrinter({
     type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
     interface: 'tcp://192.168.1.11:9100', // 🔥 لازم بورت 9100
@@ -1078,127 +1151,10 @@ const printer_USB = new ThermalPrinter({
     removeSpecialCharacters: false,
     driver: windowsPrinterDriver
 });
-// const printer_USB = new ThermalPrinter({
-//     type: PrinterTypes.EPSON, // أو XP80 / XPRINTER حسب طابعتك
-// interface: 'printer:XP-80',
-// driver: require('printer'),
-//     characterSet: 'WPC1256_ARABIC',
-//     removeSpecialCharacters: false,
-// });
+
 
 const nodeHtmlToImage = require('node-html-to-image');
 
-// async function printHtml(htmlContent) {
-//     const imageBuffer = await nodeHtmlToImage({
-//         html: `<div style="width: 384px; background: white; padding: 10px;">${htmlContent}</div>`,
-//         transparent: false // مهم جداً للطابعة الحرارية
-//     });
-
-//     // حفظ الصورة مؤقتاً أو إرسال البافر مباشرة
-//     await printer.printImage(imageBuffer);
-//     await printer.execute();
-// }
-
-// app.post('/print-ticket', express.json(), async (req, res) => {
-//     try {
-//         const row = req.body;
-
-
-//         printer.clear();
-//         printer.beep(2,2);
-//         // D:\XAMPP\htdocs\710\public\logo\logo.png
-//         printer.alignCenter();
-//         await printer.printImage('./public/logo/l1.png');
-//         await printer.printImage('./public/logo/222.png');
-//         // printer.setTextSize(1, 1);
-//         // printer.bold(true);
-//         // printer.println("ميزان بسكول شوشان");
-//         // printer.setTextSize(0, 0);
-//         // printer.bold(false);
-//         printer.drawLine();
-
-//         printer.alignRight();
-//         printer.println(`   التاريخ:   ${row.date}`);
-//         printer.print(`   الوقت:     ${row.time}`);
-//         printer.println(`   السيارة:   ${row.number}`);
-//         printer.println(`   العميل:    ${row.customer}`);
-//         printer.println(`   النوع :    ${row.type}`);
-
-//         printer.drawLine();
-// // printer.setTextDoubleHeight();
-// // printer.setTextDoubleWidth();
-//        printer.bold(true);
-//        printer.bold(true);
-
-//         printer.println(`   الوزن القائم:    ${row.gross} كجم`);
-//         printer.println(`   الوزن الفارغ:    ${row.tare} كجم`);
-//         printer.println(`   الصافي:          ${row.net} كجم`);
-
-//         printer.drawLine();
-
-
-//         printer.println("     الميزان غير مسئول عن فقدان الكارت");
-// //        printer.tableCustom([
-// //   { text: "المنتج", align: "RIGHT", width: 0.4, bold: true },
-// //   { text: "الكمية", align: "CENTER", width: 0.2, bold: true },
-// //   { text: "السعر", align: "RIGHT", width: 0.2, bold: true },
-// //   { text: "الإجمالي", align: "RIGHT", width: 0.2, bold: true }
-// // ]);
-
-
-
-
-//         printer.cut();
-
-//         await printer.execute();
-
-//         res.json({ success: true });
-
-//     } catch (err) {
-//         console.error("خطأ طباعة:", err);
-//         res.status(500).json({ error: err.message });
-//     }
-// });
-
-
-
-
-// app.post('/print-ticket', express.json(), async (req, res) => {
-//     // تحديد مسار مؤقت للصورة
-//     const tempImagePath = path.join(__dirname, 'temp_ticket.png');
-
-//     try {
-//         const row = req.body;
-
-//         // 1. إنشاء الـ HTML
-//         const htmlLayout = `<html><body style="width:550px; background:white; direction:rtl; font-family:Arial;">
-//             <h1 style="text-align:center;">ميزان بسكول شوشان</h1>
-//             <p style="text-align:center;">الصافي: ${row.net} كجم</p>
-//         </body></html>`;
-
-//         // 2. تحويل الـ HTML وحفظه كملف حقيقي
-//         await nodeHtmlToImage({
-//             output: tempImagePath, // حفظ الصورة في ملف بدلاً من Buffer
-//             html: htmlLayout,
-//             transparent: false,
-//             puppeteerArgs: { args: ['--no-sandbox'] }
-//         });
-
-//         // 3. الطباعة باستخدام مسار الملف
-//         printer.clear();
-//         await printer.printImage(tempImagePath); // الآن نرسل المسار النصي للملف
-//         await printer.execute();
-
-//         // 4. مسح الملف المؤقت بعد الطباعة للحفاظ على مساحة الهارد
-//         if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
-
-//         res.send({ status: "success" });
-//     } catch (error) {
-//         console.error("خطأ طباعة:", error);
-//         // في حال فشل السوكيت، حاول إعادة الاتصال أو التأكد من الـ IP
-//         res.status(500).send("فشل الاتصال بالطابعة: " + error.message);
-//     }
-// });
 
 
 
@@ -1273,177 +1229,6 @@ app.post('/print-ticket', async (req, res) => {
 });
 
 
-// app.post('/print-ticket', async (req, res) => {
-//     try {
-//         const { html } = req.body;
-//         const tempPath = path.join(__dirname, 'final_ticket.png');
-
-//         await nodeHtmlToImage({
-//             output: tempPath,
-//             html: html,
-//             transparent: false,
-//             puppeteerArgs: {
-//                 args: [
-//                     '--no-sandbox',
-//                     '--disable-setuid-sandbox',
-//                     '--window-size=576,600' // 🔥 تثبيت العرض لورق 80 ملم
-//                 ]
-//             },
-//             // إضافة ستايل إضافي لتقوية الطباعة قبل التصوير
-//             beforeScreenshot: async (page) => {
-//                 await page.addStyleTag({
-//                     content: `
-//                     body { 
-//                         width: 550px !important; 
-//                         filter: contrast(1000%) grayscale(100%); /* 🔥 جعل الأسود فاحم جداً */
-//                     }
-//                     * { color: black !important; -webkit-print-color-adjust: exact; }
-//                     `
-//                 });
-//                 await page.setViewport({ width: 576, height: 500 });
-//             }
-//         });
-
-//         // إرسال الصورة للطابعة
-// printer.clear();
-//         printer.alignCenter();
-//         printer.beep(2, 2);
-//         printer.alignCenter();
-//         await printer.printImage('./public/logo/l1.png');
-//         await printer.printImage('./public/logo/222.png');
-//         await printer.printImage(tempPath);
-//         printer.cut();
-//         await printer.execute();
-
-//         if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
-//         res.json({ success: true });
-
-//     } catch (error) {
-//         console.error("خطأ:", error);
-//         res.status(500).json({ error: error.message });
-//     }
-// });
-
-
-// app.post('/print-ticket', async (req, res) => {
-//     try {
-//         const { html } = req.body; // استلام الـ HTML المرسل
-//         const tempImagePath = path.join(__dirname, 'ticket_temp.png');
-
-//         // تحويل الـ HTML القادم من المتصفح إلى صورة
-//         await nodeHtmlToImage({
-//             output: tempImagePath,
-//             html: html,
-//             transparent: false,
-//             puppeteerArgs: { 
-//                 // args: ['--no-sandbox', '--window-size=600,1000'] 
-//                 args: [
-//                     '--no-sandbox',
-//                     '--disable-setuid-sandbox',
-//                     '--window-size=576,1000' // 🔥 تثبيت العرض لورق 80 ملم
-//                 ]
-//             }
-//         });
-//         printer.clear();
-//         await printer.printImage(tempImagePath);
-//         printer.cut();
-//         await printer.execute();
-
-//         // مسح الملف المؤقت
-//         // if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
-
-//         res.json({ success: true });
-//     } catch (error) {
-//         console.error("خطأ سيرفر:", error);
-//         res.status(500).json({ error: error.message });
-//     }
-// });
-
-
-
-// app.post('/print-ticket', async (req, res) => {
-//     try {
-//         const row = req.body; // البيانات القادمة من الواجهة
-//         const tempImagePath = path.join(__dirname, 'ticket_temp.png');
-
-//         // 1. قراءة ملف الـ HTML المحفوظ عندك على السيرفر
-//         let htmlTemplate = fs.readFileSync(path.join(__dirname, './public/ticket.html'), 'utf8');
-
-//         // 2. استبدال المتغيرات داخل الملف بالبيانات الحقيقية
-//         // (تأكد أن ملف template.html يحتوي على كلمات مثل {{number}} ليتم استبدالها)
-//         htmlTemplate = htmlTemplate.replace('{{number}}', row.number)
-//                                    .replace('{{gross}}', row.gross)
-//                                    .replace('{{tare}}', row.tare)
-//                                    .replace('{{net}}', row.net);
-
-//         // 3. تحويل الـ HTML المحسن إلى صورة
-//         await nodeHtmlToImage({
-//             output: tempImagePath,
-//             html: htmlTemplate,
-//             transparent: false,
-//             puppeteerArgs: { 
-//                 args: ['--no-sandbox', '--window-size=576,1000']
-//             }
-//         });
-
-//         // 4. الطباعة
-//         printer.clear();
-//         await printer.printImage(tempImagePath);
-//         printer.cut();
-//         await printer.execute();
-
-//         res.json({ success: true });
-//     } catch (error) {
-//         console.error("خطأ:", error);
-//         res.status(500).json({ error: error.message });
-//     }
-// });
-
-//////////////////////////////////////////////////////
-// {date: "07/05/2026", time: "08:03PM", sn: "33984", number: "43", customer: "احمد شوشه", type: "غلة",…}
-// customer
-// :
-// "احمد شوشه"
-// date
-// :
-// "07/05/2026"
-// gross
-// :
-// "1915 kg RECALLED"
-// net
-// :
-// "1045 kg"
-// note
-// :
-// ""
-// number
-// :
-// "43"
-// price
-// :
-// "2510"
-// sn
-// :
-// "33984"
-// tare
-// :
-// "870 kg"
-// tare2
-// :
-// ""
-// time
-// :
-// "08:03PM"
-// type
-// :
-// "غلة"
-// unitWeight
-// :
-// 155\\\
-
-
-
-// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({
@@ -1710,3 +1495,106 @@ console.log('Server ready, waiting for connections...');
 
 const weighingTrucksRouter = require('./modules/weighingTrucks');
 app.use('/api/weighing-trucks', weighingTrucksRouter);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+
+
+
+// متغير للتحكم في التقاط صورة واحدة فقط لكل مركبة
+
+
+const baseImagesDir = path.join(__dirname, 'public', 'images', 'weights');
+
+// التأكد من وجود المجلد الأساسي
+if (!fs.existsSync(baseImagesDir)) {
+    fs.mkdirSync(baseImagesDir, { recursive: true });
+}
+
+// 1. جلب قائمة التواريخ المتاحة التي تحتوي على صور
+app.get('/api/dvr/dates', (req, res) => {
+    try {
+        const folders = fs.readdirSync(baseImagesDir).filter(file => {
+            return fs.statSync(path.join(baseImagesDir, file)).isDirectory();
+        }).sort().reverse(); // الأحدث أولاً
+        res.json({ success: true, dates: folders });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 2. جلب الصور الخاصة بتاريخ محدد
+app.get('/api/dvr/images/:date', (req, res) => {
+    try {
+        const dateFolder = path.join(baseImagesDir, req.params.date);
+        if (!fs.existsSync(dateFolder)) {
+            return res.json({ success: true, images: [] });
+        }
+
+        const files = fs.readdirSync(dateFolder).filter(file => file.endsWith('.jpg'));
+        // ترتيب الملفات زمنياً
+        files.sort();
+
+        const images = files.map(file => ({
+            filename: file,
+            url: `/images/weights/${req.params.date}/${file}`,
+            // استخراج الوزن والوقت من اسم الملف (مثال: 1698765432100_150.5_cam1.jpg)
+            info: file.replace('.jpg', '').replace(/_/g, ' ')
+        }));
+
+        res.json({ success: true, images: images });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 3. حذف صور يوم محدد
+app.delete('/api/dvr/images/:date', (req, res) => {
+    try {
+        const dateFolder = path.join(baseImagesDir, req.params.date);
+        if (fs.existsSync(dateFolder)) {
+            fs.rmSync(dateFolder, { recursive: true, force: true });
+            res.json({ success: true, message: `تم حذف صور يوم ${req.params.date}` });
+        } else {
+            res.status(404).json({ success: false, message: 'المجلد غير موجود' });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 4. حذف جميع الصور
+app.delete('/api/dvr/images', (req, res) => {
+    try {
+        if (fs.existsSync(baseImagesDir)) {
+            fs.rmSync(baseImagesDir, { recursive: true, force: true });
+            fs.mkdirSync(baseImagesDir, { recursive: true }); // إعادة إنشاء المجلد الفارغ
+            res.json({ success: true, message: 'تم حذف جميع الصور بنجاح' });
+        } else {
+            res.json({ success: true, message: 'لا توجد صور للحذف' });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+
+
+
